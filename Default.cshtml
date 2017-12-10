@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "T.A.K.";
+}
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js"></script>
+</head>
+
+@section featured {
+<section class="featured">
+    <img src="~/Images/Website Background Pattern.jpg" class="bg">
+    <h1>@Page.Title</h1>
+    <img src="~/Images/Canvas.jpg" id="gamebg" class="gameWindow">
+    <img src="~/Images/Sprites.png" id="sprites">
+    <canvas id="game" class="gameWindow"></canvas>
+    <h2>
+        <span id="p1Score">0</span>
+        <span id="p2Score">0</span>
+    </h2>
+</section>
+ }

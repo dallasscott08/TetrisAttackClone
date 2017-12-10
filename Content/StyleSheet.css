@@ -1,0 +1,75 @@
+﻿body {
+    color:white;
+}
+
+.bg {
+	min-height: 100%;
+	min-width: 100%;
+	width: 100%;
+	height: auto;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+h1{
+    z-index:1;
+    font-size:700%;
+    position:fixed;
+	left:41%;
+}
+
+h2{
+    z-index:1;
+    font-size:850%;
+    position:fixed;
+	left:37%;
+	top:70%;
+	width: auto;
+}
+
+.gameWindow{
+    width:85%;
+    height:75%;
+    position:fixed;
+	top: 15%;
+	left: 7%;
+}
+
+canvas{
+}
+
+span{
+    padding-left:.5em;
+    padding-right:.5em;
+}
+
+.sprite{
+    background-image: url("Sprites.png");
+    width: 128px;
+    height: 128px;
+}
+
+#square1{
+    background-position: 0 0px;
+}
+
+#square2{
+    background-position: 0 8px;
+}
+
+#square3{
+    background-position: 0 16px;
+}
+
+#square4{
+    background-position: 8px 0;
+}
+
+#square5{
+    background-position: 8px 8px;
+}
+
+#square6{
+    background-position: 8px 16px;
+}
