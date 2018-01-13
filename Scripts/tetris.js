@@ -1,6 +1,7 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx;
 var max = 6;
+var spriteSheet = new Image();
 
 function initializeMatrix(columns, rows) {
     var initialMatrix = [];
@@ -128,13 +129,17 @@ function stop() { }
 
 $(document).ready(function () {
     matrix = initializeMatrix(6, 12);
-    createCanvas();
 
     selector = [matrix[0][0], matrix[1][0]];
     checkMatrix();
-    dropAllBlocks();
     logCurrentMatrixState();
 });
+
+$(window).load(function () {
+    createCanvas();
+    dropAllBlocks();
+    logCurrentMatrixState();
+})
 
 /*$(document).keydown(function (event) {
     var selector = [];
@@ -219,6 +224,36 @@ Sprite.prototype = {
     }
 }
 
+// callback -- after all images are loaded 
+function draw(images){ 
+    // or whatever you want in your callback 
+    context.drawImage(images.image1, 10, 10, 50, 50);
+    context.drawImage(images.image2, 10, 100, 50, 50);
+}
+
+var images = {};
+var URLs = { image1: 'Sprites.png' };
+/*LoadImages(URLs, draw);
+
+function LoadImages(URLs, callback) {
+    var loaded = 0;
+    var needed = 0;
+    for (var url in URLs)
+    {
+        needed++;
+    }
+    for (var url in URLs)
+    {
+        images[url] = new Image();
+        images[url].onload = function () {
+            if (++loaded >= numImages) {
+                callback(images);
+            }
+        };
+        images[url].src = "~/Images/Sprites.png";
+    }
+}*/
+
 function logCurrentMatrixState() {
     var matrixAsString;
     for (var i = 0; i < columnCount; i++) {
@@ -226,7 +261,7 @@ function logCurrentMatrixState() {
         for (var j = 0; j < columnCount; j++) {
             matrixAsString = matrix[i][j].blockType
                 + ", " + matrix[i][j].column
-                + ", " + matrix[i][j] .row + "}";
+                + ", " + matrix[i][j].row + "}";
         }
         matrix += "\n";
     }
