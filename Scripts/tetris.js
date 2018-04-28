@@ -11,10 +11,7 @@ function initializeMatrix(columns, rows) {
     for (var i = 0; i < columns; i++) {
         initialMatrix[i] = [];
         for (var j = 0; j < rows; j++) {
-            var newBlock = {};
-            newBlock.blockType = Math.floor(Math.random() * (max + 1));
-            newBlock.column = i;
-            newBlock.row = j;
+            var newBlock = new Block(j, i, Math.floor(Math.random() * (max + 1)));
             initialMatrix[i][j] = newBlock;
         }
     }
@@ -115,10 +112,7 @@ function raiseBlocksUp(currentRow) {
 function generateRow() {
     var row = [columnCount]
     for (var i = 0; i < columnCount; i++) {
-        var newBlock = {};
-        newBlock.blockType = Math.floor(Math.random() * max);
-        newBlock.column = i;
-        newBlock.row = 0;
+        var newBlock = new Block(0, i, Math.floor(Math.random() * (max + 1)));
         row.push(newBlock);
     }
     return row;
@@ -158,6 +152,24 @@ $(window).load(function () {
     //dropAllBlocks();
 });*/
 
+var timer = new Timer();
+
+function render (now) {
+  requestAnimationFrame(render);
+  timer.tick(now);
+  if (timer.elapsed >= 250) {
+    timer.last = now - (timer.elapsed % 250);
+    // draw jewel
+  }
+}
+
+Timer.prototype = {
+    tick: function (now) {
+      this.last = this.last || now
+      this.elapsed = now - this.last
+    }
+}
+
 function createCanvas() {
     var canvas = document.getElementById("game");
     ctx = canvas.getContext("2d");
@@ -167,10 +179,14 @@ function createCanvas() {
     //ctx.drawImage(img, 10, 10);
 }
 
-function Sprite(blockType) {
+function Sprite(options) {
     this.size = 50;
     this.spriteSize = 8;
-    this.blockType = blockType;
+    this.blockType = options.blockType;
+    this.interval = 1000 / options.fps;
+    this.timer = new Timer();
+    this.row = options.row;
+    this.column = options.column;
 }
 
 Sprite.prototype = {
@@ -221,7 +237,24 @@ Sprite.prototype = {
                 this.pixelsTop = 16;
                 break;
         }
+    },
+    render: function (now) {
+        requestAnimationFrame(this.render);
+        this.timer.tick(now)
+        if (this.timer.elapsed >= this.interval) {
+          var then = this.timer.elapsed % this.interval
+          this.timer.last = now - then
+          // draw sprite
+          this.draw(9,13);
+        }
     }
+}
+
+function Block(row, column, blockType){
+    this.row = row;
+    this.column = column;
+    this.blockType = blockType;
+    this.sprite = new Sprite({blockType: blockType, row: row, column: column, fps: 4});
 }
 
 // callback -- after all images are loaded 
