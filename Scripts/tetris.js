@@ -1,14 +1,13 @@
 ﻿var matrix;//6 columns x 12 rows
-var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, canvasSize, blockSize;
+var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max = 6;
 var spriteSheet = new Image();
 var xMoveAmt = .2;
 var yMoveAmt = .2;
 var timer;
-var interval = 1000 / 60;
+var interval = 1000 / 1;
 var images = {};
 var URLs = { image1: 'Sprites.png' };
-var block;
 
 function Timer() {
     this.last = null;
@@ -18,7 +17,7 @@ function Timer() {
 Timer.prototype = {
     tick: function (now) {
         this.last = this.last || now
-        this.elapsed = now - this.Last
+        this.elapsed = now - this.last
     }
 }
 
@@ -30,20 +29,20 @@ function Sprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
-    this.XPos = 0;
-    this.YPos = 0;
+    this.XPos = options.row;
+    this.YPos = options.column;
 }
 
 Sprite.prototype = {
     clear: function (canvasX, canvasY){
-        ctx.clearRect(canvasX, canvasY, this.size, this.size);
+        ctx.clearRect(canvasX * blockSize, canvasY * blockSize, this.size, this.size);
     },
     draw: function (canvasX, canvasY) {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            canvasX, canvasY,
+            canvasX * blockSize, canvasY * blockSize,
             this.size, this.size);
     },
     determineXY: function () {
@@ -95,16 +94,39 @@ function Block(row, column, blockType) {
     this.sprite = new Sprite({ blockType: blockType, row: row, column: column, fps: 4 });
 }
 
+function createCanvas() {
+    var canvas = document.getElementById("game");
+    canvas.width = canvas.clientWidth;///110;
+    canvas.height = canvas.clientHeight;///130;
+    ctx = canvas.getContext("2d");
+
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
+    blockSize = canvas.clientHeight / rowCount;
+    matrix = initializeMatrix(rowCount, columnCount);
+    requestAnimationFrame(render);
+}
+
+function aniMatrix() {
+    for (var i = 0; i < columnCount; i++) {
+        for (var j = 0; j < rowCount; j++) {
+            var block = matrix[i][j];
+            if (block.blockType != max) {
+                block.sprite.clear(block.sprite.XPos, block.sprite.YPos)
+                block.sprite.YPos -= yMoveAmt;
+                block.sprite.draw(block.sprite.XPos, block.sprite.YPos);
+            }
+        }
+    }
+}
+
 function render(now) {
     requestAnimationFrame(render);
     timer.tick(now)
     if (timer.elapsed >= interval) {
-        /*block.Sprite.Clear(block.Sprite.XPos, block.Sprite.YPos)
-        block.Sprite.YPos += yMoveAmt;
-        block.Sprite.Draw(block.Sprite.XPos, block.Sprite.YPos);*/
         var then = timer.elapsed % interval;
         timer.last = now - then;
-        // draw sprite
+        aniMatrix();
     }
 }
 
@@ -118,7 +140,9 @@ function initializeMatrix(columns, rows) {
         for (var j = 0; j < rows; j++) {
             var newBlock = new Block(j, i, Math.floor(Math.random() * (max + 1)));
             initialMatrix[i][j] = newBlock;
-            newBlock.sprite.draw(j, i);
+            if (newBlock.blockType != max) {
+                newBlock.sprite.draw(j, i);
+            }
         }
     }
     return initialMatrix;
@@ -234,8 +258,8 @@ function stop() { }
 $(document).ready(function () {
     timer = new Timer();
     //matrix = initializeMatrix(6, 12);
-    rowCount = 6;
-    columnCount = 12;
+    rowCount = 12;
+    columnCount = 6;
 
     //selector = [matrix[0][0], matrix[1][0]];
     //checkMatrix();
@@ -265,43 +289,7 @@ $(window).load(function () {
     //dropAllBlocks();
 });*/
 
-function createCanvas() {
-    var canvas = document.getElementById("game");
-    canvas.width = window.innerWidth;///110;
-    canvas.height = window.innerHeight;///130;
-    ctx = canvas.getContext("2d");
-
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    canvasSize = canvasWidth * canvasHeight;
-    var temp = rowCount * columnCount;
-    blockSize = canvasSize / (temp * temp * 7);
-    block = new Block(0, 0, 3);
-    matrix = initializeMatrix(rowCount, columnCount);
-    requestAnimationFrame(render);
-}
-
-/*LoadImages(URLs, draw);
-
-function LoadImages(URLs, callback) {
-    var loaded = 0;
-    var needed = 0;
-    for (var url in URLs)
-    {
-        needed++;
-    }
-    for (var url in URLs)
-    {
-        images[url] = new Image();
-        images[url].onload = function () {
-            if (++loaded >= numImages) {
-                callback(images);
-            }
-        };
-        images[url].src = "~/Images/Sprites.png";
-    }
-}
-
+/*
 function logCurrentMatrixState() {
     var matrixAsString;
     for (var i = 0; i < columnCount; i++) {
