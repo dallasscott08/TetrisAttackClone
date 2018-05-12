@@ -79,6 +79,11 @@ Sprite.prototype = {
     }
 }
 
+function Coordinates(x,y){
+    this.x = x;
+    this.y = y;
+}
+
 function Block(row, column, blockType) {
     this.row = row;
     this.column = column;
@@ -144,19 +149,19 @@ function initializeMatrix(rows, columns) {
 }
 
 function buildArrayFromColumns(row) {
-    var blockArray = [];
+    var coordinatesArray = [];
     for (var i = 0; i < columnCount; i++) {
-        blockArray.push(matrix[i][row])
+        coordinatesArray.push(new Coordinates(row, i));
     }
-    return blockArray;
+    return coordinatesArray;
 }
 
 function cleanArray(blockArray) {
     var deleteArray = [];
     for (var i = 1; i < blockArray.length - 1; i++) {
-        if (blockArray[i].blockType == blockArray[i - 1].blockType) {
-            deleteArray.push(blockArray[i]);
-            deleteArray.push(blockArray[i - 1]);
+        if (blockArray[i].blockType === blockArray[i - 1].blockType) {
+            deleteArray.push(new Coordinates(blockArray[i].row, blockArray[i].column));
+            deleteArray.push(new Coordinates(blockArray[i - 1].row, blockArray[i - 1].column));
         }
     }
     return deleteArray;
@@ -164,26 +169,29 @@ function cleanArray(blockArray) {
 
 function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
-        matchingBlocks[j].blockType = max + 1;
+        var blockCoord = matchingBlocks[j];
+        matrix[blockCoord.x][blockCoord.y].blockType = max;
+        matrix[blockCoord.x][blockCoord.y].sprite.clear();
+        matchingBlocks[j].blockType = max;
         matchingBlocks[j].sprite.clear();
     }
 }
 
 function cleanMatrix() {
     for (var c = 0; c < columnCount; c++) {
-        var cleanedRow = cleanArray(matrix[c]);
-        deleteBlocks(cleanedRow);
+        var cleanedRowCoords = cleanArray(matrix[c]);
+        deleteBlocks(cleanedRowCoords);
     }
     for (var r = 0; r < rowCount; r++) {
-        var rowArray = buildArrayFromColumns(r);
-        var cleanedColumn = cleanArray(rowArray);
-        deleteBlocks(cleanedColumn);
+        var rowCoordArray = buildArrayFromColumns(r);
+        var cleanedColumnCoords = cleanArray(rowCoordArray);
+        deleteBlocks(cleanedColumnCoords);
     }
 }
 
 function switchBlocks(block1Coords, block2Coords) {
-    var block = matrix[block1Coords[0]][block1Coords[1]];
-    var lowerBlock = matrix[block2Coords[0]][block2Coords[1]];
+    var block = matrix[block1Coords.x][block1Coords.y];
+    var lowerBlock = matrix[block2Coords.x][block2Coords.y];
 
     matrix[block.row][block.column] = new Block(block.row, block.column, lowerBlock.blockType);
     matrix[lowerBlock.row][lowerBlock.column] = new Block(lowerBlock.row, lowerBlock.column, block.blockType);
@@ -197,7 +205,8 @@ function dropBlockDown(block) {
         return;
     }
     else {
-        switchBlocks([block.row, block.column], [block.row, block.column + 1]);
+        switchBlocks(new Coordinates(block.row, block.column), 
+        new Coordinates(block.row, block.column + 1));
         dropBlockDown(matrix[block.row][block.column + 1]);
     }
 }
@@ -262,14 +271,14 @@ $(document).ready(function () {
     yMoveAmt = .2;
     constMoveInterval = 1000 / 1;
     actionInterval = 1000 / 60
-    //selector = [matrix[0][0], matrix[1][0]];
-    //checkMatrix();
     //logCurrentMatrixState();
 });
 
 $(window).load(function () {
     createCanvas();
+    cleanMatrix();
     dropAllBlocks();
+    //selector = [matrix[0][0], matrix[1][0]];
     //logCurrentMatrixState();
 })
 
