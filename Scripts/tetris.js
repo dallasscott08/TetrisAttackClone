@@ -79,9 +79,9 @@ Sprite.prototype = {
     }
 }
 
-function Coordinates(x,y){
-    this.x = x;
-    this.y = y;
+function Coordinates(row,column){
+    this.row = row;
+    this.column = column;
 }
 
 function Block(row, column, blockType) {
@@ -93,8 +93,8 @@ function Block(row, column, blockType) {
 
 function createCanvas() {
     var canvas = document.getElementById("game");
-    canvas.width = canvas.clientWidth;///110;
-    canvas.height = canvas.clientHeight;///130;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     ctx = canvas.getContext("2d");
 
     canvasWidth = canvas.width;
@@ -156,12 +156,22 @@ function buildArrayFromColumns(row) {
     return coordinatesArray;
 }
 
-function cleanArray(blockArray) {
+function buildArrayFromRow(column) {
+    var coordinatesArray = [];
+    for (var i = 0; i < rowCount; i++) {
+        coordinatesArray.push(new Coordinates(i, column));
+    }
+    return coordinatesArray;
+}
+
+function cleanArray(coordArray) {
     var deleteArray = [];
-    for (var i = 1; i < blockArray.length - 1; i++) {
-        if (blockArray[i].blockType === blockArray[i - 1].blockType) {
-            deleteArray.push(new Coordinates(blockArray[i].row, blockArray[i].column));
-            deleteArray.push(new Coordinates(blockArray[i - 1].row, blockArray[i - 1].column));
+    for (var i = 1; i < coordArray.length - 1; i++) {
+        var block = matrix[coordArray[i].column][coordArray[i].row];
+        var prevBlock = matrix[coordArray[i - 1].column][coordArray[i - 1].row];
+        if (block.blockType === prevBlock.blockType) {
+            deleteArray.push(new Coordinates(block.row, block.column));
+            deleteArray.push(new Coordinates(prevBlock.row, prevBlock.column));
         }
     }
     return deleteArray;
@@ -170,18 +180,20 @@ function cleanArray(blockArray) {
 function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
-        matrix[blockCoord.x][blockCoord.y].blockType = max;
-        matrix[blockCoord.x][blockCoord.y].sprite.clear();
-        matchingBlocks[j].blockType = max;
-        matchingBlocks[j].sprite.clear();
+        matrix[blockCoord.row][blockCoord.column].blockType = max;
+        matrix[blockCoord.row][blockCoord.column].sprite.clear();
     }
 }
 
-function cleanMatrix() {
+function cleanColumns() {
     for (var c = 0; c < columnCount; c++) {
-        var cleanedRowCoords = cleanArray(matrix[c]);
+        var columnArray = buildArrayFromRow(c);
+        var cleanedRowCoords = cleanArray(columnArray);
         deleteBlocks(cleanedRowCoords);
     }
+}
+
+function cleanRows() {
     for (var r = 0; r < rowCount; r++) {
         var rowCoordArray = buildArrayFromColumns(r);
         var cleanedColumnCoords = cleanArray(rowCoordArray);
@@ -189,9 +201,16 @@ function cleanMatrix() {
     }
 }
 
+function cleanMatrix() {
+    cleanColumns();
+    dropAllBlocks();
+    cleanRows();
+    dropAllBlocks();
+}
+
 function switchBlocks(block1Coords, block2Coords) {
-    var block = matrix[block1Coords.x][block1Coords.y];
-    var lowerBlock = matrix[block2Coords.x][block2Coords.y];
+    var block = matrix[block1Coords.row][block1Coords.column];
+    var lowerBlock = matrix[block2Coords.row][block2Coords.column];
 
     matrix[block.row][block.column] = new Block(block.row, block.column, lowerBlock.blockType);
     matrix[lowerBlock.row][lowerBlock.column] = new Block(lowerBlock.row, lowerBlock.column, block.blockType);
@@ -277,7 +296,6 @@ $(document).ready(function () {
 $(window).load(function () {
     createCanvas();
     cleanMatrix();
-    dropAllBlocks();
     //selector = [matrix[0][0], matrix[1][0]];
     //logCurrentMatrixState();
 })
