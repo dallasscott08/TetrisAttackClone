@@ -1,5 +1,7 @@
 ﻿var matrix;//6 columns x 12 rows
-var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize, max, xMoveAmt, yMoveAmt, constMoveAmt, timer, actionInterval, constMoveInterval;
+var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
+var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, actionInterval;
+var constMoveInterval, matrixCheckInterval, tickCounter, doAnimation;
 
 function Timer() {
     this.last = null;
@@ -27,14 +29,14 @@ function Sprite(options) {
 
 Sprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size, this.size);
+        ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.xPos * blockSize, this.yPos * blockSize,
+            this.yPos * blockSize, this.xPos * blockSize,
             this.size, this.size);
     },
     determineXY: function () {
@@ -79,7 +81,7 @@ Sprite.prototype = {
     }
 }
 
-function Coordinates(row,column){
+function Coordinates(row, column) {
     this.row = row;
     this.column = column;
 }
@@ -105,12 +107,12 @@ function createCanvas() {
 }
 
 function aniMatrix() {
-    for (var c = 0; c < columnCount; c++) {
-        for (var r = 0; r < rowCount; r++) {
-            var block = matrix[c][r];
+    for (var r = 0; r < rowCount; r++) {
+        for (var c = 0; c < columnCount; c++) {
+            var block = matrix[r][c];
             if (block.blockType !== max) {
-                block.sprite.clear()
-                block.sprite.yPos -= yMoveAmt;
+                block.sprite.clear();
+                block.sprite.xPos -= xMoveAmt;
                 block.sprite.draw();
             }
         }
@@ -118,15 +120,24 @@ function aniMatrix() {
 }
 
 function render(now) {
+    if (!doAnimation) { ctx = null; return; }
     requestAnimationFrame(render);
     timer.tick(now)
     if (timer.elapsed >= actionInterval) {
 
     }
+    if (timer.elapsed >= matrixCheckInterval) {
+        cleanMatrix();
+    }
     if (timer.elapsed >= constMoveInterval) {
         var then = timer.elapsed % constMoveInterval;
         timer.last = now - then;
         aniMatrix();
+        tickCounter++;
+        if (tickCounter === 6) {
+            checkMatrixPosition();
+            tickCounter = 0;
+        }
     }
 }
 
@@ -135,11 +146,11 @@ function initializeMatrix(rows, columns) {
 
     rowCount = rows;
     columnCount = columns;
-    for (var c = 0; c < columns; c++) {
-        initialMatrix[c] = [];
-        for (var r = 0; r < rows; r++) {
-            var newBlock = new Block(c, r, Math.floor(Math.random() * (max + 1)));
-            initialMatrix[c][r] = newBlock;
+    for (var r = 0; r < rows; r++) {
+        initialMatrix[r] = [];
+        for (var c = 0; c < columns; c++) {
+            var newBlock = new Block(r, c, Math.floor(Math.random() * (max + 1)));
+            initialMatrix[r][c] = newBlock;
             if (newBlock.blockType !== max) {
                 newBlock.sprite.draw();
             }
@@ -167,8 +178,8 @@ function buildArrayFromRow(column) {
 function cleanArray(coordArray) {
     var deleteArray = [];
     for (var i = 1; i < coordArray.length - 1; i++) {
-        var block = matrix[coordArray[i].column][coordArray[i].row];
-        var prevBlock = matrix[coordArray[i - 1].column][coordArray[i - 1].row];
+        var block = matrix[coordArray[i].row][coordArray[i].column];
+        var prevBlock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
         if (block.blockType === prevBlock.blockType) {
             deleteArray.push(new Coordinates(block.row, block.column));
             deleteArray.push(new Coordinates(prevBlock.row, prevBlock.column));
@@ -220,20 +231,20 @@ function switchBlocks(block1Coords, block2Coords) {
 }
 
 function dropBlockDown(block) {
-    if (block.column === rowCount - 1 || matrix[block.row][block.column + 1].blockType !== max) {
+    if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
         return;
     }
     else {
-        switchBlocks(new Coordinates(block.row, block.column), 
-        new Coordinates(block.row, block.column + 1));
-        dropBlockDown(matrix[block.row][block.column + 1]);
+        switchBlocks(new Coordinates(block.row, block.column),
+        new Coordinates(block.row + 1, block.column));
+        dropBlockDown(matrix[block.row + 1][block.column]);
     }
 }
 
 function dropBlocksInRow(row) {
     for (var c = 0; c < columnCount; c++) {
-        var block = matrix[c][row];
-        var lowerblock = matrix[c][row + 1];
+        var block = matrix[row][c];
+        var lowerblock = matrix[row + 1][c];
         if (lowerblock.blockType === max
             && block.blockType !== max) {
             dropBlockDown(block);
@@ -242,44 +253,67 @@ function dropBlocksInRow(row) {
 }
 
 function dropAllBlocks() {
-    for (var r = rowCount - 2; r > 0; r--) {
+    for (var r = rowCount - 2; r >= 0; r--) {
         dropBlocksInRow(r);
     }
 }
 
-function findHighestBlock(column) {
-    for (var i = rowCount - 1; i > 0; i--) {
-        if (column[i].blockType != max + 1) {
-            return column[i];
+function topCollisionDetected() {
+    for (var c = 0; c < columnCount; c++) {
+        if (matrix[0][c].blockType !== max) {
+            return true;
         }
     }
-    return {};
+    return false;
 }
 
-function raiseBlocksUp(currentRow) {
-    matrix[currentRow + 1] = matrix[currentRow];
-    if (currentRow == 0) {
+function raiseBlocksUpLogicallys(currentRow) {
+    matrix[currentRow - 1] = matrix[currentRow];
+    if (currentRow === rowCount - 1) {
         return;
-    } else if (currentRow = rows) {
-        stop();
     }
     else {
-        currentRow--;
-        raiseBlocksUp(currentRow)
+        currentRow++;
+        raiseBlocksUpLogically(currentRow)
+    }
+}
+
+function raiseBlocksUpLogically() {
+    for (var r = 1; r < rowCount - 1; r++) {
+        matrix[r - 1] = matrix[r]
     }
 }
 
 function generateRow() {
-    var row = [columnCount]
-    for (var i = 0; i < columnCount; i++) {
-        var newBlock = new Block(0, i, Math.floor(Math.random() * (max + 1)));
+    var row = []
+    for (var c = 0; c < columnCount; c++) {
+        var newBlock = new Block(rowCount, c, Math.floor(Math.random() * (max)));
         row.push(newBlock);
+        newBlock.sprite.draw();
     }
-    return row;
+    matrix[rowCount] = row;
+}
+
+function checkMatrixPosition() {
+    if (!topCollisionDetected()) {
+        raiseBlocksUpLogically();
+        generateRow();
+    }
+    else {
+        stop();
+    }
 }
 
 function pause() { }
-function stop() { }
+function stop() { doAnimation = false; }
+function start() {
+    var canvas = document.getElementById("game");
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    ctx = canvas.getContext("2d");
+    doAnimation = true;
+    requestAnimationFrame(render);
+}
 
 $(document).ready(function () {
     timer = new Timer();
@@ -289,7 +323,9 @@ $(document).ready(function () {
     xMoveAmt = .2;
     yMoveAmt = .2;
     constMoveInterval = 1000 / 1;
-    actionInterval = 1000 / 60
+    actionInterval = 1000 / 60;
+    tickCounter = 0;
+    doAnimation = true;
     //logCurrentMatrixState();
 });
 
