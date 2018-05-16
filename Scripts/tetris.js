@@ -268,6 +268,13 @@ function topCollisionDetected() {
 }
 
 function raiseBlocksUpLogicallys(currentRow) {
+
+    for (var c = 0; c < columnCount; c++) {
+        var block = matrix[currentRow][c];
+        var upperblock = matrix[currentRow - 1][c];
+        switchBlocks(new Coordinates(block.row, block.column),
+        new Coordinates(block.row - 1, block.column));
+    }
     matrix[currentRow - 1] = matrix[currentRow];
     if (currentRow === rowCount - 1) {
         return;
@@ -280,7 +287,11 @@ function raiseBlocksUpLogicallys(currentRow) {
 
 function raiseBlocksUpLogically() {
     for (var r = 1; r < rowCount - 1; r++) {
-        matrix[r - 1] = matrix[r]
+        for (var c = 0; c < columnCount; c++) {
+            var block = matrix[r][c];
+            switchBlocks(new Coordinates(block.row, block.column),
+            new Coordinates(block.row - 1, block.column));
+        }
     }
 }
 
