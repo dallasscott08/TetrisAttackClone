@@ -225,9 +225,6 @@ function switchBlocks(block1Coords, block2Coords) {
 
     matrix[block.row][block.column] = new Block(block.row, block.column, lowerBlock.blockType);
     matrix[lowerBlock.row][lowerBlock.column] = new Block(lowerBlock.row, lowerBlock.column, block.blockType);
-
-    matrix[block.row][block.column].sprite.clear();
-    matrix[lowerBlock.row][lowerBlock.column].sprite.draw();
 }
 
 function dropBlockDown(block) {
@@ -238,6 +235,11 @@ function dropBlockDown(block) {
         switchBlocks(new Coordinates(block.row, block.column),
         new Coordinates(block.row + 1, block.column));
         dropBlockDown(matrix[block.row + 1][block.column]);
+
+        matrix[block.row][block.column].sprite.clear();
+        if (matrix[block.row + 1][block.column].blockType != max) {
+            matrix[block.row + 1][block.column].sprite.draw();
+        }
     }
 }
 
@@ -260,33 +262,15 @@ function dropAllBlocks() {
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
-        if (matrix[0][c].blockType !== max) {
-            return true;
+        if (matrix[0][c].blockType === max) {
+            return false;
         }
     }
-    return false;
-}
-
-function raiseBlocksUpLogicallys(currentRow) {
-
-    for (var c = 0; c < columnCount; c++) {
-        var block = matrix[currentRow][c];
-        var upperblock = matrix[currentRow - 1][c];
-        switchBlocks(new Coordinates(block.row, block.column),
-        new Coordinates(block.row - 1, block.column));
-    }
-    matrix[currentRow - 1] = matrix[currentRow];
-    if (currentRow === rowCount - 1) {
-        return;
-    }
-    else {
-        currentRow++;
-        raiseBlocksUpLogically(currentRow)
-    }
+    return true;
 }
 
 function raiseBlocksUpLogically() {
-    for (var r = 1; r < rowCount - 1; r++) {
+    for (var r = 1; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             switchBlocks(new Coordinates(block.row, block.column),
@@ -343,6 +327,7 @@ $(document).ready(function () {
 $(window).load(function () {
     createCanvas();
     cleanMatrix();
+    checkMatrixPosition();
     //selector = [matrix[0][0], matrix[1][0]];
     //logCurrentMatrixState();
 })
