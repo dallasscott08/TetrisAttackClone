@@ -23,7 +23,7 @@ function Sprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
-    this.xPos = options.row;
+    this.xPos = options.row+1;
     this.yPos = options.column;
 }
 
@@ -146,7 +146,7 @@ function initializeMatrix(rows, columns) {
 
     rowCount = rows;
     columnCount = columns;
-    for (var r = 0; r < rows; r++) {
+    for (var r = 0; r < rows-1; r++) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
             var newBlock = new Block(r, c, Math.floor(Math.random() * (max + 1)));
@@ -156,6 +156,7 @@ function initializeMatrix(rows, columns) {
             }
         }
     }
+    initialMatrix[rows-1] = generateRow();
     return initialMatrix;
 }
 
@@ -262,11 +263,11 @@ function dropAllBlocks() {
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
-        if (matrix[0][c].blockType === max) {
-            return false;
+        if (matrix[0][c].blockType !== max) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 function raiseBlocksUpLogically() {
@@ -282,17 +283,29 @@ function raiseBlocksUpLogically() {
 function generateRow() {
     var row = []
     for (var c = 0; c < columnCount; c++) {
-        var newBlock = new Block(rowCount, c, Math.floor(Math.random() * (max)));
+        var newBlock = new Block(rowCount-1, c, Math.floor(Math.random() * (max)));
         row.push(newBlock);
-        newBlock.sprite.draw();
     }
-    matrix[rowCount] = row;
+    return row;
+}
+
+function resetBlockPositions() {    
+    for (var r = 0; r < rowCount; r++) {
+        for (var c = 0; c < columnCount; c++) {
+            if (matrix[r][c].blockType !== max) {
+                matrix[r][c].sprite.clear();
+                matrix[r][c].sprite.xPos += xMoveAmt * (tickCounter - 1);
+                matrix[r][c].sprite.draw();
+            }
+        }
+    }
 }
 
 function checkMatrixPosition() {
     if (!topCollisionDetected()) {
         raiseBlocksUpLogically();
-        generateRow();
+        matrix[rowCount-1] = generateRow();
+        resetBlockPositions();
     }
     else {
         stop();
