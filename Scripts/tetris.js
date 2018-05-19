@@ -134,7 +134,7 @@ function render(now) {
         timer.last = now - then;
         aniMatrix();
         tickCounter++;
-        if (tickCounter === 6) {
+        if (tickCounter === 5) {
             checkMatrixPosition();
             tickCounter = 0;
         }
@@ -294,7 +294,7 @@ function resetBlockPositions() {
         for (var c = 0; c < columnCount; c++) {
             if (matrix[r][c].blockType !== max) {
                 matrix[r][c].sprite.clear();
-                matrix[r][c].sprite.xPos += xMoveAmt * (tickCounter - 1);
+                matrix[r][c].sprite.xPos = matrix[r][c].row + 1;
                 matrix[r][c].sprite.draw();
             }
         }
