@@ -149,7 +149,13 @@ function initializeMatrix(rows, columns) {
     for (var r = 0; r < rows-1; r++) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
-            var newBlock = new Block(r, c, Math.floor(Math.random() * (max + 1)));
+            var newBlock;
+            if (r < rows / 2) {
+                newBlock = new Block(r, c, max);
+            }
+            else {
+                newBlock = new Block(r, c, Math.floor(Math.random() * (max + 1)));
+            }
             initialMatrix[r][c] = newBlock;
             if (newBlock.blockType !== max) {
                 newBlock.sprite.draw();
