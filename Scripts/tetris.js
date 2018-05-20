@@ -1,7 +1,7 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, actionInterval;
-var constMoveInterval, matrixCheckInterval, tickCounter, doAnimation;
+var constMoveInterval, tickCounter, doAnimation;
 
 function Timer() {
     this.last = null;
@@ -126,9 +126,6 @@ function render(now) {
     if (timer.elapsed >= actionInterval) {
 
     }
-    if (timer.elapsed >= matrixCheckInterval) {
-        cleanMatrix();
-    }
     if (timer.elapsed >= constMoveInterval) {
         var then = timer.elapsed % constMoveInterval;
         timer.last = now - then;
@@ -138,6 +135,7 @@ function render(now) {
             checkMatrixPosition();
             tickCounter = 0;
         }
+        dropBlocksOnce();
     }
 }
 
@@ -219,6 +217,14 @@ function cleanRows() {
     }
 }
 
+function dropBlocksOnce() {
+    for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < columns; c++) {
+            dropBlockDown(matrix[r][c]);
+        }
+    }
+}
+
 function cleanMatrix() {
     cleanColumns();
     dropAllBlocks();
@@ -241,7 +247,22 @@ function dropBlockDown(block) {
     else {
         switchBlocks(new Coordinates(block.row, block.column),
         new Coordinates(block.row + 1, block.column));
-        dropBlockDown(matrix[block.row + 1][block.column]);
+
+        matrix[block.row][block.column].sprite.clear();
+        if (matrix[block.row + 1][block.column].blockType != max) {
+            matrix[block.row + 1][block.column].sprite.draw();
+        }
+    }
+}
+
+function dropBlockDownRecursively(block) {
+    if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
+        return;
+    }
+    else {
+        switchBlocks(new Coordinates(block.row, block.column),
+        new Coordinates(block.row + 1, block.column));
+        dropBlockDownRecursively(matrix[block.row + 1][block.column]);
 
         matrix[block.row][block.column].sprite.clear();
         if (matrix[block.row + 1][block.column].blockType != max) {
@@ -256,7 +277,7 @@ function dropBlocksInRow(row) {
         var lowerblock = matrix[row + 1][c];
         if (lowerblock.blockType === max
             && block.blockType !== max) {
-            dropBlockDown(block);
+            dropBlockDownRecursively(block);
         }
     }
 }
