@@ -218,8 +218,8 @@ function cleanRows() {
 }
 
 function dropBlocksOnce() {
-    for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < columns; c++) {
+    for (var r = 0; r < rowCount; r++) {
+        for (var c = 0; c < columnCount; c++) {
             dropBlockDown(matrix[r][c]);
         }
     }
