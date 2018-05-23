@@ -133,6 +133,7 @@ function aniMatrixFalling() {
                         new Coordinates(block.row + 1, block.column));
                     fallTickCounter = 0;
                 }
+                checkAllBlocks();
             }
         }
     }
@@ -148,7 +149,6 @@ function render(now) {
     if (timer.elapsed >= fallingInterval) {
         aniMatrixFalling();
         fallTickCounter++;
-        checkAllBlocks();
     }
     if (timer.elapsed >= constMoveInterval) {
         var then = timer.elapsed % constMoveInterval;
@@ -156,6 +156,9 @@ function render(now) {
         aniMatrixRising();
         riseTickCounter++;
         if (riseTickCounter === 5) {
+            cleanColumns();
+            cleanRows();
+            checkAllBlocks();
             checkMatrixPosition();
             riseTickCounter = 0;
             checkAllBlocks();
