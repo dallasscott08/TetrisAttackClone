@@ -77,8 +77,24 @@ Sprite.prototype = {
                 this.pixelsLeft = 16;
                 this.pixelsTop = 16;
                 break;
+            case 9:
+                this.pixelsLeft = 0;
+                this.pixelsTop = 24;
+                break;
+            case 10:
+                this.pixelsLeft = 8;
+                this.pixelsTop = 24;
+                break;
         }
     }
+}
+
+function Selector(coordinates)
+{
+    this.block1 = new Coordinates(coordinates.row, coordinates.column);
+    this.block2 = new Coordinates(coordinates.row, coordinates.column + 1);
+    this.sprite1 = new Sprite({ blockType: 9, row: coordinates.row, column: coordinates.column, fps: 4 });
+    this.sprite2 = new Sprite({ blockType: 10, row: coordinates.row, column: coordinates.column + 1, fps: 4 });
 }
 
 function Coordinates(row, column) {
@@ -155,7 +171,8 @@ function render(now) {
     requestAnimationFrame(render);
     timer.tick(now);
     if (timer.elapsed >= actionInterval) {
-
+        selector.sprite1.draw();
+        selector.sprite2.draw();
     }
     if (timer.elapsed >= fallingInterval) {
         aniMatrixFalling();
@@ -164,7 +181,6 @@ function render(now) {
         var then = timer.elapsed % constMoveInterval;
         timer.last = now - then;
         aniMatrixRising();
-        //aniMatrixFalling();
     }
 }
 
@@ -394,7 +410,7 @@ $(window).load(function () {
     createCanvas();
     cleanMatrix();
     checkMatrixPosition();
-    //selector = [matrix[0][0], matrix[1][0]];
+    selector = new Selector(new Coordinates(rowCount / 4, columnCount / 2));
     //logCurrentMatrixState();
 })
 
