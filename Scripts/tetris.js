@@ -1,7 +1,7 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, actionInterval;
-var constMoveInterval, tickCounter, doAnimation;
+var constMoveInterval, fallingInterval, riseTickCounter, fallTickCounter, doAnimation;
 
 function Timer() {
     this.last = null;
@@ -91,6 +91,7 @@ function Block(row, column, blockType) {
     this.column = column;
     this.blockType = blockType;
     this.sprite = new Sprite({ blockType: blockType, row: row, column: column, fps: 4 });
+    this.isFalling = false;
 }
 
 function createCanvas() {
@@ -106,36 +107,64 @@ function createCanvas() {
     requestAnimationFrame(render);
 }
 
-function aniMatrix() {
+function aniMatrixRising() {
+    riseTickCounter++;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (block.blockType !== max) {
+            if (block.blockType !== max && !block.isFalling) {
                 block.sprite.clear();
                 block.sprite.xPos -= xMoveAmt;
                 block.sprite.draw();
             }
         }
     }
+    if (riseTickCounter === 5) {
+        cleanColumns();
+        cleanRows();
+        checkAllBlocks();
+        checkMatrixPosition();
+        riseTickCounter = 0;
+    }
+}
+
+function aniMatrixFalling() {
+    fallTickCounter++;
+    for (var r = 0; r < rowCount; r++) {
+        for (var c = 0; c < columnCount; c++) {
+            var block = matrix[r][c];
+            if (block.blockType !== max && block.isFalling) {
+                block.sprite.clear();
+                block.sprite.xPos += xMoveAmt;
+                block.sprite.draw();
+                if (fallTickCounter === 5) {
+                    switchBlocks(new Coordinates(block.row, block.column),
+                        new Coordinates(block.row + 1, block.column));
+                }
+            }
+        }
+    }
+    if (fallTickCounter === 5) {
+        checkAllBlocks();
+        fallTickCounter = 0;
+    }
 }
 
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
     requestAnimationFrame(render);
-    timer.tick(now)
+    timer.tick(now);
     if (timer.elapsed >= actionInterval) {
 
+    }
+    if (timer.elapsed >= fallingInterval) {
+        aniMatrixFalling();
     }
     if (timer.elapsed >= constMoveInterval) {
         var then = timer.elapsed % constMoveInterval;
         timer.last = now - then;
-        aniMatrix();
-        tickCounter++;
-        if (tickCounter === 5) {
-            checkMatrixPosition();
-            tickCounter = 0;
-        }
-        dropBlocksOnce();
+        aniMatrixRising();
+        //aniMatrixFalling();
     }
 }
 
@@ -217,10 +246,10 @@ function cleanRows() {
     }
 }
 
-function dropBlocksOnce() {
+function checkAllBlocks() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
-            dropBlockDown(matrix[r][c]);
+            checkBlock(matrix[r][c]);
         }
     }
 }
@@ -240,18 +269,13 @@ function switchBlocks(block1Coords, block2Coords) {
     matrix[lowerBlock.row][lowerBlock.column] = new Block(lowerBlock.row, lowerBlock.column, block.blockType);
 }
 
-function dropBlockDown(block) {
+function checkBlock(block) {
     if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
+        block.isFalling = false;
         return;
     }
     else {
-        switchBlocks(new Coordinates(block.row, block.column),
-        new Coordinates(block.row + 1, block.column));
-
-        matrix[block.row][block.column].sprite.clear();
-        if (matrix[block.row + 1][block.column].blockType != max) {
-            matrix[block.row + 1][block.column].sprite.draw();
-        }
+        block.isFalling = true;
     }
 }
 
@@ -359,7 +383,9 @@ $(document).ready(function () {
     yMoveAmt = .2;
     constMoveInterval = 1000 / 1;
     actionInterval = 1000 / 60;
-    tickCounter = 0;
+    fallingInterval = 1000 / 60;
+    fallTickCounter = 0;
+    riseTickCounter = 0;
     doAnimation = true;
     //logCurrentMatrixState();
 });
