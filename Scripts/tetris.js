@@ -108,6 +108,7 @@ function createCanvas() {
 }
 
 function aniMatrixRising() {
+    riseTickCounter++;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
@@ -118,9 +119,17 @@ function aniMatrixRising() {
             }
         }
     }
+    if (riseTickCounter === 5) {
+        cleanColumns();
+        cleanRows();
+        checkAllBlocks();
+        checkMatrixPosition();
+        riseTickCounter = 0;
+    }
 }
 
 function aniMatrixFalling() {
+    fallTickCounter++;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
@@ -131,11 +140,13 @@ function aniMatrixFalling() {
                 if (fallTickCounter === 5) {
                     switchBlocks(new Coordinates(block.row, block.column),
                         new Coordinates(block.row + 1, block.column));
-                    fallTickCounter = 0;
                 }
-                checkAllBlocks();
             }
         }
+    }
+    if (fallTickCounter === 5) {
+        checkAllBlocks();
+        fallTickCounter = 0;
     }
 }
 
@@ -148,21 +159,12 @@ function render(now) {
     }
     if (timer.elapsed >= fallingInterval) {
         aniMatrixFalling();
-        fallTickCounter++;
     }
     if (timer.elapsed >= constMoveInterval) {
         var then = timer.elapsed % constMoveInterval;
         timer.last = now - then;
         aniMatrixRising();
-        riseTickCounter++;
-        if (riseTickCounter === 5) {
-            cleanColumns();
-            cleanRows();
-            checkAllBlocks();
-            checkMatrixPosition();
-            riseTickCounter = 0;
-            checkAllBlocks();
-        }
+        //aniMatrixFalling();
     }
 }
 
@@ -381,7 +383,7 @@ $(document).ready(function () {
     yMoveAmt = .2;
     constMoveInterval = 1000 / 1;
     actionInterval = 1000 / 60;
-    fallingInterval = 1000 / 30;
+    fallingInterval = 1000 / 60;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
