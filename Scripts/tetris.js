@@ -77,8 +77,23 @@ Sprite.prototype = {
                 this.pixelsLeft = 16;
                 this.pixelsTop = 16;
                 break;
+            case 9:
+                this.pixelsLeft = 0;
+                this.pixelsTop = 24;
+                break;
+            case 10:
+                this.pixelsLeft = 8;
+                this.pixelsTop = 24;
+                break;
         }
     }
+}
+
+function Selector(coordinates) {
+    this.coordinates = coordinates;
+    this.coordinates2 = new Coordinates(coordinates.row, coordinates.column + 1);
+    this.sprite1 = new Sprite({ blockType: 9, row: coordinates.row, column: coordinates.column, fps: 4 });
+    this.sprite2 = new Sprite({ blockType: 10, row: coordinates.row, column: coordinates.column + 1, fps: 4 });
 }
 
 function Coordinates(row, column) {
@@ -155,7 +170,8 @@ function render(now) {
     requestAnimationFrame(render);
     timer.tick(now);
     if (timer.elapsed >= actionInterval) {
-
+        selector.sprite1.draw();
+        selector.sprite2.draw();
     }
     if (timer.elapsed >= fallingInterval) {
         aniMatrixFalling();
@@ -164,7 +180,6 @@ function render(now) {
         var then = timer.elapsed % constMoveInterval;
         timer.last = now - then;
         aniMatrixRising();
-        //aniMatrixFalling();
     }
 }
 
@@ -289,7 +304,7 @@ function dropBlockDownRecursively(block) {
         dropBlockDownRecursively(matrix[block.row + 1][block.column]);
 
         matrix[block.row][block.column].sprite.clear();
-        if (matrix[block.row + 1][block.column].blockType != max) {
+        if (matrix[block.row + 1][block.column].blockType !== max) {
             matrix[block.row + 1][block.column].sprite.draw();
         }
     }
@@ -394,26 +409,38 @@ $(window).load(function () {
     createCanvas();
     cleanMatrix();
     checkMatrixPosition();
-    //selector = [matrix[0][0], matrix[1][0]];
+    selector = new Selector(new Coordinates(rowCount / 4, columnCount / 2));
     //logCurrentMatrixState();
 })
 
-/*$(document).keydown(function (event) {
-    var selector = [];
-    switch (event.keyCode) {
-        case KEY.LEFT:
+$(document).keydown(function (event) {
+    var code = event.keyCode || event.which;
+    switch (code) {
+        case 32:
+            switchBlocks(selector.coordinates, selector.coordinates2);
             break;
-        case KEY.RIGHT:
+        case 37://Left
+            selector.coordinates.column++;
+            selector.sprite1.draw();
+            selector.sprite2.draw();
             break;
-        case KEY.UP:
+        case 38://Up
+            selector.coordinates.row--;
+            selector.sprite1.draw();
+            selector.sprite2.draw();
             break;
-        case KEY.DOWN:
+        case 39://Right
+            selector.coordinates.column--;
+            selector.sprite1.draw();
+            selector.sprite2.draw();
+            break;
+        case 40://Down
+            selector.coordinates.row++;
+            selector.sprite1.draw();
+            selector.sprite2.draw();
             break;
     }
-    //switchBlocks(selector);
-    //checkMatrix();
-    //dropAllBlocks();
-});*/
+});
 
 /*
 function logCurrentMatrixState() {
