@@ -1,6 +1,6 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
-var max, xMoveAmt, yMoveAmt, constMoveAmt, riseTimer, fallTimer, actionInterval;
+var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
 
 function Timer() {
@@ -135,9 +135,6 @@ function aniMatrixRising() {
         }
     }
     if (riseTickCounter === 5) {
-        cleanColumns();
-        cleanRows();
-        checkAllBlocks();
         checkMatrixPosition();
         riseTickCounter = 0;
     }
@@ -165,12 +162,20 @@ function aniMatrixFalling() {
     }
 }
 
+function cleanMatrix() {
+    cleanColumns();
+    cleanRows();
+    checkAllBlocks();
+}
+
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
     requestAnimationFrame(render);
     riseTimer.tick(now);
     fallTimer.tick(now);
-    if (riseTimer.elapsed >= actionInterval) {
+    timer.tick(now);
+    if (timer.elapsed >= actionInterval) {
+        //cleanMatrix();
         selector.sprite1.draw();
         selector.sprite2.draw();
     }
@@ -212,7 +217,7 @@ function initializeMatrix(rows, columns) {
 
 function buildArrayFromColumns(row) {
     var coordinatesArray = [];
-    for (var i = 0; i < columnCount; i++) {
+    for (var i = 0; i <= columnCount; i++) {
         coordinatesArray.push(new Coordinates(row, i));
     }
     return coordinatesArray;
@@ -269,13 +274,6 @@ function checkAllBlocks() {
             checkBlock(matrix[r][c]);
         }
     }
-}
-
-function cleanMatrix() {
-    cleanColumns();
-    dropAllBlocks();
-    cleanRows();
-    dropAllBlocks();
 }
 
 function switchBlocks(block1Coords, block2Coords) {
@@ -393,6 +391,8 @@ function start() {
 
 $(document).ready(function () {
     riseTimer = new Timer();
+    fallTimer = new Timer();
+    timer = new Timer();
     rowCount = 12;
     columnCount = 6;
     max = 6;
@@ -400,7 +400,7 @@ $(document).ready(function () {
     yMoveAmt = .2;
     riseInterval = 1000 / 1;
     actionInterval = 1000 / 60;
-    fallInterval = 1000 / 60;
+    fallInterval = 1000 / 2;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
@@ -409,9 +409,12 @@ $(document).ready(function () {
 
 $(window).load(function () {
     createCanvas();
-    cleanMatrix();
+    cleanColumns();
+    dropAllBlocks();
+    cleanRows();
+    dropAllBlocks();
     checkMatrixPosition();
-    selector = new Selector(new Coordinates(rowCount / 4, columnCount / 2));
+    selector = new Selector(new Coordinates(rowCount / 6, columnCount / 2));
     //logCurrentMatrixState();
 })
 
@@ -422,22 +425,34 @@ $(document).keydown(function (event) {
             switchBlocks(selector.coordinates, selector.coordinates2);
             break;
         case 37://Left
-            selector.coordinates.column++;
+            selector.sprite1.clear();
+            selector.sprite2.clear();
+            selector = new Selector(new Coordinates(selector.coordinates.row,
+                selector.coordinates.column - 1));//.coordinates.column++;
             selector.sprite1.draw();
             selector.sprite2.draw();
             break;
         case 38://Up
-            selector.coordinates.row--;
+            selector.sprite1.clear();
+            selector.sprite2.clear();
+            selector = new Selector(new Coordinates(selector.coordinates.row - 1,
+                selector.coordinates.column));//.coordinates.row--;
             selector.sprite1.draw();
             selector.sprite2.draw();
             break;
         case 39://Right
-            selector.coordinates.column--;
+            selector.sprite1.clear();
+            selector.sprite2.clear();
+            selector = new Selector(new Coordinates(selector.coordinates.row,
+                selector.coordinates.column + 1));//.coordinates.column--;
             selector.sprite1.draw();
             selector.sprite2.draw();
             break;
         case 40://Down
-            selector.coordinates.row++;
+            selector.sprite1.clear();
+            selector.sprite2.clear();
+            selector = new Selector(new Coordinates(selector.coordinates.row + 1,
+                selector.coordinates.column));//.coordinates.row++;
             selector.sprite1.draw();
             selector.sprite2.draw();
             break;
