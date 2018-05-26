@@ -1,7 +1,7 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
-var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, actionInterval;
-var constMoveInterval, fallingInterval, riseTickCounter, fallTickCounter, doAnimation;
+var max, xMoveAmt, yMoveAmt, constMoveAmt, riseTimer, fallTimer, actionInterval;
+var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
 
 function Timer() {
     this.last = null;
@@ -168,17 +168,19 @@ function aniMatrixFalling() {
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
     requestAnimationFrame(render);
-    timer.tick(now);
-    if (timer.elapsed >= actionInterval) {
+    riseTimer.tick(now);
+    fallTimer.tick(now);
+    if (riseTimer.elapsed >= actionInterval) {
         selector.sprite1.draw();
         selector.sprite2.draw();
     }
-    if (timer.elapsed >= fallingInterval) {
+    if (fallTimer.elapsed >= fallInterval) {
+        var then = fallTimer.elapsed % fallInterval;
         aniMatrixFalling();
     }
-    if (timer.elapsed >= constMoveInterval) {
-        var then = timer.elapsed % constMoveInterval;
-        timer.last = now - then;
+    if (riseTimer.elapsed >= riseInterval) {
+        var then = riseTimer.elapsed % riseInterval;
+        riseTimer.last = now - then;
         aniMatrixRising();
     }
 }
@@ -390,15 +392,15 @@ function start() {
 }
 
 $(document).ready(function () {
-    timer = new Timer();
+    riseTimer = new Timer();
     rowCount = 12;
     columnCount = 6;
     max = 6;
     xMoveAmt = .2;
     yMoveAmt = .2;
-    constMoveInterval = 1000 / 1;
+    riseInterval = 1000 / 1;
     actionInterval = 1000 / 60;
-    fallingInterval = 1000 / 60;
+    fallInterval = 1000 / 60;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
