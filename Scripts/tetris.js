@@ -175,12 +175,13 @@ function render(now) {
     fallTimer.tick(now);
     timer.tick(now);
     if (timer.elapsed >= actionInterval) {
-        //cleanMatrix();
-        selector.sprite1.draw();
-        selector.sprite2.draw();
+        var ab = timer.elapsed % actionInterval;
+        timer.last = now - ab;
+        cleanMatrix();
     }
     if (fallTimer.elapsed >= fallInterval) {
-        var then = fallTimer.elapsed % fallInterval;
+        //var cd = fallTimer.elapsed % fallInterval;
+        //fallTimer.last = now - cd;
         aniMatrixFalling();
     }
     if (riseTimer.elapsed >= riseInterval) {
@@ -236,7 +237,7 @@ function cleanArray(coordArray) {
     for (var i = 1; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         var prevBlock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
-        if (block.blockType === prevBlock.blockType) {
+        if (block.blockType === prevBlock.blockType && !block.isFalling && !prevBlock.isFalling) {
             deleteArray.push(new Coordinates(block.row, block.column));
             deleteArray.push(new Coordinates(prevBlock.row, prevBlock.column));
         }
@@ -248,6 +249,7 @@ function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
         matrix[blockCoord.row][blockCoord.column].blockType = max;
+        matrix[blockCoord.row][blockCoord.column].sprite.xPos += (xMoveAmt * riseTickCounter);
         matrix[blockCoord.row][blockCoord.column].sprite.clear();
     }
 }
