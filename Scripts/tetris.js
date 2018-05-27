@@ -31,8 +31,21 @@ Sprite.prototype = {
     clear: function () {
         ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
     },
+    clearOffset: function(){
+        this.xPos += (xMoveAmt * riseTickCounter);
+        ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
+    },
     draw: function () {
         this.determineXY();
+        ctx.drawImage(document.getElementById("sprites"),
+            this.pixelsLeft, this.pixelsTop,
+            this.spriteSize, this.spriteSize,
+            this.yPos * blockSize, this.xPos * blockSize,
+            this.size, this.size);
+    },
+    drawOffset: function () {
+        this.determineXY();
+        this.xPos -= (xMoveAmt * riseTickCounter);
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
@@ -162,6 +175,23 @@ function aniMatrixFalling() {
     }
 }
 
+function animateSelector(coordinates) {
+    selector.sprite1.clear();
+    selector.sprite2.clear();
+    selector = new Selector(coordinates);
+    selector.sprite1.drawOffset();
+    selector.sprite2.drawOffset();
+}
+
+function animateSelectorRise() {
+    selector.sprite1.clear();
+    selector.sprite2.clear();
+    selector.sprite1.xPos -= xMoveAmt;
+    selector.sprite2.xPos -= xMoveAmt;
+    selector.sprite1.draw();
+    selector.sprite2.draw();
+}
+
 function cleanMatrix() {
     cleanColumns();
     cleanRows();
@@ -175,19 +205,20 @@ function render(now) {
     fallTimer.tick(now);
     timer.tick(now);
     if (timer.elapsed >= actionInterval) {
-        var ab = timer.elapsed % actionInterval;
-        timer.last = now - ab;
+        var actionThen = timer.elapsed % actionInterval;
+        timer.last = now - actionThen;
         cleanMatrix();
     }
-    if (fallTimer.elapsed >= fallInterval) {
+    //if (fallTimer.elapsed >= fallInterval) {
         //var cd = fallTimer.elapsed % fallInterval;
         //fallTimer.last = now - cd;
         aniMatrixFalling();
-    }
+    //}
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
         aniMatrixRising();
+        animateSelectorRise();
     }
 }
 
@@ -249,8 +280,7 @@ function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
         matrix[blockCoord.row][blockCoord.column].blockType = max;
-        matrix[blockCoord.row][blockCoord.column].sprite.xPos += (xMoveAmt * riseTickCounter);
-        matrix[blockCoord.row][blockCoord.column].sprite.clear();
+        matrix[blockCoord.row][blockCoord.column].sprite.clearOffset();
     }
 }
 
@@ -416,9 +446,9 @@ $(window).load(function () {
     cleanRows();
     dropAllBlocks();
     checkMatrixPosition();
-    selector = new Selector(new Coordinates(rowCount / 6, columnCount / 2));
+    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3));
     //logCurrentMatrixState();
-})
+});
 
 $(document).keydown(function (event) {
     var code = event.keyCode || event.which;
@@ -427,36 +457,20 @@ $(document).keydown(function (event) {
             switchBlocks(selector.coordinates, selector.coordinates2);
             break;
         case 37://Left
-            selector.sprite1.clear();
-            selector.sprite2.clear();
-            selector = new Selector(new Coordinates(selector.coordinates.row,
-                selector.coordinates.column - 1));//.coordinates.column++;
-            selector.sprite1.draw();
-            selector.sprite2.draw();
+            animateSelector(new Coordinates(selector.coordinates.row,
+                selector.coordinates.column - 1));
             break;
         case 38://Up
-            selector.sprite1.clear();
-            selector.sprite2.clear();
-            selector = new Selector(new Coordinates(selector.coordinates.row - 1,
-                selector.coordinates.column));//.coordinates.row--;
-            selector.sprite1.draw();
-            selector.sprite2.draw();
+            animateSelector(new Coordinates(selector.coordinates.row - 1,
+                selector.coordinates.column));
             break;
         case 39://Right
-            selector.sprite1.clear();
-            selector.sprite2.clear();
-            selector = new Selector(new Coordinates(selector.coordinates.row,
-                selector.coordinates.column + 1));//.coordinates.column--;
-            selector.sprite1.draw();
-            selector.sprite2.draw();
+            animateSelector(new Coordinates(selector.coordinates.row,
+                selector.coordinates.column + 1));
             break;
         case 40://Down
-            selector.sprite1.clear();
-            selector.sprite2.clear();
-            selector = new Selector(new Coordinates(selector.coordinates.row + 1,
-                selector.coordinates.column));//.coordinates.row++;
-            selector.sprite1.draw();
-            selector.sprite2.draw();
+            animateSelector(new Coordinates(selector.coordinates.row + 1,
+                selector.coordinates.column));
             break;
     }
 });
