@@ -17,7 +17,7 @@ Timer.prototype = {
 
 function Sprite(options) {
     this.size = blockSize;
-    this.spriteSize = 7;
+    this.spriteSize = 16;
     this.blockType = options.blockType;
     this.interval = 1000 / options.fps;
     this.row = options.row;
@@ -176,16 +176,38 @@ function aniMatrixFalling() {
 }
 
 function animateSelector(coordinates) {
-    selector.sprite1.clear();
-    selector.sprite2.clear();
+    var block = matrix[coordinates.row][coordinates.column];
+    if (block.blockType !== max) {
+        block.sprite.draw();
+    } else {
+        selector.sprite1.clear();
+    }
+    var block2 = matrix[coordinates.row][coordinates.column + 1];
+    if (block2.blockType !== max) {
+        block2.sprite.draw();
+    } else {
+        selector.sprite2.clear();
+    }
+
     selector = new Selector(coordinates);
     selector.sprite1.drawOffset();
     selector.sprite2.drawOffset();
 }
 
 function animateSelectorRise() {
-    selector.sprite1.clear();
-    selector.sprite2.clear();
+    var block = matrix[selector.coordinates.row][selector.coordinates.column];
+    if (block.blockType !== max) {
+        block.sprite.draw();
+    } else {
+        selector.sprite1.clear();
+    }
+    var block2 = matrix[selector.coordinates.row][selector.coordinates.column + 1];
+    if (block2.blockType !== max) {
+        block2.sprite.draw();
+    } else {
+        selector.sprite2.clear();
+    }
+
     selector.sprite1.xPos -= xMoveAmt;
     selector.sprite2.xPos -= xMoveAmt;
     selector.sprite1.draw();
