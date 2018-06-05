@@ -97,39 +97,43 @@ BlockSprite.prototype = {
 }
 
 function SelectorSprite(options) {
-    this.size = blockSize;
-    this.spriteSize = 16;
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
     this.xPos = options.row + 1;
     this.yPos = options.column;
+    this.spriteWidth = 36;
+    this.spriteHeight = 21.6;
+    this.canvasX = (this.yPos * blockSize) - 10;
+    this.canvasY = (this.xPos * blockSize) - 10;
+    this.canvasWidth = blockSize * 2.25;
+    this.canvasHeight = blockSize * 1.35;
 }
 
 SelectorSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
+        ctx.clearRect(this.canvasX, (this.xPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
     },
     clearOffset: function () {
         this.xPos += (xMoveAmt * riseTickCounter);
-        ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
+        ctx.clearRect(this.canvasX, (this.xPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize * 2.25, this.spriteSize * 1.35,
-            this.yPos * blockSize, this.xPos * blockSize,
-            this.size * 2.25, this.size * 1.35);
+            this.spriteWidth, this.spriteHeight,
+            this.canvasX, this.canvasY,
+            this.canvasWidth, this.canvasHeight);
     },
     drawOffset: function () {
         this.determineXY();
         this.xPos -= (xMoveAmt * riseTickCounter);
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize * 2.25, this.spriteSize * 1.35,
-            this.yPos * blockSize, this.xPos * blockSize,
-            this.size * 2.25, this.size * 1.35);
+            this.spriteWidth, this.spriteHeight,
+            this.canvasX, (this.xPos * blockSize) - 10,
+            this.canvasWidth, this.canvasHeight);
     },
     determineXY: function () {
         this.pixelsLeft = 136;
@@ -154,6 +158,8 @@ function Block(row, column, blockType) {
     this.blockType = blockType;
     this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column, fps: 4 });
     this.isFalling = false;
+    this.isOffscreen = false;
+    this.isSelected = false;
 }
 
 function createCanvas() {
@@ -174,7 +180,8 @@ function aniMatrixRising() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (block.blockType !== max && !block.isFalling) {
+            if (block.blockType !== max && !block.isFalling
+                && !block.isSelected) {
                 block.sprite.clear();
                 block.sprite.xPos -= xMoveAmt;
                 block.sprite.draw();
@@ -210,12 +217,22 @@ function aniMatrixFalling() {
 }
 
 function animateSelector(coordinates) {
-    var block = matrix[coordinates.row][coordinates.column];
-    var block2 = matrix[coordinates.row][coordinates.column + 1];
+    var block = matrix[selector.coordinates.row][selector.coordinates.column];
+    var block2 = matrix[selector.coordinates.row][selector.coordinates.column + 1];
+    block.isSelected = false;
+    block2.isSelected = false;
+    selector.sprite.clear();
+
+    block = matrix[coordinates.row][coordinates.column];
+    block2 = matrix[coordinates.row][coordinates.column + 1];
+    block.isSelected = true;
+    block2.isSelected = true;
+
     if (block.blockType !== max) {
         block.sprite.draw();
-    } else {
-        selector.sprite.clear();
+    }
+    if (block2.blockType !== max) {
+        block2.sprite.draw();
     }
 
     selector = new Selector(coordinates);
@@ -225,10 +242,18 @@ function animateSelector(coordinates) {
 function animateSelectorRise() {
     var block = matrix[selector.coordinates.row][selector.coordinates.column];
     var block2 = matrix[selector.coordinates.row][selector.coordinates.column + 1];
+
+    selector.sprite.clear();
+
     if (block.blockType !== max) {
+        block.sprite.clear();
+        block.sprite.xPos -= xMoveAmt;
         block.sprite.draw();
-    } else {
-        selector.sprite.clear();
+    }
+    if (block2.blockType !== max) {
+        block2.sprite.clear();
+        block2.sprite.xPos -= xMoveAmt;
+        block2.sprite.draw();
     }
 
     selector.sprite.xPos -= xMoveAmt;
@@ -424,7 +449,8 @@ function raiseBlocksUpLogically() {
 function generateRow() {
     var row = []
     for (var c = 0; c < columnCount; c++) {
-        var newBlock = new Block(rowCount-1, c, Math.floor(Math.random() * (max)));
+        var newBlock = new Block(rowCount - 1, c, Math.floor(Math.random() * (max)));
+        newBlock.isOffscreen = true;
         row.push(newBlock);
     }
     return row;
@@ -433,6 +459,7 @@ function generateRow() {
 function resetBlockPositions() {    
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
+            if (r === rowCount - 1) { matrix[r][c].isOffscreen = false; }
             if (matrix[r][c].blockType !== max) {
                 matrix[r][c].sprite.clear();
                 matrix[r][c].sprite.xPos = matrix[r][c].row + 1;
