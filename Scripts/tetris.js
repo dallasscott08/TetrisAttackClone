@@ -189,8 +189,10 @@ function animateSelector(coordinates) {
     if (block2.blockType !== max) {
         block2.sprite.draw();
     }
-
-    selector = new Selector(coordinates);
+    block.isSelected = true;
+    block2.isSelected = true;
+    selector.coordinates = coordinates;
+    selector.coordinates2 = new Coordinates(coordinates.row, coordinates.column + 1);
     selector.sprite.drawOffset();
 }
 
@@ -401,7 +403,19 @@ function resetBlockPositions() {
                 matrix[r][c].sprite.xPos = matrix[r][c].row + 1;
                 matrix[r][c].sprite.draw();
             }
+            if (compareBlockToSelector(matrix[r][c])) {
+                selector.sprite.draw();
+            }
         }
+    }
+}
+
+function compareBlockToSelector(block) {
+    if(block.row ===selector.coordinates.row && block.column === selector.coordinates.column ||
+        block.row === selector.coordinates2.row && block.column === selector.coordinates2.column) {
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -409,9 +423,10 @@ function checkMatrixPosition() {
     if (!topCollisionDetected()) {
         raiseBlocksUpLogically();
         selector.coordinates.row--;
+        selector.coordinates2.row--;
         matrix[rowCount-1] = generateRow();
         resetBlockPositions();
-        selector.sprite.draw();
+        //selector.sprite.draw();
     }
     else {
         stop();
