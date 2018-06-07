@@ -189,10 +189,8 @@ function animateSelector(coordinates) {
     if (block2.blockType !== max) {
         block2.sprite.draw();
     }
-    block.isSelected = true;
-    block2.isSelected = true;
-    selector.coordinates = coordinates;
-    selector.coordinates2 = new Coordinates(coordinates.row, coordinates.column + 1);
+
+    selector = new Selector(coordinates);
     selector.sprite.drawOffset();
 }
 
@@ -424,9 +422,9 @@ function checkMatrixPosition() {
         raiseBlocksUpLogically();
         selector.coordinates.row--;
         selector.coordinates2.row--;
+        selector.sprite.draw();
         matrix[rowCount-1] = generateRow();
         resetBlockPositions();
-        //selector.sprite.draw();
     }
     else {
         stop();
