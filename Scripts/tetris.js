@@ -143,8 +143,7 @@ function aniMatrixRising() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (block.blockType !== max && !block.isFalling
-                && !block.isSelected) {
+            if (block.blockType !== max && !block.isFalling) {
                 block.sprite.clear();
                 block.sprite.xPos -= xMoveAmt;
                 block.sprite.draw();
@@ -211,11 +210,11 @@ function render(now) {
         timer.last = now - actionThen;
         cleanMatrix();
     }
-    //if (fallTimer.elapsed >= fallInterval) {
-        //var cd = fallTimer.elapsed % fallInterval;
-        //fallTimer.last = now - cd;
+    if (fallTimer.elapsed >= fallInterval) {
+        var cd = fallTimer.elapsed % fallInterval;
+        fallTimer.last = now - cd;
         aniMatrixFalling();
-    //}
+    }
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
@@ -285,6 +284,9 @@ function deleteBlocks(matchingBlocks) {
         var blockCoord = matchingBlocks[j];
         matrix[blockCoord.row][blockCoord.column].blockType = max;
         matrix[blockCoord.row][blockCoord.column].sprite.clearOffset();
+        if (compareBlockToSelector(matrix[blockCoord.row][blockCoord.column])) {
+            selector.sprite.draw();
+        }
     }
 }
 
@@ -401,9 +403,6 @@ function resetBlockPositions() {
                 matrix[r][c].sprite.xPos = matrix[r][c].row + 1;
                 matrix[r][c].sprite.draw();
             }
-            if (compareBlockToSelector(matrix[r][c])) {
-                selector.sprite.draw();
-            }
         }
     }
 }
@@ -422,7 +421,6 @@ function checkMatrixPosition() {
         raiseBlocksUpLogically();
         selector.coordinates.row--;
         selector.coordinates2.row--;
-        selector.sprite.draw();
         matrix[rowCount-1] = generateRow();
         resetBlockPositions();
     }
@@ -453,7 +451,7 @@ $(document).ready(function () {
     yMoveAmt = .2;
     riseInterval = 1000 / 1;
     actionInterval = 1000 / 60;
-    fallInterval = 1000 / 2;
+    fallInterval = 1000 / 50;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
