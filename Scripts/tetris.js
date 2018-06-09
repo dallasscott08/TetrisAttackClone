@@ -2,6 +2,7 @@
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
+var player1Score, player2Score;
 
 function Timer() {
     this.last = null;
@@ -23,7 +24,7 @@ function BlockSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
-    this.xPos = options.row+1;
+    this.xPos = options.row + 1;
     this.yPos = options.column;
 }
 
@@ -31,7 +32,7 @@ BlockSprite.prototype = {
     clear: function () {
         ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
     },
-    clearOffset: function(){
+    clearOffset: function () {
         this.xPos += (xMoveAmt * riseTickCounter);
         ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
     },
@@ -106,7 +107,7 @@ SelectorSprite.prototype = {
 function Selector(coordinates) {
     this.coordinates = coordinates;
     this.coordinates2 = new Coordinates(coordinates.row, coordinates.column + 1);
-    this.sprite = new SelectorSprite({ row: coordinates.row, column: coordinates.column});
+    this.sprite = new SelectorSprite({ row: coordinates.row, column: coordinates.column });
 }
 
 function Coordinates(row, column) {
@@ -151,6 +152,7 @@ function aniMatrixRising() {
         }
     }
     if (riseTickCounter === 5) {
+        checkSelectorPosition();
         checkMatrixPosition();
         riseTickCounter = 0;
     }
@@ -196,6 +198,8 @@ function animateSelector(coordinates) {
 function cleanMatrix() {
     cleanColumns();
     cleanRows();
+    $("#p1Score").text(player1Score);
+    //$("#p2Score").text(player2Score);
     checkAllBlocks();
 }
 
@@ -209,6 +213,7 @@ function render(now) {
         var actionThen = timer.elapsed % actionInterval;
         timer.last = now - actionThen;
         cleanMatrix();
+        selector.sprite.draw();
     }
     if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
@@ -230,7 +235,7 @@ function initializeMatrix(rows, columns) {
 
     rowCount = rows;
     columnCount = columns;
-    for (var r = 0; r < rows-1; r++) {
+    for (var r = 0; r < rows - 1; r++) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
             var newBlock;
@@ -246,7 +251,7 @@ function initializeMatrix(rows, columns) {
             }
         }
     }
-    initialMatrix[rows-1] = generateRow();
+    initialMatrix[rows - 1] = generateRow();
     return initialMatrix;
 }
 
@@ -282,11 +287,11 @@ function cleanArray(coordArray) {
 function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
+        if (matrix[blockCoord.row][blockCoord.column].blockType !== max) {
+            player1Score++;
+        }
         matrix[blockCoord.row][blockCoord.column].blockType = max;
         matrix[blockCoord.row][blockCoord.column].sprite.clearOffset();
-        if (compareBlockToSelector(matrix[blockCoord.row][blockCoord.column])) {
-            selector.sprite.draw();
-        }
     }
 }
 
@@ -294,7 +299,9 @@ function cleanColumns() {
     for (var c = 0; c < columnCount; c++) {
         var columnArray = buildArrayFromRow(c);
         var cleanedRowCoords = cleanArray(columnArray);
-        deleteBlocks(cleanedRowCoords);
+        if (cleanedRowCoords.length > 2) {
+            deleteBlocks(cleanedRowCoords);
+        }
     }
 }
 
@@ -302,7 +309,9 @@ function cleanRows() {
     for (var r = 0; r < rowCount; r++) {
         var rowCoordArray = buildArrayFromColumns(r);
         var cleanedColumnCoords = cleanArray(rowCoordArray);
-        deleteBlocks(cleanedColumnCoords);
+        if (cleanedColumnCoords.length > 2) {
+            deleteBlocks(cleanedColumnCoords);
+        }
     }
 }
 
@@ -338,7 +347,7 @@ function dropBlockDownRecursively(block) {
     }
     else {
         switchBlocks(new Coordinates(block.row, block.column),
-        new Coordinates(block.row + 1, block.column));
+            new Coordinates(block.row + 1, block.column));
         dropBlockDownRecursively(matrix[block.row + 1][block.column]);
 
         matrix[block.row][block.column].sprite.clear();
@@ -379,7 +388,7 @@ function raiseBlocksUpLogically() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             switchBlocks(new Coordinates(block.row, block.column),
-            new Coordinates(block.row - 1, block.column));
+                new Coordinates(block.row - 1, block.column));
         }
     }
 }
@@ -394,7 +403,7 @@ function generateRow() {
     return row;
 }
 
-function resetBlockPositions() {    
+function resetBlockPositions() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             if (r === rowCount - 1) { matrix[r][c].isOffscreen = false; }
@@ -408,7 +417,7 @@ function resetBlockPositions() {
 }
 
 function compareBlockToSelector(block) {
-    if(block.row ===selector.coordinates.row && block.column === selector.coordinates.column ||
+    if (block.row === selector.coordinates.row && block.column === selector.coordinates.column ||
         block.row === selector.coordinates2.row && block.column === selector.coordinates2.column) {
         return true;
     } else {
@@ -419,13 +428,18 @@ function compareBlockToSelector(block) {
 function checkMatrixPosition() {
     if (!topCollisionDetected()) {
         raiseBlocksUpLogically();
-        selector.coordinates.row--;
-        selector.coordinates2.row--;
-        matrix[rowCount-1] = generateRow();
+        matrix[rowCount - 1] = generateRow();
         resetBlockPositions();
     }
     else {
         stop();
+    }
+}
+
+function checkSelectorPosition() {
+    if (selector.coordinates.row > 0) {
+        selector.coordinates.row--;
+        selector.coordinates2.row--;
     }
 }
 
@@ -451,10 +465,12 @@ $(document).ready(function () {
     yMoveAmt = .2;
     riseInterval = 1000 / 1;
     actionInterval = 1000 / 60;
-    fallInterval = 1000 / 50;
+    fallInterval = 1000 / 60;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
+    player1Score = 0;
+    player2Score = 0;
     //logCurrentMatrixState();
 });
 
@@ -464,6 +480,7 @@ $(window).load(function () {
     dropAllBlocks();
     cleanRows();
     dropAllBlocks();
+    player1Score = 0;
     checkMatrixPosition();
     selector.sprite.draw();
     //logCurrentMatrixState();
@@ -476,20 +493,28 @@ $(document).keydown(function (event) {
             switchBlocks(selector.coordinates, selector.coordinates2);
             break;
         case 37://Left
-            animateSelector(new Coordinates(selector.coordinates.row,
-                selector.coordinates.column - 1));
+            if (selector.coordinates.column > 0) {
+                animateSelector(new Coordinates(selector.coordinates.row,
+                    selector.coordinates.column - 1));
+            }
             break;
         case 38://Up
-            animateSelector(new Coordinates(selector.coordinates.row - 1,
-                selector.coordinates.column));
+            if (selector.coordinates.row > 0) {
+                animateSelector(new Coordinates(selector.coordinates.row - 1,
+                    selector.coordinates.column));
+            }
             break;
         case 39://Right
-            animateSelector(new Coordinates(selector.coordinates.row,
-                selector.coordinates.column + 1));
+            if (selector.coordinates.column < columnCount - 2) {
+                animateSelector(new Coordinates(selector.coordinates.row,
+                    selector.coordinates.column + 1));
+            }
             break;
         case 40://Down
-            animateSelector(new Coordinates(selector.coordinates.row + 1,
-                selector.coordinates.column));
+            if (selector.coordinates.row < rowCount - 2) {
+                animateSelector(new Coordinates(selector.coordinates.row + 1,
+                    selector.coordinates.column));
+            }
             break;
     }
 });
