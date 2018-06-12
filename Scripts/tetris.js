@@ -200,7 +200,6 @@ function cleanMatrix() {
     cleanRows();
     $("#p1Score").text(player1Score);
     //$("#p2Score").text(player2Score);
-    checkAllBlocks();
 }
 
 function render(now) {
@@ -491,6 +490,7 @@ $(document).keydown(function (event) {
     switch (code) {
         case 32:
             switchBlocks(selector.coordinates, selector.coordinates2);
+            animateSelector(selector.coordinates);
             break;
         case 37://Left
             if (selector.coordinates.column > 0) {
