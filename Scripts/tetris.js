@@ -2,7 +2,7 @@
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
-var player1Score, player2Score;
+var player1Score, player2Score, fallOffset, riseOffset;
 
 function Timer() {
     this.last = null;
@@ -32,9 +32,9 @@ BlockSprite.prototype = {
     clear: function () {
         ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
     },
-    clearOffset: function () {
-        this.xPos += (xMoveAmt * riseTickCounter);
-        ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
+    clearOffset: function (rise) {
+        this.offSet = rise ? riseOffset : fallOffset;
+        ctx.clearRect(this.yPos * blockSize, (this.xPos - this.offSet) * blockSize, this.size, this.size);
     },
     draw: function () {
         this.determineXY();
@@ -44,13 +44,13 @@ BlockSprite.prototype = {
             this.yPos * blockSize, this.xPos * blockSize,
             this.size, this.size);
     },
-    drawOffset: function () {
+    drawOffset: function (rise) {
         this.determineXY();
-        this.xPos -= (xMoveAmt * riseTickCounter);
+        this.offSet = rise ? riseOffset : fallOffset;
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.yPos * blockSize, this.xPos * blockSize,
+            this.yPos * blockSize, (this.xPos - this.offSet) * blockSize,
             this.size, this.size);
     },
     determineXY: function () {
@@ -141,13 +141,12 @@ function createCanvas() {
 
 function aniMatrixRising() {
     riseTickCounter++;
+    riseOffset = xMoveAmt * riseTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && !block.isFalling) {
-                block.sprite.clear();
-                block.sprite.xPos -= xMoveAmt;
-                block.sprite.draw();
+                block.sprite.drawOffset(true);
             }
         }
     }
@@ -160,6 +159,7 @@ function aniMatrixRising() {
 
 function aniMatrixFalling() {
     fallTickCounter++;
+    fallOffset = xMoveAmt * fallTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
@@ -185,10 +185,10 @@ function animateSelector(coordinates) {
     var block2 = matrix[selector.coordinates.row][selector.coordinates.column + 1];
     selector.sprite.clear();
     if (block.blockType !== max) {
-        block.sprite.draw();
+        block.sprite.drawOffset(true);
     }
     if (block2.blockType !== max) {
-        block2.sprite.draw();
+        block2.sprite.drawOffset(true);
     }
 
     selector = new Selector(coordinates);
@@ -275,7 +275,9 @@ function cleanArray(coordArray) {
     for (var i = 1; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         var prevBlock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
-        if (block.blockType === prevBlock.blockType && !block.isFalling && !prevBlock.isFalling) {
+        if (block.blockType === prevBlock.blockType &&
+            !block.isFalling && !prevBlock.isFalling &&
+            block.blockType !== max) {
             deleteArray.push(new Coordinates(block.row, block.column));
             deleteArray.push(new Coordinates(prevBlock.row, prevBlock.column));
         }
@@ -290,7 +292,7 @@ function deleteBlocks(matchingBlocks) {
             player1Score++;
         }
         matrix[blockCoord.row][blockCoord.column].blockType = max;
-        matrix[blockCoord.row][blockCoord.column].sprite.clearOffset();
+        matrix[blockCoord.row][blockCoord.column].sprite.clearOffset(true);
     }
 }
 
@@ -470,6 +472,8 @@ $(document).ready(function () {
     doAnimation = true;
     player1Score = 0;
     player2Score = 0;
+    fallOffset = 0;
+    riseOffset = 0;
     //logCurrentMatrixState();
 });
 
