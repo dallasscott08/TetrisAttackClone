@@ -208,12 +208,6 @@ function render(now) {
     riseTimer.tick(now);
     fallTimer.tick(now);
     timer.tick(now);
-    if (timer.elapsed >= actionInterval) {
-        var actionThen = timer.elapsed % actionInterval;
-        timer.last = now - actionThen;
-        cleanMatrix();
-        selector.sprite.draw();
-    }
     if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
@@ -225,6 +219,12 @@ function render(now) {
         selector.sprite.clear();
         selector.sprite.xPos -= xMoveAmt;
         aniMatrixRising();
+        selector.sprite.draw();
+    }
+    if (timer.elapsed >= actionInterval) {
+        var actionThen = timer.elapsed % actionInterval;
+        timer.last = now - actionThen;
+        cleanMatrix();
         selector.sprite.draw();
     }
 }
