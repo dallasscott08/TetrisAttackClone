@@ -2,7 +2,7 @@
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
-var player1Score, player2Score, fallOffset, riseOffset;
+var player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 
 function Timer() {
     this.last = null;
@@ -146,6 +146,7 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && !block.isFalling) {
+                block.sprite.clear();
                 block.sprite.drawOffset(true);
             }
         }
@@ -164,6 +165,9 @@ function aniMatrixFalling() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && block.isFalling) {
+                if (r !== 0 && matrix[r - 1][c].blockType === max) {
+                    matrix[r - 1][c].sprite.clear();
+                }
                 block.sprite.clear();
                 block.sprite.xPos += xMoveAmt;
                 block.sprite.draw();
@@ -184,11 +188,20 @@ function animateSelector(coordinates) {
     var block = matrix[selector.coordinates.row][selector.coordinates.column];
     var block2 = matrix[selector.coordinates.row][selector.coordinates.column + 1];
     selector.sprite.clear();
-    if (block.blockType !== max) {
-        block.sprite.drawOffset(true);
-    }
-    if (block2.blockType !== max) {
-        block2.sprite.drawOffset(true);
+    if (riseTickCounter !== 0) {
+        if (block.blockType !== max) {
+            block.sprite.drawOffset(true);
+        }
+        if (block2.blockType !== max) {
+            block2.sprite.drawOffset(true);
+        }
+    } else {
+        if (block.blockType !== max) {
+            block.sprite.draw();
+        }
+        if (block2.blockType !== max) {
+            block2.sprite.draw();
+        }
     }
 
     selector = new Selector(coordinates);
@@ -208,23 +221,24 @@ function render(now) {
     riseTimer.tick(now);
     fallTimer.tick(now);
     timer.tick(now);
-    if (fallTimer.elapsed >= fallInterval) {
+    if (timer.elapsed >= actionInterval) {
+        var actionThen = timer.elapsed % actionInterval;
+        timer.last = now - actionThen;
+        cleanMatrix();
+        aniMatrixFalling();
+        selector.sprite.draw();
+    }
+    /*if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
         aniMatrixFalling();
-    }
+    }*/
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
         selector.sprite.clear();
         selector.sprite.xPos -= xMoveAmt;
         aniMatrixRising();
-        selector.sprite.draw();
-    }
-    if (timer.elapsed >= actionInterval) {
-        var actionThen = timer.elapsed % actionInterval;
-        timer.last = now - actionThen;
-        cleanMatrix();
         selector.sprite.draw();
     }
 }
@@ -256,7 +270,7 @@ function initializeMatrix(rows, columns) {
 
 function buildArrayFromColumns(row) {
     var coordinatesArray = [];
-    for (var i = 0; i <= columnCount; i++) {
+    for (var i = 0; i < columnCount; i++) {
         coordinatesArray.push(new Coordinates(row, i));
     }
     return coordinatesArray;
@@ -270,7 +284,7 @@ function buildArrayFromRow(column) {
     return coordinatesArray;
 }
 
-function cleanArray(coordArray) {
+/*function cleanArray(coordArray) {
     var deleteArray = [];
     for (var i = 1; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
@@ -280,6 +294,35 @@ function cleanArray(coordArray) {
             block.blockType !== max) {
             deleteArray.push(new Coordinates(block.row, block.column));
             deleteArray.push(new Coordinates(prevBlock.row, prevBlock.column));
+        }
+    }
+    return deleteArray;
+}*/
+
+function cleanArray(coordArray) {
+    var deleteArray = [];
+    var countArray = [];
+    var matchCounter = 1;
+    for (var i = 0; i < coordArray.length - 1; i++) {
+        var block = matrix[coordArray[i].row][coordArray[i].column];
+        var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
+        if (block.blockType !== max &&
+            block.blockType === nextBlock.blockType &&
+            !block.isFalling && !nextBlock.isFalling) {
+            countArray.push(new Coordinates(block.row, block.column));
+            if (i === coordArray.length - 1) {
+                countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
+            }
+            matchCounter++;
+        }
+        else if (block.blockType === max ||
+            block.blockType !== nextBlock.blockType ||
+            i === coordArray.length - 1) {
+            if (matchCounter >= matchAmount) {
+                deleteArray = deleteArray.concat(countArray);
+            }
+            countArray = [];
+            matchCounter = 1;
         }
     }
     return deleteArray;
@@ -300,9 +343,7 @@ function cleanColumns() {
     for (var c = 0; c < columnCount; c++) {
         var columnArray = buildArrayFromRow(c);
         var cleanedRowCoords = cleanArray(columnArray);
-        if (cleanedRowCoords.length > 2) {
-            deleteBlocks(cleanedRowCoords);
-        }
+        deleteBlocks(cleanedRowCoords);
     }
 }
 
@@ -310,9 +351,7 @@ function cleanRows() {
     for (var r = 0; r < rowCount; r++) {
         var rowCoordArray = buildArrayFromColumns(r);
         var cleanedColumnCoords = cleanArray(rowCoordArray);
-        if (cleanedColumnCoords.length > 2) {
-            deleteBlocks(cleanedColumnCoords);
-        }
+        deleteBlocks(cleanedColumnCoords);
     }
 }
 
@@ -474,6 +513,7 @@ $(document).ready(function () {
     player2Score = 0;
     fallOffset = 0;
     riseOffset = 0;
+    matchAmount = 2;
     //logCurrentMatrixState();
 });
 
