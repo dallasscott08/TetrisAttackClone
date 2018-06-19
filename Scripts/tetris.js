@@ -32,9 +32,15 @@ BlockSprite.prototype = {
     clear: function () {
         ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
     },
-    clearOffset: function (rise) {
-        this.offSet = rise ? riseOffset : fallOffset;
-        ctx.clearRect(this.yPos * blockSize, (this.xPos - this.offSet) * blockSize, this.size, this.size);
+    clearRiseOffset: function () {
+        var offSet = riseOffset;
+        ctx.clearRect(this.yPos * blockSize, (this.xPos - offSet) * blockSize, this.size, this.size);
+    },
+    clearFallOffset: function () {
+        var temp = fallOffset - riseOffset;
+        var temp1 = this.xPos;
+        var offSet = temp + temp1 - xMoveAmt;
+        ctx.clearRect(this.yPos * blockSize, offSet * blockSize, this.size, this.size);
     },
     draw: function () {
         this.determineXY();
@@ -44,13 +50,23 @@ BlockSprite.prototype = {
             this.yPos * blockSize, this.xPos * blockSize,
             this.size, this.size);
     },
-    drawOffset: function (rise) {
+    drawRiseOffset: function () {
         this.determineXY();
-        this.offSet = rise ? riseOffset : fallOffset;
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.yPos * blockSize, (this.xPos - this.offSet) * blockSize,
+            this.yPos * blockSize, (this.xPos - riseOffset) * blockSize,
+            this.size, this.size);
+    },
+    drawFallOffset: function () {
+        this.determineXY();
+        var temp = fallOffset - riseOffset;
+        var temp1 = this.xPos;
+        var offset = temp1 + temp;
+        ctx.drawImage(document.getElementById("sprites"),
+            this.pixelsLeft, this.pixelsTop,
+            this.spriteSize, this.spriteSize,
+            this.yPos * blockSize, offset * blockSize,
             this.size, this.size);
     },
     determineXY: function () {
@@ -147,7 +163,7 @@ function aniMatrixRising() {
             var block = matrix[r][c];
             if (block.blockType !== max && !block.isFalling) {
                 block.sprite.clear();
-                block.sprite.drawOffset(true);
+                block.sprite.drawRiseOffset();
             }
         }
     }
@@ -165,12 +181,13 @@ function aniMatrixFalling() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && block.isFalling) {
-                if (r !== 0 && matrix[r - 1][c].blockType === max) {
+                /*if (r !== 0 && matrix[r - 1][c].blockType === max) {
                     matrix[r - 1][c].sprite.clear();
-                }
-                block.sprite.clear();
-                block.sprite.xPos += xMoveAmt;
-                block.sprite.draw();
+                }*/
+                block.sprite.clearFallOffset();
+                block.sprite.drawFallOffset();
+                //block.sprite.xPos += xMoveAmt;
+                //block.sprite.draw();
                 if (fallTickCounter === 5) {
                     switchBlocks(new Coordinates(block.row, block.column),
                         new Coordinates(block.row + 1, block.column));
@@ -190,12 +207,13 @@ function animateSelector(coordinates) {
     selector.sprite.clear();
     if (riseTickCounter !== 0) {
         if (block.blockType !== max) {
-            block.sprite.drawOffset(true);
+            block.sprite.drawRiseOffset();
         }
         if (block2.blockType !== max) {
-            block2.sprite.drawOffset(true);
+            block2.sprite.drawRiseOffset();
         }
-    } else {
+    }
+    else {
         if (block.blockType !== max) {
             block.sprite.draw();
         }
@@ -335,7 +353,7 @@ function deleteBlocks(matchingBlocks) {
             player1Score++;
         }
         matrix[blockCoord.row][blockCoord.column].blockType = max;
-        matrix[blockCoord.row][blockCoord.column].sprite.clearOffset(true);
+        matrix[blockCoord.row][blockCoord.column].sprite.clearRiseOffset();
     }
 }
 
