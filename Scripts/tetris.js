@@ -243,14 +243,14 @@ function render(now) {
         var actionThen = timer.elapsed % actionInterval;
         timer.last = now - actionThen;
         cleanMatrix();
-        aniMatrixFalling();
+        //aniMatrixFalling();
         selector.sprite.draw();
     }
-    /*if (fallTimer.elapsed >= fallInterval) {
+    if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
         aniMatrixFalling();
-    }*/
+    }
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
@@ -321,21 +321,35 @@ function cleanArray(coordArray) {
     var deleteArray = [];
     var countArray = [];
     var matchCounter = 1;
-    for (var i = 0; i < coordArray.length - 1; i++) {
+    for (var i = 0; i < coordArray.length; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
-        var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
-        if (block.blockType !== max &&
-            block.blockType === nextBlock.blockType &&
-            !block.isFalling && !nextBlock.isFalling) {
-            countArray.push(new Coordinates(block.row, block.column));
-            if (i === coordArray.length - 1) {
-                countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
+        if (block.blockType !== max && !block.isFalling) {
+            if (i >= 0 && i < coordArray.length - 1) {
+                var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
+                if (block.blockType === nextBlock.blockType &&
+                    !nextBlock.isFalling) {
+                    countArray.push(new Coordinates(block.row, block.column));
+                    matchCounter++;
+                }
+                if (i > 0) {
+                    var prevblock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
+                    if (block.blockType === prevblock.blockType &&
+                        !prevblock.isFalling) {
+                        countArray.push(new Coordinates(block.row, block.column));
+                        matchCounter++;
+                    }
+                }
             }
-            matchCounter++;
         }
-        else if (block.blockType === max ||
-            block.blockType !== nextBlock.blockType ||
-            i === coordArray.length - 1) {
+        else if (block.blockType === max || block.isFalling || i === coordArray.length - 1) {
+            if (i === coordArray.length - 1) {
+                var prevblock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
+                if (block.blockType === prevblock.blockType &&
+                    !prevblock.isFalling) {
+                    countArray.push(new Coordinates(block.row, block.column));
+                    matchCounter++;
+                }
+            }
             if (matchCounter >= matchAmount) {
                 deleteArray = deleteArray.concat(countArray);
             }
