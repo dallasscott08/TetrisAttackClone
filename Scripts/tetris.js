@@ -37,9 +37,9 @@ BlockSprite.prototype = {
         ctx.clearRect(this.yPos * blockSize, (this.xPos - offSet) * blockSize, this.size, this.size);
     },
     clearFallOffset: function () {
-        var temp = fallOffset - riseOffset;
+        var temp = riseOffset - fallOffset;
         var temp1 = this.xPos;
-        var offSet = temp + temp1 - xMoveAmt;
+        var offSet = temp1 - temp - xMoveAmt;
         ctx.clearRect(this.yPos * blockSize, offSet * blockSize, this.size, this.size);
     },
     draw: function () {
@@ -60,9 +60,9 @@ BlockSprite.prototype = {
     },
     drawFallOffset: function () {
         this.determineXY();
-        var temp = fallOffset - riseOffset;
+        var temp = riseOffset - fallOffset;
         var temp1 = this.xPos;
-        var offset = temp1 + temp;
+        var offset = temp1 - temp;
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
@@ -162,7 +162,7 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && !block.isFalling) {
-                block.sprite.clear();
+                block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
             }
         }
@@ -181,13 +181,8 @@ function aniMatrixFalling() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && block.isFalling) {
-                /*if (r !== 0 && matrix[r - 1][c].blockType === max) {
-                    matrix[r - 1][c].sprite.clear();
-                }*/
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
-                //block.sprite.xPos += xMoveAmt;
-                //block.sprite.draw();
                 if (fallTickCounter === 5) {
                     switchBlocks(new Coordinates(block.row, block.column),
                         new Coordinates(block.row + 1, block.column));
@@ -243,7 +238,6 @@ function render(now) {
         var actionThen = timer.elapsed % actionInterval;
         timer.last = now - actionThen;
         cleanMatrix();
-        //aniMatrixFalling();
         selector.sprite.draw();
     }
     if (fallTimer.elapsed >= fallInterval) {
@@ -353,11 +347,10 @@ function cleanArray(coordArray) {
             if (matchCounter >= matchAmount) {
                 deleteArray = deleteArray.concat(countArray);
             }
-            countArray = [];
             matchCounter = 1;
         }
     }
-    return deleteArray;
+    return countArray;
 }
 
 function deleteBlocks(matchingBlocks) {
@@ -367,7 +360,7 @@ function deleteBlocks(matchingBlocks) {
             player1Score++;
         }
         matrix[blockCoord.row][blockCoord.column].blockType = max;
-        matrix[blockCoord.row][blockCoord.column].sprite.clearRiseOffset();
+        matrix[blockCoord.row][blockCoord.column].sprite.clear();
     }
 }
 
@@ -536,7 +529,7 @@ $(document).ready(function () {
     xMoveAmt = .2;
     yMoveAmt = .2;
     riseInterval = 1000 / 1;
-    actionInterval = 1000 / 60;
+    actionInterval = 1000 / 2;
     fallInterval = 1000 / 60;
     fallTickCounter = 0;
     riseTickCounter = 0;
