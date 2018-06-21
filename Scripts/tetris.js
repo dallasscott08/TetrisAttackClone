@@ -1,6 +1,6 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
-var max, xMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
+var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
 var player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 
@@ -24,30 +24,30 @@ function BlockSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
-    this.xPos = options.row + 1;
-    this.yPos = options.column;
+    this.xPos = options.column;
+    this.yPos = options.row + 1;
 }
 
 BlockSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.yPos * blockSize, this.xPos * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size, this.size);
     },
     clearRiseOffset: function () {
         var offSet = riseOffset;
-        ctx.clearRect(this.yPos * blockSize, (this.xPos - offSet) * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.size, this.size);
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
-        var temp1 = this.xPos;
-        var offSet = temp1 - temp - xMoveAmt;
-        ctx.clearRect(this.yPos * blockSize, offSet * blockSize, this.size, this.size);
+        var temp1 = this.yPos;
+        var offSet = temp1 - temp - yMoveAmt;
+        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.size, this.size);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.yPos * blockSize, this.xPos * blockSize,
+            this.xPos * blockSize, this.yPos * blockSize,
             this.size, this.size);
     },
     drawRiseOffset: function () {
@@ -55,18 +55,18 @@ BlockSprite.prototype = {
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.yPos * blockSize, (this.xPos - riseOffset) * blockSize,
+            this.xPos * blockSize, (this.yPos - riseOffset) * blockSize,
             this.size, this.size);
     },
     drawFallOffset: function () {
         this.determineXY();
         var temp = riseOffset - fallOffset;
-        var temp1 = this.xPos;
+        var temp1 = this.yPos;
         var offset = temp1 - temp;
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.yPos * blockSize, offset * blockSize,
+            this.xPos * blockSize, offset * blockSize,
             this.size, this.size);
     },
     determineXY: function () {
@@ -79,39 +79,39 @@ function SelectorSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
-    this.xPos = options.row + 1;
-    this.yPos = options.column;
+    this.xPos = options.column;
+    this.yPos = options.row + 1;
     this.spriteWidth = 36;
     this.spriteHeight = 21.6;
-    this.canvasX = (this.yPos * blockSize) - 10;
-    this.canvasY = (this.xPos * blockSize) - 10;
+    this.canvasX = (this.xPos * blockSize) - 10;
+    this.canvasY = (this.yPos * blockSize) - 10;
     this.canvasWidth = blockSize * 2.25;
     this.canvasHeight = blockSize * 1.35;
 }
 
 SelectorSprite.prototype = {
     clear: function () {
-        ctx.clearRect((this.yPos * blockSize) - 10, (this.xPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
+        ctx.clearRect((this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
     },
     clearOffset: function () {
-        this.xPos += (xMoveAmt * riseTickCounter);
-        ctx.clearRect((this.yPos * blockSize) - 10, (this.xPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
+        this.yPos += (yMoveAmt * riseTickCounter);
+        ctx.clearRect((this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
-            (this.yPos * blockSize) - 10, (this.xPos * blockSize) - 10,
+            (this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10,
             this.canvasWidth, this.canvasHeight);
     },
     drawOffset: function () {
         this.determineXY();
-        this.xPos -= (xMoveAmt * riseTickCounter);
+        this.xPos -= (yMoveAmt * riseTickCounter);
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
-            (this.yPos * blockSize) - 10, (this.xPos * blockSize) - 10,
+            (this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10,
             this.canvasWidth, this.canvasHeight);
     },
     determineXY: function () {
@@ -157,7 +157,7 @@ function createCanvas() {
 
 function aniMatrixRising() {
     riseTickCounter++;
-    riseOffset = xMoveAmt * riseTickCounter;
+    riseOffset = yMoveAmt * riseTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
@@ -176,7 +176,7 @@ function aniMatrixRising() {
 
 function aniMatrixFalling() {
     fallTickCounter++;
-    fallOffset = xMoveAmt * fallTickCounter;
+    fallOffset = yMoveAmt * fallTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
@@ -249,7 +249,7 @@ function render(now) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
         selector.sprite.clear();
-        selector.sprite.xPos -= xMoveAmt;
+        selector.sprite.yPos -= yMoveAmt;
         aniMatrixRising();
         selector.sprite.draw();
     }
@@ -474,7 +474,7 @@ function resetBlockPositions() {
             if (r === rowCount - 1) { matrix[r][c].isOffscreen = false; }
             if (matrix[r][c].blockType !== max) {
                 matrix[r][c].sprite.clear();
-                matrix[r][c].sprite.xPos = matrix[r][c].row + 1;
+                matrix[r][c].sprite.yPos = matrix[r][c].row + 1;
                 matrix[r][c].sprite.draw();
             }
         }
