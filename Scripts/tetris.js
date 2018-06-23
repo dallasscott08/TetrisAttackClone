@@ -107,7 +107,7 @@ SelectorSprite.prototype = {
     },
     drawOffset: function () {
         this.determineXY();
-        this.xPos -= (yMoveAmt * riseTickCounter);
+        this.yPos -= (yMoveAmt * riseTickCounter);
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
@@ -161,6 +161,7 @@ function aniMatrixRising() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
+            if (block.blockType === max) { block.sprite.clearRiseOffset(); }
             if (block.blockType !== max && !block.isFalling) {
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
@@ -317,8 +318,8 @@ function cleanArray(coordArray) {
     var matchCounter = 1;
     for (var i = 0; i < coordArray.length; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
-        if (block.blockType !== max && !block.isFalling) {
-            if (i >= 0 && i < coordArray.length - 1) {
+        if (block.blockType !== max && !block.isFalling && i < coordArray.length - 1) {
+            if (i >= 0) {
                 var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
                 if (block.blockType === nextBlock.blockType &&
                     !nextBlock.isFalling) {
@@ -350,7 +351,7 @@ function cleanArray(coordArray) {
             matchCounter = 1;
         }
     }
-    return countArray;
+    return deleteArray;
 }
 
 function deleteBlocks(matchingBlocks) {
@@ -538,7 +539,7 @@ $(document).ready(function () {
     player2Score = 0;
     fallOffset = 0;
     riseOffset = 0;
-    matchAmount = 2;
+    matchAmount = 3;
     //logCurrentMatrixState();
 });
 
