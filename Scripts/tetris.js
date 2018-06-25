@@ -297,58 +297,41 @@ function buildArrayFromRow(column) {
     return coordinatesArray;
 }
 
-/*function cleanArray(coordArray) {
-    var deleteArray = [];
-    for (var i = 1; i < coordArray.length - 1; i++) {
-        var block = matrix[coordArray[i].row][coordArray[i].column];
-        var prevBlock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
-        if (block.blockType === prevBlock.blockType &&
-            !block.isFalling && !prevBlock.isFalling &&
-            block.blockType !== max) {
-            deleteArray.push(new Coordinates(block.row, block.column));
-            deleteArray.push(new Coordinates(prevBlock.row, prevBlock.column));
-        }
-    }
-    return deleteArray;
-}*/
-
 function cleanArray(coordArray) {
     var deleteArray = [];
     var countArray = [];
     var matchCounter = 1;
-    for (var i = 0; i < coordArray.length; i++) {
+    for (var i = 1; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
-        if (block.blockType !== max && !block.isFalling && i < coordArray.length - 1) {
-            if (i >= 0) {
-                var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
-                if (block.blockType === nextBlock.blockType &&
-                    !nextBlock.isFalling) {
-                    countArray.push(new Coordinates(block.row, block.column));
-                    matchCounter++;
+        var blockCoord = new Coordinates(block.row, block.column);
+        var prevBlock = matrix[coordArray[0].row][coordArray[0].column];
+        var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
+        if (block.blockType !== max && !block.isFalling && (block.blockType === prevBlock.blockType || block.blockType === nextBlock.blockType)) {
+            if (block.blockType === prevBlock.blockType && !prevBlock.isFalling &&
+                !countArray.includes(blockCoord)) {
+                if(i === 1){
+                    countArray.push(new Coordinates(prevBlock.row, prevBlock.column));
                 }
-                if (i > 0) {
-                    var prevblock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
-                    if (block.blockType === prevblock.blockType &&
-                        !prevblock.isFalling) {
-                        countArray.push(new Coordinates(block.row, block.column));
-                        matchCounter++;
-                    }
+                countArray.push(blockCoord);
+                matchCounter++;
+            }
+            if (block.blockType === nextBlock.blockType && !nextBlock.isFalling) {
+                if (!countArray.includes(blockCoord)) {
+                    countArray.push(blockCoord);
                 }
+                if (i === coordArray.length - 1) {
+                    countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
+                }
+                matchCounter++;
             }
         }
-        else if (block.blockType === max || block.isFalling || i === coordArray.length - 1) {
-            if (i === coordArray.length - 1) {
-                var prevblock = matrix[coordArray[i - 1].row][coordArray[i - 1].column];
-                if (block.blockType === prevblock.blockType &&
-                    !prevblock.isFalling) {
-                    countArray.push(new Coordinates(block.row, block.column));
-                    matchCounter++;
-                }
-            }
+        else if (block.blockType === max || block.isFalling
+            || block.blockType !== nextBlock.blockType) {
             if (matchCounter >= matchAmount) {
                 deleteArray = deleteArray.concat(countArray);
             }
-            matchCounter = 1;
+            countArray = [];
+            matchCounter = 0;
         }
     }
     return deleteArray;
@@ -539,7 +522,7 @@ $(document).ready(function () {
     player2Score = 0;
     fallOffset = 0;
     riseOffset = 0;
-    matchAmount = 3;
+    matchAmount = 2;
     //logCurrentMatrixState();
 });
 
