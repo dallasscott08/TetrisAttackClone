@@ -301,37 +301,40 @@ function cleanArray(coordArray) {
     var deleteArray = [];
     var countArray = [];
     var matchCounter = 1;
+    var firstBlock = matrix[coordArray[0].row][coordArray[0].column];
     for (var i = 1; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         var blockCoord = new Coordinates(block.row, block.column);
-        var prevBlock = matrix[coordArray[0].row][coordArray[0].column];
         var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
-        if (block.blockType !== max && !block.isFalling && (block.blockType === prevBlock.blockType || block.blockType === nextBlock.blockType)) {
-            if (block.blockType === prevBlock.blockType && !prevBlock.isFalling &&
-                !countArray.includes(blockCoord)) {
-                if(i === 1){
-                    countArray.push(new Coordinates(prevBlock.row, prevBlock.column));
-                }
-                countArray.push(blockCoord);
-                matchCounter++;
-            }
-            if (block.blockType === nextBlock.blockType && !nextBlock.isFalling) {
-                if (!countArray.includes(blockCoord)) {
-                    countArray.push(blockCoord);
-                }
-                if (i === coordArray.length - 1) {
-                    countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
-                }
-                matchCounter++;
-            }
+        if (i === 1 && block.blockType !== max && !block.isFalling && block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
+            countArray.push(new Coordinates(firstBlock.row, firstBlock.column));
+            countArray.push(blockCoord);
+            countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
+            matchCounter += 2;
         }
-        else if (block.blockType === max || block.isFalling
-            || block.blockType !== nextBlock.blockType) {
+        else if (i < coordArray.length - 2 && block.blockType !== max && !block.isFalling &&
+            block.blockType === nextBlock.blockType && !countArray.includes(blockCoord)) {
+            countArray.push(blockCoord);
+            matchCounter++;
+        }
+        else if (i === coordArray.length - 2 && block.blockType === nextBlock.blockType) {
+            countArray.push(blockCoord);
+            countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
+            matchCounter++;
             if (matchCounter >= matchAmount) {
                 deleteArray = deleteArray.concat(countArray);
             }
+        }
+
+        if (block.blockType !== nextBlock.blockType && matchCounter >= matchAmount) {
+            countArray.push(blockCoord);
+            deleteArray = deleteArray.concat(countArray);
             countArray = [];
-            matchCounter = 0;
+            matchCounter = 1;
+        }
+        else if (block.blockType !== nextBlock.blockType) {
+            countArray = [];
+            matchCounter = 1;
         }
     }
     return deleteArray;
@@ -522,7 +525,7 @@ $(document).ready(function () {
     player2Score = 0;
     fallOffset = 0;
     riseOffset = 0;
-    matchAmount = 2;
+    matchAmount = 3;
     //logCurrentMatrixState();
 });
 
