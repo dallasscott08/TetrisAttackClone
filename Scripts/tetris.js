@@ -20,7 +20,6 @@ function BlockSprite(options) {
     this.size = blockSize;
     this.spriteSize = 16;
     this.blockType = options.blockType;
-    this.interval = 1000 / options.fps;
     this.row = options.row;
     this.column = options.column;
     this.now = new Date().getTime();
@@ -306,7 +305,9 @@ function cleanArray(coordArray) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         var blockCoord = new Coordinates(block.row, block.column);
         var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
-        if (i === 1 && block.blockType !== max && !block.isFalling && block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
+        if (i === 1 && block.blockType !== max &&
+            !block.isFalling && !firstBlock.isFalling && !nextBlock.isFalling &&
+            block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
             countArray.push(new Coordinates(firstBlock.row, firstBlock.column));
             countArray.push(blockCoord);
             countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
