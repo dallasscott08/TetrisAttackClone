@@ -267,7 +267,7 @@ function cleanFirstBlockCoords(coordArray){
         !block.isFalling && !firstBlock.isFalling && !nextBlock.isFalling &&
         block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
         countArray.push(new Coordinates(firstBlock.row, firstBlock.column));
-        countArray.push(blockCoord);
+        countArray.push(new Coordinates(block.row, block.column));
         countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
         matchCounter += 2;
     }
@@ -275,8 +275,8 @@ function cleanFirstBlockCoords(coordArray){
 }
 
 function blocksMatch(block1, block2){
-    if(block.blockType !== max && !block.isFalling && !nextBlock.isFalling &&
-        block.blockType === nextBlock.blockType){
+    if (block1.blockType !== max && !block1.isFalling && !block2.isFalling &&
+        block1.blockType === block2.blockType) {
         return true;
     }
     else{ return false; }
@@ -287,7 +287,7 @@ function cleanArray(coordArray) {
     var countArray = cleanFirstBlockCoords(coordArray).countArray;
     var matchCounter = cleanFirstBlockCoords(coordArray).matchCounter;
 
-    for (var i = 2; i < coordArray.length - 1; i++) {
+    for (var i = 1; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         var blockCoord = new Coordinates(block.row, block.column);
         var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
