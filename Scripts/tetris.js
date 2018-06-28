@@ -140,20 +140,6 @@ function Block(row, column, blockType) {
     this.isSelected = false;
 }
 
-function createCanvas() {
-    var canvas = document.getElementById("game");
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    ctx = canvas.getContext("2d");
-
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    blockSize = canvas.clientHeight / rowCount;
-    matrix = initializeMatrix(rowCount, columnCount);
-    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3));
-    requestAnimationFrame(render);
-}
-
 function aniMatrixRising() {
     riseTickCounter++;
     riseOffset = yMoveAmt * riseTickCounter;
@@ -169,7 +155,7 @@ function aniMatrixRising() {
     }
     if (riseTickCounter === 5) {
         checkSelectorPosition();
-        checkMatrixPosition();
+        resetMatrixPosition();
         riseTickCounter = 0;
     }
 }
@@ -255,31 +241,6 @@ function render(now) {
     }
 }
 
-function initializeMatrix(rows, columns) {
-    var initialMatrix = [];
-
-    rowCount = rows;
-    columnCount = columns;
-    for (var r = 0; r < rows - 1; r++) {
-        initialMatrix[r] = [];
-        for (var c = 0; c < columns; c++) {
-            var newBlock;
-            if (r < rows / 2) {
-                newBlock = new Block(r, c, max);
-            }
-            else {
-                newBlock = new Block(r, c, Math.floor(Math.random() * (max + 1)));
-            }
-            initialMatrix[r][c] = newBlock;
-            if (newBlock.blockType !== max) {
-                newBlock.sprite.draw();
-            }
-        }
-    }
-    initialMatrix[rows - 1] = generateRow();
-    return initialMatrix;
-}
-
 function buildArrayFromColumns(row) {
     var coordinatesArray = [];
     for (var i = 0; i < columnCount; i++) {
@@ -296,8 +257,7 @@ function buildArrayFromRow(column) {
     return coordinatesArray;
 }
 
-function cleanArray(coordArray) {
-    var deleteArray = [];
+function cleanFirstBlockCoords(coordArray){
     var countArray = [];
     var matchCounter = 1;
     var firstBlock = matrix[coordArray[0].row][coordArray[0].column];
@@ -311,17 +271,33 @@ function cleanArray(coordArray) {
         countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
         matchCounter += 2;
     }
-    for (var i = 1; i < coordArray.length - 1; i++) {
-        block = matrix[coordArray[i].row][coordArray[i].column];
-        var blockCoord = new Coordinates(block.row, block.column);
-        nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
+    return {matchCounter: matchCounter, countArray:countArray};
+}
 
-        if (i < coordArray.length - 2 && block.blockType !== max && !block.isFalling &&
-            block.blockType === nextBlock.blockType && !countArray.includes(blockCoord)) {
+function blocksMatch(block1, block2){
+    if(block.blockType !== max && !block.isFalling && !nextBlock.isFalling &&
+        block.blockType === nextBlock.blockType){
+        return true;
+    }
+    else{ return false; }
+}
+
+function cleanArray(coordArray) {
+    var deleteArray = [];
+    var countArray = cleanFirstBlockCoords(coordArray).countArray;
+    var matchCounter = cleanFirstBlockCoords(coordArray).matchCounter;
+
+    for (var i = 2; i < coordArray.length - 1; i++) {
+        var block = matrix[coordArray[i].row][coordArray[i].column];
+        var blockCoord = new Coordinates(block.row, block.column);
+        var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
+
+        if (i < coordArray.length - 2 && blocksMatch(block, nextBlock) &&
+            !countArray.includes(blockCoord)) {
             countArray.push(blockCoord);
             matchCounter++;
         }
-        else if (i === coordArray.length - 2 && block.blockType === nextBlock.blockType) {
+        else if (i === coordArray.length - 2 && blocksMatch(block, nextBlock)) {
             countArray.push(blockCoord);
             countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
             matchCounter++;
@@ -330,13 +306,11 @@ function cleanArray(coordArray) {
             }
         }
 
-        if (block.blockType !== nextBlock.blockType && matchCounter >= matchAmount) {
-            countArray.push(blockCoord);
-            deleteArray = deleteArray.concat(countArray);
-            countArray = [];
-            matchCounter = 1;
-        }
-        else if (block.blockType !== nextBlock.blockType) {
+        if(!blocksMatch(block, nextBlock)){
+            if(matchCounter >= matchAmount){
+                countArray.push(blockCoord);
+                deleteArray = deleteArray.concat(countArray);
+            }
             countArray = [];
             matchCounter = 1;
         }
@@ -371,6 +345,16 @@ function cleanRows() {
     }
 }
 
+function checkBlock(block) {
+    if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
+        block.isFalling = false;
+        return;
+    }
+    else {
+        block.isFalling = true;
+    }
+}
+
 function checkAllBlocks() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
@@ -385,49 +369,6 @@ function switchBlocks(block1Coords, block2Coords) {
 
     matrix[block.row][block.column] = new Block(block.row, block.column, lowerBlock.blockType);
     matrix[lowerBlock.row][lowerBlock.column] = new Block(lowerBlock.row, lowerBlock.column, block.blockType);
-}
-
-function checkBlock(block) {
-    if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
-        block.isFalling = false;
-        return;
-    }
-    else {
-        block.isFalling = true;
-    }
-}
-
-function dropBlockDownRecursively(block) {
-    if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
-        return;
-    }
-    else {
-        switchBlocks(new Coordinates(block.row, block.column),
-            new Coordinates(block.row + 1, block.column));
-        dropBlockDownRecursively(matrix[block.row + 1][block.column]);
-
-        matrix[block.row][block.column].sprite.clear();
-        if (matrix[block.row + 1][block.column].blockType !== max) {
-            matrix[block.row + 1][block.column].sprite.draw();
-        }
-    }
-}
-
-function dropBlocksInRow(row) {
-    for (var c = 0; c < columnCount; c++) {
-        var block = matrix[row][c];
-        var lowerblock = matrix[row + 1][c];
-        if (lowerblock.blockType === max
-            && block.blockType !== max) {
-            dropBlockDownRecursively(block);
-        }
-    }
-}
-
-function dropAllBlocks() {
-    for (var r = rowCount - 2; r >= 0; r--) {
-        dropBlocksInRow(r);
-    }
 }
 
 function topCollisionDetected() {
@@ -472,16 +413,7 @@ function resetBlockPositions() {
     }
 }
 
-function compareBlockToSelector(block) {
-    if (block.row === selector.coordinates.row && block.column === selector.coordinates.column ||
-        block.row === selector.coordinates2.row && block.column === selector.coordinates2.column) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function checkMatrixPosition() {
+function resetMatrixPosition() {
     if (!topCollisionDetected()) {
         raiseBlocksUpLogically();
         matrix[rowCount - 1] = generateRow();
@@ -492,6 +424,15 @@ function checkMatrixPosition() {
     }
 }
 
+function compareBlockToSelector(block) {
+    if (block.row === selector.coordinates.row && block.column === selector.coordinates.column ||
+        block.row === selector.coordinates2.row && block.column === selector.coordinates2.column) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function checkSelectorPosition() {
     if (selector.coordinates.row > 0) {
         selector.coordinates.row--;
@@ -499,7 +440,84 @@ function checkSelectorPosition() {
     }
 }
 
-function pause() { }
+function initializeMatrix(rows, columns) {
+    var initialMatrix = [];
+
+    rowCount = rows;
+    columnCount = columns;
+    for (var r = 0; r < rows - 1; r++) {
+        initialMatrix[r] = [];
+        for (var c = 0; c < columns; c++) {
+            var newBlock;
+            if (r < rows / 2) {
+                newBlock = new Block(r, c, max);
+            }
+            else {
+                newBlock = new Block(r, c, Math.floor(Math.random() * (max + 1)));
+            }
+            initialMatrix[r][c] = newBlock;
+            if (newBlock.blockType !== max) {
+                newBlock.sprite.draw();
+            }
+        }
+    }
+    initialMatrix[rows - 1] = generateRow();
+    return initialMatrix;
+}
+
+function createCanvas() {
+    var canvas = document.getElementById("game");
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    ctx = canvas.getContext("2d");
+
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
+    blockSize = canvas.clientHeight / rowCount;
+    matrix = initializeMatrix(rowCount, columnCount);
+    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3));
+    requestAnimationFrame(render);
+}
+
+function dropBlockDownRecursively(block) {
+    if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
+        return;
+    }
+    else {
+        switchBlocks(new Coordinates(block.row, block.column),
+            new Coordinates(block.row + 1, block.column));
+        dropBlockDownRecursively(matrix[block.row + 1][block.column]);
+
+        matrix[block.row][block.column].sprite.clear();
+        if (matrix[block.row + 1][block.column].blockType !== max) {
+            matrix[block.row + 1][block.column].sprite.draw();
+        }
+    }
+}
+
+function dropBlocksInRow(row) {
+    for (var c = 0; c < columnCount; c++) {
+        var block = matrix[row][c];
+        var lowerblock = matrix[row + 1][c];
+        if (lowerblock.blockType === max
+            && block.blockType !== max) {
+            dropBlockDownRecursively(block);
+        }
+    }
+}
+
+function dropAllBlocks() {
+    for (var r = rowCount - 2; r >= 0; r--) {
+        dropBlocksInRow(r);
+    }
+}
+
+function pause() {
+   doAnimation = doAnimation ? false : true;
+   if (doAnimation) {
+       start();
+   }
+}
 function stop() { doAnimation = false; }
 function start() {
     var canvas = document.getElementById("game");
@@ -540,7 +558,7 @@ $(window).load(function () {
     cleanRows();
     dropAllBlocks();
     player1Score = 0;
-    checkMatrixPosition();
+    resetMatrixPosition();
     selector.sprite.draw();
     //logCurrentMatrixState();
 });
