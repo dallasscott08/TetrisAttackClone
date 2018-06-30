@@ -551,7 +551,7 @@ $(document).ready(function () {
     //logCurrentMatrixState();
 });
 
-$(window).load(function () {
+$(window).on('load', function () {
     createCanvas();
     cleanColumns();
     dropAllBlocks();
@@ -563,7 +563,7 @@ $(window).load(function () {
     //logCurrentMatrixState();
 });
 
-$(document).keydown(function (event) {
+$(document).on('keydown', function (event) {
     var code = event.keyCode || event.which;
     switch (code) {
         case 32:
