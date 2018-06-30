@@ -36,9 +36,6 @@ h2{
 	left: 7%;
 }
 
-canvas{
-}
-
 span{
     padding-left:.5em;
     padding-right:.5em;
@@ -48,28 +45,4 @@ span{
     background-image: url("Sprites.png");
     width: 128px;
     height: 128px;
-}
-
-#square1{
-    background-position: 0 0px;
-}
-
-#square2{
-    background-position: 0 8px;
-}
-
-#square3{
-    background-position: 0 16px;
-}
-
-#square4{
-    background-position: 8px 0;
-}
-
-#square5{
-    background-position: 8px 8px;
-}
-
-#square6{
-    background-position: 8px 16px;
 }
