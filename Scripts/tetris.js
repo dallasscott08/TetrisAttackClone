@@ -2,7 +2,12 @@
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
-var player1Score, player2Score, fallOffset, riseOffset, matchAmount;
+var player1Score, player2Score, fallOffset, riseOffset, matchAmount, minGarbageWidth;
+
+function Coordinates(row, column) {
+    this.row = row;
+    this.column = column;
+}
 
 function Timer() {
     this.last = null;
@@ -22,7 +27,6 @@ function BlockSprite(options) {
     this.blockType = options.blockType;
     this.row = options.row;
     this.column = options.column;
-    this.now = new Date().getTime();
     this.xPos = options.column;
     this.yPos = options.row + 1;
 }
@@ -74,10 +78,19 @@ BlockSprite.prototype = {
     }
 }
 
+function Block(row, column, blockType) {
+    this.row = row;
+    this.column = column;
+    this.blockType = blockType;
+    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column });
+    this.isFalling = false;
+    this.isOffscreen = false;
+    this.isSelected = false;
+}
+
 function SelectorSprite(options) {
     this.row = options.row;
     this.column = options.column;
-    this.now = new Date().getTime();
     this.xPos = options.column;
     this.yPos = options.row + 1;
     this.spriteWidth = 36;
@@ -125,18 +138,68 @@ function Selector(coordinates) {
     this.sprite = new SelectorSprite({ row: coordinates.row, column: coordinates.column });
 }
 
-function Coordinates(row, column) {
-    this.row = row;
-    this.column = column;
+function GarbageSprite(options) {
+    this.size = blockSize;
+    this.spriteSize = 16;
+    this.row = options.row;
+    this.width = options.width;
+    this.xPos = options.column;
+    this.yPos = options.row + 1;
 }
 
-function Block(row, column, blockType) {
+GarbageSprite.prototype = {
+    clear: function () {
+        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size, this.size);
+    },
+    clearRiseOffset: function () {
+        var offSet = riseOffset;
+        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.size, this.size);
+    },
+    clearFallOffset: function () {
+        var temp = riseOffset - fallOffset;
+        var temp1 = this.yPos;
+        var offSet = temp1 - temp - yMoveAmt;
+        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.size, this.size);
+    },
+    draw: function () {
+        this.determineXY();
+        ctx.drawImage(document.getElementById("sprites"),
+            this.pixelsLeft, this.pixelsTop,
+            this.spriteSize, this.spriteSize,
+            this.xPos * blockSize, this.yPos * blockSize,
+            this.size, this.size);
+    },
+    drawRiseOffset: function () {
+        this.determineXY();
+        ctx.drawImage(document.getElementById("sprites"),
+            this.pixelsLeft, this.pixelsTop,
+            this.spriteSize, this.spriteSize,
+            this.xPos * blockSize, (this.yPos - riseOffset) * blockSize,
+            this.size, this.size);
+    },
+    drawFallOffset: function () {
+        this.determineXY();
+        var temp = riseOffset - fallOffset;
+        var temp1 = this.yPos;
+        var offset = temp1 - temp;
+        ctx.drawImage(document.getElementById("sprites"),
+            this.pixelsLeft, this.pixelsTop,
+            this.spriteSize, this.spriteSize,
+            this.xPos * blockSize, offset * blockSize,
+            this.size, this.size);
+    },
+    determineXY: function () {
+        this.pixelsLeft = (this.spriteSize * this.blockType) + (3 * (1 + this.blockType));
+        this.pixelsTop = 3;
+    }
+}
+
+function Garbage(row, width) {
     this.row = row;
-    this.column = column;
-    this.blockType = blockType;
-    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column, fps: 4 });
+    this.width = width;
+    this.coords = [width];
+    this.sprite = new GarbageSprite({ row: row, width: width });
     this.isFalling = false;
-    this.isOffscreen = false;
     this.isSelected = false;
 }
 
@@ -241,18 +304,51 @@ function render(now) {
     }
 }
 
+function dropGarbage(){
+
+}
+
+function getGarbageColumnPosition(garbageWidth){
+
+}
+
+function buildGarbageCoords(row, garbageWidth){    
+    var coordinatesArray = [];
+    for (var c = 0; c < garbageWidth; c++) {
+        coordinatesArray.push(new Coordinates(row, c));
+    }
+    return coordinatesArray;
+}
+
+function generateGarbage(){
+    var garbageWidth = Math.floor(Math.random() * (minGarbageWidth)) + minGarbageWidth;
+    var garbage = new Garbage(0, garbageWidth, 1);
+    garbage.coords = buildGarbageCoords(0, garbageWidth);
+    garbage.isFalling = true;
+    var firstGarbageColumn = getGarbageColumnPosition(garbageWidth);
+    matrix[0][firstGarbageColumn] = garbage;
+}
+
+function transformGarbage(coordArray){
+    for(var i = 0; i < coordArray.length; i++){
+        var coord = coordArray[i];
+        var newBlock = new Block(coord.row, coord.column, Math.floor(Math.random() * (max)));
+        matrix[coord.row][coord.column] = newBlock;
+    }
+}
+
 function buildArrayFromColumns(row) {
     var coordinatesArray = [];
-    for (var i = 0; i < columnCount; i++) {
-        coordinatesArray.push(new Coordinates(row, i));
+    for (var c = 0; c < columnCount; c++) {
+        coordinatesArray.push(new Coordinates(row, c));
     }
     return coordinatesArray;
 }
 
 function buildArrayFromRow(column) {
     var coordinatesArray = [];
-    for (var i = 0; i < rowCount; i++) {
-        coordinatesArray.push(new Coordinates(i, column));
+    for (var r = 0; r < rowCount; r++) {
+        coordinatesArray.push(new Coordinates(r, column));
     }
     return coordinatesArray;
 }
@@ -548,7 +644,7 @@ $(document).ready(function () {
     fallOffset = 0;
     riseOffset = 0;
     matchAmount = 3;
-    //logCurrentMatrixState();
+    minGarbageWidth = columnCount/2;
 });
 
 $(window).on('load', function () {
@@ -560,7 +656,6 @@ $(window).on('load', function () {
     player1Score = 0;
     resetMatrixPosition();
     selector.sprite.draw();
-    //logCurrentMatrixState();
 });
 
 $(document).on('keydown', function (event) {
@@ -596,18 +691,3 @@ $(document).on('keydown', function (event) {
             break;
     }
 });
-
-/*
-function logCurrentMatrixState() {
-    var matrixAsString;
-    for (var i = 0; i < columnCount; i++) {
-        matrixAsString += "{";
-        for (var j = 0; j < columnCount; j++) {
-            matrixAsString = matrix[i][j].blockType
-                + ", " + matrix[i][j].column
-                + ", " + matrix[i][j].row + "}";
-        }
-        matrix += "\n";
-    }
-    console.log(matrixAsString);
-}*/
