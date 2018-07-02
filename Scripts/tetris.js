@@ -308,10 +308,6 @@ function dropGarbage(){
 
 }
 
-function getGarbageColumnPosition(garbageWidth){
-
-}
-
 function buildGarbageCoords(row, garbageWidth){    
     var coordinatesArray = [];
     for (var c = 0; c < garbageWidth; c++) {
@@ -321,18 +317,18 @@ function buildGarbageCoords(row, garbageWidth){
 }
 
 function generateGarbage(){
-    var garbageWidth = Math.floor(Math.random() * (minGarbageWidth)) + minGarbageWidth;
+    var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
     var garbage = new Garbage(0, garbageWidth, 1);
     garbage.coords = buildGarbageCoords(0, garbageWidth);
     garbage.isFalling = true;
-    var firstGarbageColumn = getGarbageColumnPosition(garbageWidth);
+    var firstGarbageColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
     matrix[0][firstGarbageColumn] = garbage;
 }
 
 function transformGarbage(coordArray){
     for(var i = 0; i < coordArray.length; i++){
         var coord = coordArray[i];
-        var newBlock = new Block(coord.row, coord.column, Math.floor(Math.random() * (max)));
+        var newBlock = new Block(coord.row, coord.column, Math.floor(Math.random() * max));
         matrix[coord.row][coord.column] = newBlock;
     }
 }
@@ -489,7 +485,7 @@ function raiseBlocksUpLogically() {
 function generateRow() {
     var row = []
     for (var c = 0; c < columnCount; c++) {
-        var newBlock = new Block(rowCount - 1, c, Math.floor(Math.random() * (max)));
+        var newBlock = new Block(rowCount - 1, c, Math.floor(Math.random() * max));
         newBlock.isOffscreen = true;
         row.push(newBlock);
     }
