@@ -1,7 +1,7 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
-var riseInterval, fallInterval, riseTickCounter, fallTickCounter, doAnimation;
+var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset, doAnimation;
 var player1Score, player2Score, fallOffset, riseOffset, matchAmount, minGarbageWidth;
 
 function Coordinates(row, column) {
@@ -210,13 +210,18 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType === max) { block.sprite.clearRiseOffset(); }
-            if (block.blockType !== max && !block.isFalling) {
+            else if (block.blockType !== max && !block.isFalling) {
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
             }
+            else if(block.blockType === -1 && !block.isFalling){
+                block.sprite.clearRiseOffset();
+                block.sprite.drawRiseOffset();
+                c += block.garbageWidth;
+            }
         }
     }
-    if (riseTickCounter === 5) {
+    if (riseTickCounter === riseTickReset) {
         checkSelectorPosition();
         resetMatrixPosition();
         riseTickCounter = 0;
@@ -232,14 +237,14 @@ function aniMatrixFalling() {
             if (block.blockType !== max && block.isFalling) {
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
-                if (fallTickCounter === 5) {
+                if (fallTickCounter === fallTickReset) {
                     switchBlocks(new Coordinates(block.row, block.column),
                         new Coordinates(block.row + 1, block.column));
                 }
             }
         }
     }
-    if (fallTickCounter === 5) {
+    if (fallTickCounter === fallTickReset) {
         checkAllBlocks();
         fallTickCounter = 0;
     }
@@ -302,10 +307,6 @@ function render(now) {
         aniMatrixRising();
         selector.sprite.draw();
     }
-}
-
-function dropGarbage(){
-
 }
 
 function buildGarbageCoords(row, garbageWidth){    
@@ -437,6 +438,21 @@ function cleanRows() {
     }
 }
 
+function checkGarbage(garbage) {
+    if (garbage.row === rowCount - 1) {
+        garbage.isFalling = false;
+        return;
+    }
+    else {
+        for (var i = 0; i < garbage.coords.length; i++) {
+            if (matrix[garbage.coords[i].row + 1][garbage.coords[i].column].blockType !== max) {
+                garbage.isFalling = false;
+            }
+        }
+        block.isFalling = true;
+    }
+ }
+
 function checkBlock(block) {
     if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
         block.isFalling = false;
@@ -450,10 +466,16 @@ function checkBlock(block) {
 function checkAllBlocks() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
-            checkBlock(matrix[r][c]);
+            var block = matrix[r][c];
+            if (block.blockType === -1) {
+                checkGarbage(block);
+                c += block.garbageWidth;
+            } else {
+                checkBlock(block);
+            }
         }
     }
-}
+ }
 
 function switchBlocks(block1Coords, block2Coords) {
     var block = matrix[block1Coords.row][block1Coords.column];
@@ -465,7 +487,8 @@ function switchBlocks(block1Coords, block2Coords) {
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
-        if (matrix[0][c].blockType !== max) {
+        if (matrix[0][c].blockType !== max || 
+            (matrix[0][c].blockType !== - 1 && !matrix[0][c].isFalling )) {
             return true;
         }
     }
@@ -641,6 +664,8 @@ $(document).ready(function () {
     riseOffset = 0;
     matchAmount = 3;
     minGarbageWidth = columnCount/2;
+    riseTickReset = 1 / yMoveAmt;
+    fallTickReset = 1 / yMoveAmt
 });
 
 $(window).on('load', function () {
