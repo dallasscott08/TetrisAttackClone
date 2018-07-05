@@ -239,8 +239,16 @@ function aniMatrixFalling() {
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
                 if (fallTickCounter === fallTickReset) {
-                    switchBlocks(new Coordinates(block.row, block.column),
+                    if(block.blockType === -1){
+                        var firstCoord = block.coords[0];
+                        switchGarbage(new Coordinates(block.row, firstCoord.column),
+                        new Coordinates(block.row + 1, firstCoord.column))
+                        c += block.width;
+                    }
+                    else{
+                        switchBlocks(new Coordinates(block.row, block.column),
                         new Coordinates(block.row + 1, block.column));
+                    }
                 }
             }
         }
@@ -489,15 +497,16 @@ function switchBlocks(block1Coords, block2Coords) {
 function switchGarbage(garbageCoords, blockCoords) {
     var garbage = matrix[garbageCoords.row][garbageCoords.column];
     var block = matrix[blockCoords.row][blockCoords.column];
-
-    matrix[block.row][block.column] = new Garbage(block.row, garbage.width);
-    matrix[block.row][block.column].startColumn = garbage.startColumn;
+    var newGarbage = new Garbage(block.row, garbage.width);
 
     for(var c = 0; c < garbage.width; c++){
         var coord = garbage.coords[c];
+        newGarbage.coords.push(new Coordinates(block.row, coord.column));
         matrix[coord.row][coord.column] = new Block(coord.row, coord.column, block.blockType);
         matrix[block.row][coord.column].blockType = -1;
     }
+
+    matrix[block.row][block.column] = newGarbage;
 }
 
 function topCollisionDetected() {
@@ -724,6 +733,9 @@ $(document).on('keydown', function (event) {
                 animateSelector(new Coordinates(selector.coordinates.row + 1,
                     selector.coordinates.column));
             }
+            break;
+        case 90://Down
+            pause();
             break;
     }
 });
