@@ -195,9 +195,10 @@ GarbageSprite.prototype = {
 }
 
 function Garbage(row, width) {
+    this.blockType = -1;
+    this.coords = [width];
     this.row = row;
     this.width = width;
-    this.coords = [width];
     this.sprite = new GarbageSprite({ row: row, width: width });
     this.isFalling = false;
     this.isSelected = false;
@@ -210,14 +211,14 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType === max) { block.sprite.clearRiseOffset(); }
-            else if (block.blockType !== max && !block.isFalling) {
-                block.sprite.clearRiseOffset();
-                block.sprite.drawRiseOffset();
-            }
             else if(block.blockType === -1 && !block.isFalling){
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
-                c += block.garbageWidth;
+                c += block.width;
+            }
+            else if (!block.isFalling) {
+                block.sprite.clearRiseOffset();
+                block.sprite.drawRiseOffset();
             }
         }
     }
@@ -309,21 +310,21 @@ function render(now) {
     }
 }
 
-function buildGarbageCoords(row, garbageWidth){    
+function buildGarbageCoords(row, startColumn, garbageWidth){    
     var coordinatesArray = [];
     for (var c = 0; c < garbageWidth; c++) {
-        coordinatesArray.push(new Coordinates(row, c));
+        coordinatesArray.push(new Coordinates(row, startColumn + c));
     }
     return coordinatesArray;
 }
 
 function generateGarbage(){
     var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
-    var garbage = new Garbage(0, garbageWidth, 1);
-    garbage.coords = buildGarbageCoords(0, garbageWidth);
+    var garbage = new Garbage(0, garbageWidth);
+    var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
+    garbage.coords = buildGarbageCoords(0, startColumn, garbageWidth);
     garbage.isFalling = true;
-    var firstGarbageColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
-    matrix[0][firstGarbageColumn] = garbage;
+    matrix[0][startColumn] = garbage;
 }
 
 function transformGarbage(coordArray){
@@ -478,11 +479,25 @@ function checkAllBlocks() {
  }
 
 function switchBlocks(block1Coords, block2Coords) {
-    var block = matrix[block1Coords.row][block1Coords.column];
-    var lowerBlock = matrix[block2Coords.row][block2Coords.column];
+    var block1 = matrix[block1Coords.row][block1Coords.column];
+    var block2 = matrix[block2Coords.row][block2Coords.column];
 
-    matrix[block.row][block.column] = new Block(block.row, block.column, lowerBlock.blockType);
-    matrix[lowerBlock.row][lowerBlock.column] = new Block(lowerBlock.row, lowerBlock.column, block.blockType);
+    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType);
+    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType);
+}
+
+function switchGarbage(garbageCoords, blockCoords) {
+    var garbage = matrix[garbageCoords.row][garbageCoords.column];
+    var block = matrix[blockCoords.row][blockCoords.column];
+
+    matrix[block.row][block.column] = new Garbage(block.row, garbage.width);
+    matrix[block.row][block.column].startColumn = garbage.startColumn;
+
+    for(var c = 0; c < garbage.width; c++){
+        var coord = garbage.coords[c];
+        matrix[coord.row][coord.column] = new Block(coord.row, coord.column, block.blockType);
+        matrix[block.row][coord.column].blockType = -1;
+    }
 }
 
 function topCollisionDetected() {
