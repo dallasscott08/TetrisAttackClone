@@ -511,8 +511,9 @@ function switchGarbage(garbageCoords, blockCoords) {
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
-        if (matrix[0][c].blockType !== max || 
-            (matrix[0][c].blockType !== - 1 && !matrix[0][c].isFalling )) {
+        if (matrix[0][c].blockType !== max &&
+            matrix[0][c].blockType !== -1 &&
+            !matrix[0][c].isFalling) {
             return true;
         }
     }
