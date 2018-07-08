@@ -149,33 +149,33 @@ function GarbageSprite(options) {
 
 GarbageSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size * this.width, this.size);
     },
     clearRiseOffset: function () {
         var offSet = riseOffset;
-        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.size * this.width, this.size);
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
         var temp1 = this.yPos;
         var offSet = temp1 - temp - yMoveAmt;
-        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.size * this.width, this.size);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
+            this.spriteSize * this.width, this.spriteSize,
             this.xPos * blockSize, this.yPos * blockSize,
-            this.size, this.size);
+            this.size * this.width, this.size);
     },
     drawRiseOffset: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
+            this.spriteSize * this.width, this.spriteSize,
             this.xPos * blockSize, (this.yPos - riseOffset) * blockSize,
-            this.size, this.size);
+            this.size * this.width, this.size);
     },
     drawFallOffset: function () {
         this.determineXY();
@@ -184,13 +184,13 @@ GarbageSprite.prototype = {
         var offset = temp1 - temp;
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
+            this.spriteSize * this.width, this.spriteSize,
             this.xPos * blockSize, offset * blockSize,
-            this.size, this.size);
+            this.size * this.width, this.size);
     },
     determineXY: function () {
-        this.pixelsLeft = (this.spriteSize * this.blockType) + (3 * (1 + this.blockType));
-        this.pixelsTop = 3;
+        this.pixelsLeft = 3;
+        this.pixelsTop = (this.spriteSize * this.blockType) + (3 * (1 + this.blockType));
     }
 }
 
