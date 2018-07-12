@@ -141,8 +141,9 @@ function Selector(coordinates) {
 function GarbageSprite(options) {
     this.size = blockSize;
     this.spriteSize = 16;
+    this.blockType = options.blockType;
     this.row = options.row;
-    this.width = options.width;
+    this.spriteWidth = this.spriteSize * options.width;
     this.xPos = options.column;
     this.yPos = options.row + 1;
 }
@@ -165,9 +166,9 @@ GarbageSprite.prototype = {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
+            this.spriteWidth, this.spriteSize,
             this.xPos * blockSize, this.yPos * blockSize,
-            this.size, this.size);
+            this.size * blockSize, this.size);
     },
     drawRiseOffset: function () {
         this.determineXY();
@@ -189,17 +190,18 @@ GarbageSprite.prototype = {
             this.size, this.size);
     },
     determineXY: function () {
-        this.pixelsLeft = (this.spriteSize * this.blockType) + (3 * (1 + this.blockType));
-        this.pixelsTop = 3;
+        var absBlockType = Math.abs(this.blockType);
+        this.pixelsLeft = 3;
+        this.pixelsTop = (this.spriteSize * absBlockType) + (3 * (1 + absBlockType));
     }
 }
 
-function Garbage(row, width) {
-    this.blockType = -1;
+function Garbage(row, width, blockType) {
+    this.blockType = blockType;
     this.coords = [width];
     this.row = row;
     this.width = width;
-    this.sprite = new GarbageSprite({ row: row, width: width });
+    this.sprite = new GarbageSprite({ blockType: blockType, row: row, column: coords[0].column, width: width });
     this.isFalling = false;
     this.isSelected = false;
 }
@@ -307,6 +309,9 @@ function render(now) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
         aniMatrixFalling();
+        var temp = new Garbage(9, 3, -1);
+        temp.coords = buildGarbageCoords(9, 2, 3);
+        temp.sprite.draw();
     }
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
