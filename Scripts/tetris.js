@@ -144,6 +144,7 @@ function GarbageSprite(options) {
     this.blockType = options.blockType;
     this.row = options.row;
     this.spriteWidth = this.spriteSize * options.width;
+    this.canvasWidth = blockSize * options.width
     this.xPos = options.column;
     this.yPos = options.row + 1;
 }
@@ -168,7 +169,7 @@ GarbageSprite.prototype = {
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
             this.xPos * blockSize, this.yPos * blockSize,
-            this.size * blockSize, this.size);
+            this.canvasWidth, this.size);
     },
     drawRiseOffset: function () {
         this.determineXY();
@@ -196,12 +197,12 @@ GarbageSprite.prototype = {
     }
 }
 
-function Garbage(row, width, blockType) {
+function Garbage(row, startColumn, width, blockType) {
     this.blockType = blockType;
-    this.coords = [width];
+    this.coords = buildGarbageCoords(row, startColumn, width);
     this.row = row;
     this.width = width;
-    this.sprite = new GarbageSprite({ blockType: blockType, row: row, column: coords[0].column, width: width });
+    this.sprite = new GarbageSprite({ blockType: blockType, row: row, column: this.coords[0].column, width: width });
     this.isFalling = false;
     this.isSelected = false;
 }
@@ -309,8 +310,7 @@ function render(now) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
         aniMatrixFalling();
-        var temp = new Garbage(9, 3, -1);
-        temp.coords = buildGarbageCoords(9, 2, 3);
+        var temp = new Garbage(3, 3, 3, -1);
         temp.sprite.draw();
     }
     if (riseTimer.elapsed >= riseInterval) {
