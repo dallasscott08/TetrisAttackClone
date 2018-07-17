@@ -2,7 +2,7 @@
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset, doAnimation;
-var player1Score, player2Score, fallOffset, riseOffset, matchAmount, minGarbageWidth;
+var player1Score, player2Score, fallOffset, riseOffset, matchAmount, minGarbageWidth, garbageTimer, garbageInterval;
 
 function Coordinates(row, column) {
     this.row = row;
@@ -151,17 +151,17 @@ function GarbageSprite(options) {
 
 GarbageSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size * this.width, this.size);
+        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.canvasWidth, this.size);
     },
     clearRiseOffset: function () {
         var offSet = riseOffset;
-        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.size * this.width, this.size);
+        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.canvasWidth, this.size);
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
         var temp1 = this.yPos;
         var offSet = temp1 - temp - yMoveAmt;
-        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.size * this.width, this.size);
+        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.canvasWidth, this.size);
     },
     draw: function () {
         this.determineXY();
@@ -175,9 +175,9 @@ GarbageSprite.prototype = {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize * this.width, this.spriteSize,
+            this.spriteWidth, this.spriteSize,
             this.xPos * blockSize, (this.yPos - riseOffset) * blockSize,
-            this.size * this.width, this.size);
+            this.canvasWidth, this.size);
     },
     drawFallOffset: function () {
         this.determineXY();
@@ -186,9 +186,9 @@ GarbageSprite.prototype = {
         var offset = temp1 - temp;
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
-            this.spriteSize * this.width, this.spriteSize,
+            this.spriteWidth, this.spriteSize,
             this.xPos * blockSize, offset * blockSize,
-            this.size * this.width, this.size);
+            this.canvasWidth, this.size);
     },
     determineXY: function () {
         var absBlockType = Math.abs(this.blockType);
@@ -214,7 +214,7 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType === max) { block.sprite.clearRiseOffset(); }
-            else if(block.blockType === -1 && !block.isFalling){
+            else if(block.blockType < 0 && !block.isFalling){
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
                 c += block.width;
@@ -242,7 +242,7 @@ function aniMatrixFalling() {
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
                 if (fallTickCounter === fallTickReset) {
-                    if(block.blockType === -1){
+                    if(block.blockType < 0){
                         var firstCoord = block.coords[0];
                         switchGarbage(new Coordinates(block.row, firstCoord.column),
                         new Coordinates(block.row + 1, firstCoord.column))
@@ -299,6 +299,7 @@ function render(now) {
     requestAnimationFrame(render);
     riseTimer.tick(now);
     fallTimer.tick(now);
+    garbageTimer.tick(now);
     timer.tick(now);
     if (timer.elapsed >= actionInterval) {
         var actionThen = timer.elapsed % actionInterval;
@@ -310,8 +311,11 @@ function render(now) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
         aniMatrixFalling();
-        var temp = new Garbage(3, 3, 3, -1);
-        temp.sprite.draw();
+    }
+    if (garbageTimer.elapsed >= garbageInterval) {
+        var cd = garbageTimer.elapsed % garbageInterval;
+        garbageTimer.last = now - cd;
+        generateGarbage();
     }
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
@@ -329,15 +333,6 @@ function buildGarbageCoords(row, startColumn, garbageWidth){
         coordinatesArray.push(new Coordinates(row, startColumn + c));
     }
     return coordinatesArray;
-}
-
-function generateGarbage(){
-    var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
-    var garbage = new Garbage(0, garbageWidth);
-    var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
-    garbage.coords = buildGarbageCoords(0, startColumn, garbageWidth);
-    garbage.isFalling = true;
-    matrix[0][startColumn] = garbage;
 }
 
 function transformGarbage(coordArray){
@@ -481,7 +476,7 @@ function checkAllBlocks() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (block.blockType === -1) {
+            if (block.blockType < 0) {
                 checkGarbage(block);
                 c += block.garbageWidth;
             } else {
@@ -502,17 +497,17 @@ function switchBlocks(block1Coords, block2Coords) {
 function switchGarbage(garbageCoords, blockCoords) {
     var garbage = matrix[garbageCoords.row][garbageCoords.column];
     var block = matrix[blockCoords.row][blockCoords.column];
-    var newGarbage = new Garbage(block.row, garbage.width);
-
-    for(var c = 0; c < garbage.width; c++){
+    var newGarbage = new Garbage(block.row, garbage.coords[0].column, garbage.width, garbage.blockType);
+ 
+    for (var c = 0; c < garbage.width; c++) {
         var coord = garbage.coords[c];
         newGarbage.coords.push(new Coordinates(block.row, coord.column));
         matrix[coord.row][coord.column] = new Block(coord.row, coord.column, block.blockType);
         matrix[block.row][coord.column].blockType = -1;
     }
-
+ 
     matrix[block.row][block.column] = newGarbage;
-}
+ }
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
@@ -544,6 +539,14 @@ function generateRow() {
     }
     return row;
 }
+
+function generateGarbage() {
+    var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
+    var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
+    var garbage = new Garbage(1, startColumn, garbageWidth, -1);
+    garbage.isFalling = true;
+    matrix[0][startColumn] = garbage;
+ }
 
 function resetBlockPositions() {
     for (var r = 0; r < rowCount; r++) {
@@ -676,6 +679,7 @@ function start() {
 $(document).ready(function () {
     riseTimer = new Timer();
     fallTimer = new Timer();
+    garbageTimer = new Timer();
     timer = new Timer();
     rowCount = 12;
     columnCount = 6;
@@ -685,6 +689,7 @@ $(document).ready(function () {
     riseInterval = 1000 / 1;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 60;
+    garbageInterval = 15000;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
