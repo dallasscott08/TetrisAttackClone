@@ -217,7 +217,7 @@ function aniMatrixRising() {
             else if(block.blockType < 0 && !block.isFalling){
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
-                c += block.width;
+                c += block.width - 1;
             }
             else if (!block.isFalling) {
                 block.sprite.clearRiseOffset();
@@ -246,7 +246,7 @@ function aniMatrixFalling() {
                         var firstCoord = block.coords[0];
                         switchGarbage(new Coordinates(block.row, firstCoord.column),
                         new Coordinates(block.row + 1, firstCoord.column))
-                        c += block.width;
+                        c += block.width - 1;
                     }
                     else{
                         switchBlocks(new Coordinates(block.row, block.column),
@@ -501,9 +501,8 @@ function switchGarbage(garbageCoords, blockCoords) {
  
     for (var c = 0; c < garbage.width; c++) {
         var coord = garbage.coords[c];
-        newGarbage.coords.push(new Coordinates(block.row, coord.column));
         matrix[coord.row][coord.column] = new Block(coord.row, coord.column, block.blockType);
-        matrix[block.row][coord.column].blockType = -1;
+        matrix[block.row][coord.column].blockType = garbage.blockType;
     }
  
     matrix[block.row][block.column] = newGarbage;
@@ -543,7 +542,7 @@ function generateRow() {
 function generateGarbage() {
     var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
     var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
-    var garbage = new Garbage(1, startColumn, garbageWidth, -1);
+    var garbage = new Garbage(0, startColumn, garbageWidth, -1);
     garbage.isFalling = true;
     matrix[0][startColumn] = garbage;
  }
