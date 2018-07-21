@@ -456,9 +456,10 @@ function checkGarbage(garbage) {
         for (var i = 0; i < garbage.coords.length; i++) {
             if (matrix[garbage.coords[i].row + 1][garbage.coords[i].column].blockType !== max) {
                 garbage.isFalling = false;
+                return;
             }
         }
-        block.isFalling = true;
+        garbage.isFalling = true;
     }
  }
 
