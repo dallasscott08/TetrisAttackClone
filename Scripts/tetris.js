@@ -479,7 +479,7 @@ function checkAllBlocks() {
             var block = matrix[r][c];
             if (block.blockType < 0) {
                 checkGarbage(block);
-                c += block.garbageWidth;
+                c += block.width - 1;
             } else {
                 checkBlock(block);
             }
