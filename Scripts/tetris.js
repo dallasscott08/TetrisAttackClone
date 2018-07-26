@@ -4,6 +4,15 @@ var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionIn
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset, doAnimation;
 var player1Score, player2Score, fallOffset, riseOffset, matchAmount, minGarbageWidth, garbageTimer, garbageInterval;
 
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
+
 function Coordinates(row, column) {
     this.row = row;
     this.column = column;
@@ -199,13 +208,22 @@ GarbageSprite.prototype = {
 
 function Garbage(row, startColumn, width, blockType) {
     this.blockType = blockType;
-    this.coords = buildGarbageCoords(row, startColumn, width);
+    this.coords = buildGarbageCoords(row, startColumn, width, blockType);
     this.row = row;
     this.column = startColumn;
     this.width = width;
     this.sprite = new GarbageSprite({ blockType: blockType, row: row, column: this.coords[0].column, width: width });
     this.isFalling = false;
     this.isSelected = false;
+}
+
+function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
+    var coordinatesArray = [];
+    for (var c = 0; c < garbageWidth; c++) {
+        coordinatesArray.push(new Coordinates(row, startColumn + c));
+        matrix[row][startColumn + c].blockType = blockType;
+    }
+    return coordinatesArray;
 }
 
 function aniMatrixRising() {
@@ -215,9 +233,6 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType === max) { block.sprite.clearRiseOffset(); }
-            else if (block.blockType < 0) {
-                var ts = "";
-            }
             else if (block.blockType < 0 && !block.isFalling) {
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
@@ -300,7 +315,7 @@ function cleanMatrix() {
 
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
-    requestAnimationFrame(render);
+    requestAnimFrame(render);
     riseTimer.tick(now);
     fallTimer.tick(now);
     garbageTimer.tick(now);
@@ -318,7 +333,7 @@ function render(now) {
     }
     if (garbageTimer.elapsed >= garbageInterval) {
         var garbageThen = garbageTimer.elapsed % garbageInterval;
-        garbageTimer.last = now - garbageThen;
+        garbageTimer.last = 0;//now - garbageThen;
         generateGarbage();
     }
     if (riseTimer.elapsed >= riseInterval) {
@@ -329,14 +344,6 @@ function render(now) {
         aniMatrixRising();
         selector.sprite.draw();
     }
-}
-
-function buildGarbageCoords(row, startColumn, garbageWidth) {
-    var coordinatesArray = [];
-    for (var c = 0; c < garbageWidth; c++) {
-        coordinatesArray.push(new Coordinates(row, startColumn + c));
-    }
-    return coordinatesArray;
 }
 
 function transformGarbage(coordArray) {
@@ -369,7 +376,7 @@ function cleanFirstBlockCoords(coordArray) {
     var firstBlock = matrix[coordArray[0].row][coordArray[0].column];
     var block = matrix[coordArray[1].row][coordArray[1].column];
     var nextBlock = matrix[coordArray[2].row][coordArray[2].column];
-    if (block.blockType !== max &&
+    if (block.blockType !== max && block.blockType > 0 &&
         !block.isFalling && !firstBlock.isFalling && !nextBlock.isFalling &&
         block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
         countArray.push(new Coordinates(firstBlock.row, firstBlock.column));
@@ -378,6 +385,11 @@ function cleanFirstBlockCoords(coordArray) {
         matchCounter += 2;
     }
     return { matchCounter: matchCounter, countArray: countArray };
+}
+
+function checkFirstBlockForGarbage(coordArray) {
+    var block = matrix[coordArray[0].row][coordArray[0].column];
+    return (block.blockType < 0) ? block.width : 1;
 }
 
 function blocksMatch(block1, block2) {
@@ -392,8 +404,9 @@ function cleanArray(coordArray, isRow) {
     var deleteArray = [];
     var countArray = cleanFirstBlockCoords(coordArray).countArray;
     var matchCounter = cleanFirstBlockCoords(coordArray).matchCounter;
+    var startPoint = isRow ? checkFirstBlockForGarbage(coordArray) : 1;
 
-    for (var i = 1; i < coordArray.length - 1; i++) {
+    for (var i = startPoint; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         if (isRow && block.blockType < 0) {
             i += block.width - 1;
@@ -402,21 +415,23 @@ function cleanArray(coordArray, isRow) {
         var blockCoord = new Coordinates(block.row, block.column);
         var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
 
-        if (i < coordArray.length - 2 && blocksMatch(block, nextBlock) &&
-            !countArray.includes(blockCoord)) {
-            countArray.push(blockCoord);
-            matchCounter++;
-        }
-        else if (i === coordArray.length - 2 && blocksMatch(block, nextBlock)) {
-            countArray.push(blockCoord);
-            countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
-            matchCounter++;
-            if (matchCounter >= matchAmount) {
-                deleteArray = deleteArray.concat(countArray);
+        if (blocksMatch(block, nextBlock)) {
+            if (i < coordArray.length - 2 &&
+                !countArray.includes(blockCoord)) {
+                countArray.push(blockCoord);
+                matchCounter++;
+            }
+            else if (i === coordArray.length - 2) {
+                countArray.push(blockCoord);
+                countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
+                matchCounter++;
+                if (matchCounter >= matchAmount) {
+                    deleteArray = deleteArray.concat(countArray);
+                }
             }
         }
-
-        if (!blocksMatch(block, nextBlock)) {
+        else {
+            //if (!blocksMatch(block, nextBlock)) {
             if (matchCounter >= matchAmount) {
                 countArray.push(blockCoord);
                 deleteArray = deleteArray.concat(countArray);
@@ -556,10 +571,10 @@ function generateRow() {
 }
 
 function generateGarbage() {
-    var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
-    var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
-    var garbage = new Garbage(0, startColumn, 3, -1);
-    garbage.isFalling = true;
+    var garbageWidth = 3;//Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
+    var startColumn = 0;//Math.floor(Math.random() * (columnCount - garbageWidth));
+    var garbage = new Garbage(0, startColumn, garbageWidth, -1);
+    //garbage.isFalling = true;
     matrix[0][startColumn] = garbage;
 }
 
@@ -573,7 +588,7 @@ function resetBlockPositions() {
                 block.sprite.yPos = block.row + 1;
                 block.sprite.draw();
             }
-            if (block.blockType < 0) { c += block.width; }
+            if (block.blockType < 0) { c += block.width - 1; }
         }
     }
 }
@@ -641,7 +656,7 @@ function createCanvas() {
     blockSize = canvas.clientHeight / rowCount;
     matrix = initializeMatrix(rowCount, columnCount);
     selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3));
-    requestAnimationFrame(render);
+    requestAnimFrame(render);
 }
 
 function dropBlockDownRecursively(block) {
@@ -690,7 +705,7 @@ function start() {
     canvas.height = canvas.clientHeight;
     ctx = canvas.getContext("2d");
     doAnimation = true;
-    requestAnimationFrame(render);
+    requestAnimFrame(render);
 }
 
 $(document).ready(function () {
@@ -706,7 +721,7 @@ $(document).ready(function () {
     riseInterval = 1000 / 1;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 60;
-    garbageInterval = 15000;
+    garbageInterval = 5000;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
