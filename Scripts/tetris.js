@@ -4,15 +4,6 @@ var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionIn
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset, doAnimation;
 var player1Score, player2Score, fallOffset, riseOffset, matchAmount, minGarbageWidth, garbageTimer, garbageInterval;
 
-window.requestAnimFrame = (function () {
-    return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        function (callback) {
-            window.setTimeout(callback, 1000 / 60);
-        };
-})();
-
 function Coordinates(row, column) {
     this.row = row;
     this.column = column;
@@ -214,6 +205,7 @@ function Garbage(row, startColumn, width, blockType) {
     this.width = width;
     this.sprite = new GarbageSprite({ blockType: blockType, row: row, column: this.coords[0].column, width: width });
     this.isFalling = false;
+    this.isOffscreen = false;
     this.isSelected = false;
 }
 
@@ -221,7 +213,7 @@ function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
     var coordinatesArray = [];
     for (var c = 0; c < garbageWidth; c++) {
         coordinatesArray.push(new Coordinates(row, startColumn + c));
-        matrix[row][startColumn + c].blockType = blockType;
+        //matrix[row][startColumn + c].blockType = blockType;
     }
     return coordinatesArray;
 }
@@ -376,7 +368,7 @@ function cleanFirstBlockCoords(coordArray) {
     var firstBlock = matrix[coordArray[0].row][coordArray[0].column];
     var block = matrix[coordArray[1].row][coordArray[1].column];
     var nextBlock = matrix[coordArray[2].row][coordArray[2].column];
-    if (block.blockType !== max && block.blockType > 0 &&
+    if (block.blockType !== max && block.blockType >= 0 &&
         !block.isFalling && !firstBlock.isFalling && !nextBlock.isFalling &&
         block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
         countArray.push(new Coordinates(firstBlock.row, firstBlock.column));
@@ -402,8 +394,9 @@ function blocksMatch(block1, block2) {
 
 function cleanArray(coordArray, isRow) {
     var deleteArray = [];
-    var countArray = cleanFirstBlockCoords(coordArray).countArray;
-    var matchCounter = cleanFirstBlockCoords(coordArray).matchCounter;
+    var startCleanObj = cleanFirstBlockCoords(coordArray)
+    var countArray = startCleanObj.countArray;
+    var matchCounter = startCleanObj.matchCounter;
     var startPoint = isRow ? checkFirstBlockForGarbage(coordArray) : 1;
 
     for (var i = startPoint; i < coordArray.length - 1; i++) {
@@ -520,16 +513,14 @@ function switchBlocks(block1Coords, block2Coords) {
 
 function switchGarbage(garbageCoords, blockCoords) {
     var garbage = matrix[garbageCoords.row][garbageCoords.column];
-    var block = matrix[blockCoords.row][blockCoords.column];
-    var newGarbage = new Garbage(block.row, garbage.coords[0].column, garbage.width, garbage.blockType);
+    var newGarbage = new Garbage(blockCoords.row, garbage.coords[0].column, garbage.width, garbage.blockType);
 
     for (var c = 0; c < garbage.width; c++) {
         var coord = garbage.coords[c];
-        matrix[coord.row][coord.column] = new Block(coord.row, coord.column, block.blockType);
-        matrix[block.row][coord.column].blockType = garbage.blockType;
+        matrix[coord.row][coord.column] = new Block(coord.row, coord.column, matrix[coord.row][blockCoords.column + c].blockType);
     }
 
-    matrix[block.row][block.column] = newGarbage;
+    matrix[blockCoords.row][blockCoords.column] = newGarbage;
 }
 
 function topCollisionDetected() {
@@ -552,7 +543,7 @@ function raiseBlocksUpLogically() {
                     new Coordinates(block.row - 1, block.column));
                 c += block.width - 1;
             }
-            else {
+            else if (block.blockType !== max) {
                 switchBlocks(new Coordinates(block.row, block.column),
                     new Coordinates(block.row - 1, block.column));
             }
@@ -574,7 +565,6 @@ function generateGarbage() {
     var garbageWidth = 3;//Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
     var startColumn = 0;//Math.floor(Math.random() * (columnCount - garbageWidth));
     var garbage = new Garbage(0, startColumn, garbageWidth, -1);
-    //garbage.isFalling = true;
     matrix[0][startColumn] = garbage;
 }
 
@@ -782,3 +772,12 @@ $(document).on('keydown', function (event) {
             break;
     }
 });
+
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
