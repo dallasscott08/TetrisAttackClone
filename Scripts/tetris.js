@@ -588,6 +588,7 @@ function generateGarbage() {
     var garbageWidth = 3;//Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
     var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
     var garbage = new Garbage(0, startColumn, garbageWidth, -1);
+    garbage.isFalling = true;
     matrix[0][startColumn] = garbage;
 }
 
