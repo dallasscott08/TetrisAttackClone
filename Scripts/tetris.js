@@ -1,4 +1,4 @@
-﻿var matrix;//6 columns x 12 rows
+﻿﻿﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
@@ -211,10 +211,12 @@ function Garbage(row, startColumn, width, blockType) {
 }
 
 Garbage.prototype = {
-    buildGarbage: function(){
-        for (var c = 0; c < this.coords.length; c++) {
+    buildGarbage: function (falling) {
+        matrix[this.row][this.column] = this;
+        for (var c = 1; c < this.coords.length; c++) {
             var coord = this.coords[c];
             matrix[coord.row][coord.column].blockType = this.blockType;
+            matrix[coord.row][coord.column].isFalling = falling;
         }
     }
 }
@@ -263,9 +265,8 @@ function aniMatrixFalling() {
                 block.sprite.drawFallOffset();
                 if (fallTickCounter === fallTickReset) {
                     if (block.blockType < 0) {
-                        var firstCoord = block.coords[0];
-                        switchGarbage(new Coordinates(block.row, firstCoord.column),
-                            new Coordinates(block.row + 1, firstCoord.column));
+                        switchGarbage(new Coordinates(block.row, block.column),
+                            new Coordinates(block.row + 1, block.column));
                         c += block.width - 1;
                     }
                     else {
@@ -330,14 +331,14 @@ function render(now) {
     if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
-        if(!paused){
+        if (!paused) {
             aniMatrixFalling();
         }
     }
     if (garbageTimer.elapsed >= garbageInterval) {
         var garbageThen = garbageTimer.elapsed % garbageInterval;
         garbageTimer.last = 0;//now - garbageThen;
-        if(!paused){
+        if (!paused) {
             generateGarbage();
         }
     }
@@ -345,7 +346,7 @@ function render(now) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
         selector.sprite.clear();
-        if(!paused){
+        if (!paused) {
             selector.sprite.yPos -= yMoveAmt;
             aniMatrixRising();
         }
@@ -527,24 +528,22 @@ function switchBlocks(block1Coords, block2Coords) {
 
 function switchGarbage(garbageCoords, blockCoords) {
     var garbage = matrix[garbageCoords.row][garbageCoords.column];
-    var newGarbage = new Garbage(blockCoords.row, garbage.coords[0].column, garbage.width, garbage.blockType);
+    var newGarbage = new Garbage(blockCoords.row, blockCoords.column, garbage.width, garbage.blockType);
 
     for (var c = 0; c < garbage.width; c++) {
         var coord = garbage.coords[c];
         var blockType = matrix[blockCoords.row][blockCoords.column + c].blockType;
 
         if (blockType < 0) {
-            /*var otherGarbage = new Garbage(coord.row, coord.column, blockType);
-            otherGarbage.buildGarbage();*/
-            matrix[coord.row][coord.column] = new Garbage(coord.row, coord.column, blockType);
+            var otherGarbage = new Garbage(coord.row, coord.column, garbage.width, blockType);
+            otherGarbage.buildGarbage(false);
             break;
         } else {
             matrix[coord.row][coord.column] = new Block(coord.row, coord.column, blockType);
         }
     }
-
-    matrix[blockCoords.row][blockCoords.column] = newGarbage;
-    //newGarbage.buildGarbage();
+    
+    newGarbage.buildGarbage(false);
 }
 
 function topCollisionDetected() {
@@ -589,7 +588,7 @@ function generateGarbage() {
     var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
     var garbage = new Garbage(0, startColumn, garbageWidth, -1);
     garbage.isFalling = true;
-    matrix[0][startColumn] = garbage;
+    garbage.buildGarbage(true);
 }
 
 function resetBlockPositions() {
@@ -766,8 +765,11 @@ $(document).on('keydown', function (event) {
     var code = event.keyCode || event.which;
     switch (code) {
         case 32:
-            switchBlocks(selector.coordinates, selector.coordinates2);
-            animateSelector(selector.coordinates);
+            if (matrix[selector.coordinates.row][selector.coordinates.column].blockType >= 0 &&
+                matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0) {
+                switchBlocks(selector.coordinates, selector.coordinates2);
+                animateSelector(selector.coordinates);
+            }
             break;
         case 37://Left
             if (selector.coordinates.column > 0) {
