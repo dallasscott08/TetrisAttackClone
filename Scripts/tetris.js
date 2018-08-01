@@ -1,9 +1,10 @@
-﻿﻿﻿var matrix;//6 columns x 12 rows
+﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, yMoveAmt, yMoveAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
-var minGarbageWidth, garbageTimer, garbageInterval, paused;
+var minGarbageWidth, garbageTimer, garbageInterval, paused, pauseTimer, pauseDuration;
+var pauseMultiplier, maxPauseDuration;
 
 function Coordinates(row, column) {
     this.row = row;
@@ -230,7 +231,8 @@ function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
 }
 
 function aniMatrixRising() {
-    riseTickCounter++;
+    if (!paused) { riseTickCounter++; }
+
     riseOffset = yMoveAmt * riseTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
@@ -328,28 +330,38 @@ function render(now) {
         cleanMatrix();
         selector.sprite.draw();
     }
+    if (pauseDuration > 0) {
+        pauseTimer.tick(now);
+        if (pauseTimer.elapsed >= pauseDuration || pauseTimer.elapsed >= maxPauseDuration) {
+            var pauseThen = pauseTimer.elapsed % pauseDuration;
+            pauseTimer.last = now - pauseThen;
+            pauseDuration = 0;
+            paused = false;
+        }
+        else {
+            paused = true;
+        }
+    }
     if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
-        if (!paused) {
-            aniMatrixFalling();
-        }
+        aniMatrixFalling();
     }
-    if (garbageTimer.elapsed >= garbageInterval) {
+    /*if (garbageTimer.elapsed >= garbageInterval) {
         var garbageThen = garbageTimer.elapsed % garbageInterval;
         garbageTimer.last = 0;//now - garbageThen;
         if (!paused) {
             generateGarbage();
         }
-    }
+    }*/
     if (riseTimer.elapsed >= riseInterval) {
         var then = riseTimer.elapsed % riseInterval;
         riseTimer.last = now - then;
         selector.sprite.clear();
         if (!paused) {
             selector.sprite.yPos -= yMoveAmt;
-            aniMatrixRising();
         }
+        aniMatrixRising();
         selector.sprite.draw();
     }
 }
@@ -443,6 +455,7 @@ function cleanArray(coordArray, isRow) {
             if (matchCounter >= matchAmount) {
                 countArray.push(blockCoord);
                 deleteArray = deleteArray.concat(countArray);
+                pauseDuration += pauseMultiplier * matchCounter;
             }
             countArray = [];
             matchCounter = 1;
@@ -542,7 +555,7 @@ function switchGarbage(garbageCoords, blockCoords) {
             matrix[coord.row][coord.column] = new Block(coord.row, coord.column, blockType);
         }
     }
-    
+
     newGarbage.buildGarbage(false);
 }
 
@@ -706,11 +719,10 @@ function dropAllBlocks() {
 }
 
 function pause() {
-    //doAnimation = doAnimation ? false : true;
-    paused = paused ? false : true;
-    /*if (doAnimation) {
+    doAnimation = doAnimation ? false : true;
+    if (doAnimation) {
         start();
-    }*/
+    }
 }
 function stop() { doAnimation = false; }
 function start() {
@@ -727,15 +739,19 @@ $(document).ready(function () {
     fallTimer = new Timer();
     garbageTimer = new Timer();
     timer = new Timer();
+    pauseTimer = new Timer();
     rowCount = 12;
     columnCount = 6;
     max = 6;
     xMoveAmt = .2;
     yMoveAmt = .2;
-    riseInterval = 1000 / 1;
+    riseInterval = 1000 / 3;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 60;
     garbageInterval = 5000;
+    pauseDuration = 0;
+    maxPauseDuration = 10000;
+    pauseMultiplier = 1000;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
