@@ -331,7 +331,7 @@ function pauseMatrix(now) {
     pauseTimer.tick(now);
     if (pauseTimer.elapsed >= pauseDuration || pauseTimer.elapsed >= maxPauseDuration) {
         var pauseThen = pauseTimer.elapsed % pauseDuration;
-        pauseTimer.last = 0;
+        pauseTimer.last = 0;//now - pauseThen;
         pauseDuration = 0;
         paused = false;
     }
@@ -379,6 +379,16 @@ function transformGarbage(coordArray) {
         var coord = coordArray[i];
         var newBlock = new Block(coord.row, coord.column, Math.floor(Math.random() * max));
         matrix[coord.row][coord.column] = newBlock;
+    }
+}
+
+function findGarbageStartRecursively(block) {
+    if (block.column === 0 ||
+        matrix[block.row][block.column - 1].blockType >= 0 ||
+        block.hasOwnProperty('coords')) {
+        return new Coordinates(block.row, block.column);
+    } else {
+        return findGarbageStartRecursively(matrix[block.row][block.column - 1]);
     }
 }
 
@@ -462,6 +472,10 @@ function cleanArray(coordArray, isRow) {
         else {
             if (matchCounter >= matchAmount) {
                 countArray.push(blockCoord);
+                if (!isRow && matrix[countArray[0].row - 1][countArray[0].column].blockType < 0) {
+                    var garbage = findGarbageStartRecursively(matrix[countArray[0].row - 1][countArray[0].column]);
+                    countArray.push(garbage);
+                }
                 deleteArray = deleteArray.concat(countArray);
                 pauseDuration += pauseMultiplier * matchCounter;
             }
@@ -475,11 +489,14 @@ function cleanArray(coordArray, isRow) {
 function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
-        if (matrix[blockCoord.row][blockCoord.column].blockType !== max) {
-            player1Score++;
+        if (matrix[blockCoord.row][blockCoord.column].blockType < 0) {
+            transformGarbage(matrix[blockCoord.row][blockCoord.column].coords);
         }
-        matrix[blockCoord.row][blockCoord.column].blockType = max;
-        matrix[blockCoord.row][blockCoord.column].sprite.clear();
+        else if (matrix[blockCoord.row][blockCoord.column].blockType !== max) {
+            player1Score++;
+            matrix[blockCoord.row][blockCoord.column].blockType = max;
+            matrix[blockCoord.row][blockCoord.column].sprite.clear();
+        }
     }
 }
 
@@ -758,8 +775,8 @@ $(document).ready(function () {
     fallInterval = 1000 / 50;
     garbageInterval = 5000;
     pauseDuration = 0;
-    maxPauseDuration = 10000;
     pauseMultiplier = 1000;
+    maxPauseDuration = pauseMultiplier * 10;
     fallTickCounter = 0;
     riseTickCounter = 0;
     doAnimation = true;
