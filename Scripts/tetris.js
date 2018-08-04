@@ -489,13 +489,15 @@ function cleanArray(coordArray, isRow) {
 function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
-        if (matrix[blockCoord.row][blockCoord.column].blockType < 0) {
-            transformGarbage(matrix[blockCoord.row][blockCoord.column].coords);
+        var block = matrix[blockCoord.row][blockCoord.column];
+        if (block.blockType < 0 &&
+            block.coords != null) {
+            transformGarbage(block.coords);
         }
-        else if (matrix[blockCoord.row][blockCoord.column].blockType !== max) {
+        else if (block.blockType !== max) {
             player1Score++;
-            matrix[blockCoord.row][blockCoord.column].blockType = max;
-            matrix[blockCoord.row][blockCoord.column].sprite.clear();
+            block.blockType = max;
+            block.sprite.clear();
         }
     }
 }
@@ -626,9 +628,9 @@ function generateRow() {
 }
 
 function generateGarbage() {
-    var garbageWidth = 3;//Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
+    var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
     var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
-    var garbage = new Garbage(0, startColumn, garbageWidth, -1);
+    var garbage = new Garbage(0, startColumn, garbageWidth, -(garbageWidth - 2));
     garbage.isFalling = true;
     garbage.buildGarbage(true);
 }
