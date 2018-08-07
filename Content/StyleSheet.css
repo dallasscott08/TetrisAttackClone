@@ -46,3 +46,28 @@ span{
     width: 128px;
     height: 128px;
 }
+
+.settingsList {
+    z-index:2;
+    font-size:300%;
+    position:relative;
+	left:5%;
+	list-style: none;
+}
+
+.settingsList li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.settingsList input {
+    visibility:hidden;
+}
+
+.settingsList label {
+    cursor: pointer;
+}
+
+.settingsList input:checked + label {
+    background: #d42825;
+}
