@@ -1,4 +1,4 @@
-﻿var matrix;//6 columns x 12 rows
+﻿﻿﻿﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
@@ -231,7 +231,7 @@ function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
 }
 
 function aniMatrixRising() {
-    if (!paused) { riseTickCounter++; }
+    if (!paused) { riseTickCounter++; }    
     riseOffset = yRiseAmt * riseTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
@@ -586,7 +586,7 @@ function switchGarbage(garbageCoords, blockCoords) {
             matrix[coord.row][coord.column] = new Block(coord.row, coord.column, blockType);
         }
     }
-
+    
     newGarbage.buildGarbage(false);
 }
 
@@ -711,9 +711,6 @@ function createCanvas() {
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
     blockSize = canvas.clientHeight / rowCount;
-    matrix = initializeMatrix(rowCount, columnCount);
-    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3));
-    requestAnimFrame(render);
 }
 
 function dropBlockDownRecursively(block) {
@@ -749,15 +746,45 @@ function dropAllBlocks() {
     }
 }
 
+function startScreen() {
+    ctx.font = "50px Impact";
+    ctx.fillStyle = "#d42825";
+    ctx.textAlign = "center";
+    ctx.fillText("HTML5 Game", canvasWidth / 2, canvasHeight / 2);
+
+    ctx.font = "20px Arial";
+    ctx.fillText("Press Enter To Start", canvasWidth / 2, canvasHeight / 2 + 50);
+}
+
 function pause() { paused = paused ? false : true; }
 function stop() { doAnimation = false; }
+
 function start() {
-    var canvas = document.getElementById("game");
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    ctx = canvas.getContext("2d");
     doAnimation = true;
+    buildSettings();
+    matrix = initializeMatrix(rowCount, columnCount);
+    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3)); cleanColumns();
+    dropAllBlocks();
+    cleanRows();
+    dropAllBlocks();
+    resetMatrixPosition();
+    selector.sprite.draw();
     requestAnimFrame(render);
+}
+
+function buildSettings() {
+    xMoveAmt = .2;
+    yFallAmt = .2;
+    yRiseAmt = .01;
+    riseInterval = 1000 / 60;
+    actionInterval = 1000 / 2;
+    fallInterval = 1000 / 50;
+    garbageInterval = 10000;
+    pauseMultiplier = 1000;
+    maxPauseDuration = pauseMultiplier * 10;
+    matchAmount = 3;
+    fallTickReset = 1 / yFallAmt;
+    riseTickReset = 1 / yRiseAmt;
 }
 
 $(document).ready(function () {
@@ -768,79 +795,64 @@ $(document).ready(function () {
     pauseTimer = new Timer();
     rowCount = 12;
     columnCount = 6;
+    minGarbageWidth = columnCount / 2;
     max = 6;
-    xMoveAmt = .2;
-    yFallAmt = .2;
-    yRiseAmt = .01;
-    riseInterval = 1000 / 60;
-    actionInterval = 1000 / 2;
-    fallInterval = 1000 / 50;
-    garbageInterval = 5000;
-    pauseDuration = 0;
-    pauseMultiplier = 1000;
-    maxPauseDuration = pauseMultiplier * 10;
+
     fallTickCounter = 0;
     riseTickCounter = 0;
-    doAnimation = true;
     player1Score = 0;
     player2Score = 0;
     fallOffset = 0;
     riseOffset = 0;
-    matchAmount = 3;
-    minGarbageWidth = columnCount / 2;
-    riseTickReset = 1 / yRiseAmt;
-    fallTickReset = 1 / yFallAmt;
-    paused = false;
+    pauseDuration = 0;
+    doAnimation = false;
 });
 
 $(window).on('load', function () {
     createCanvas();
-    cleanColumns();
-    dropAllBlocks();
-    cleanRows();
-    dropAllBlocks();
-    player1Score = 0;
-    resetMatrixPosition();
-    selector.sprite.draw();
+    startScreen();
 });
 
 $(document).on('keydown', function (event) {
     var code = event.keyCode || event.which;
-    switch (code) {
-        case 32:
-            if (matrix[selector.coordinates.row][selector.coordinates.column].blockType >= 0 &&
-                matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0) {
-                switchBlocks(selector.coordinates, selector.coordinates2);
-                animateSelector(selector.coordinates);
-            }
-            break;
-        case 37://Left
-            if (selector.coordinates.column > 0) {
-                animateSelector(new Coordinates(selector.coordinates.row,
-                    selector.coordinates.column - 1));
-            }
-            break;
-        case 38://Up
-            if (selector.coordinates.row > 0) {
-                animateSelector(new Coordinates(selector.coordinates.row - 1,
-                    selector.coordinates.column));
-            }
-            break;
-        case 39://Right
-            if (selector.coordinates.column < columnCount - 2) {
-                animateSelector(new Coordinates(selector.coordinates.row,
-                    selector.coordinates.column + 1));
-            }
-            break;
-        case 40://Down
-            if (selector.coordinates.row < rowCount - 2) {
-                animateSelector(new Coordinates(selector.coordinates.row + 1,
-                    selector.coordinates.column));
-            }
-            break;
-        case 90://Z
-            pause();
-            break;
+    if (!doAnimation && code === 13) { start(); }
+    else if (doAnimation) {
+        switch (code) {
+            case 32://Space
+                if (matrix[selector.coordinates.row][selector.coordinates.column].blockType >= 0 &&
+                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0) {
+                    switchBlocks(selector.coordinates, selector.coordinates2);
+                    animateSelector(selector.coordinates);
+                }
+                break;
+            case 37://Left
+                if (selector.coordinates.column > 0) {
+                    animateSelector(new Coordinates(selector.coordinates.row,
+                        selector.coordinates.column - 1));
+                }
+                break;
+            case 38://Up
+                if (selector.coordinates.row > 0) {
+                    animateSelector(new Coordinates(selector.coordinates.row - 1,
+                        selector.coordinates.column));
+                }
+                break;
+            case 39://Right
+                if (selector.coordinates.column < columnCount - 2) {
+                    animateSelector(new Coordinates(selector.coordinates.row,
+                        selector.coordinates.column + 1));
+                }
+                break;
+            case 40://Down
+                if (selector.coordinates.row < rowCount - 2) {
+                    animateSelector(new Coordinates(selector.coordinates.row + 1,
+                        selector.coordinates.column));
+                }
+                break;
+            case 90://Z
+                pause();
+                break;
+        }
     }
 });
 
