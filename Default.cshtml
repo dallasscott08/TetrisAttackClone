@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     Layout = "~/_SiteLayout.cshtml";
     Page.Title = "T.A.K.";
 }
@@ -17,9 +17,8 @@
         <h2>
             <span id="p1Score">0</span>
             <span id="p2Score">0</span>
-
         </h2>
-        <div id="mainScreen" class="gameWindow">
+        <div class="gameWindow" id="mainScreen">
             <button onclick="start()">Start Game</button>
             <button onclick="showSettings()">Settings</button>
         </div>
@@ -31,7 +30,7 @@
                     <label for='speed1'>Slow</label>
                 </li>
                 <li>
-                    <input type='radio' value='2' name='speedRadio' id='speed2' />
+                    <input type='radio' value='2' name='speedRadio' id='speed2' checked="checked" />
                     <label for='speed2'>Normal</label>
                 </li>
                 <li>
@@ -46,7 +45,7 @@
                     <label for='match1'>2</label>
                 </li>
                 <li>
-                    <input type='radio' value='3' name='matchRadio' id='match2' />
+                    <input type='radio' value='3' name='matchRadio' id='match2' checked="checked" />
                     <label for='match2'>3</label>
                 </li>
                 <li>
@@ -55,7 +54,7 @@
                 </li>
             </ul>
             <label for='garbageEnable'>Enable Garbage:</label>
-            <input type="checkbox" id="garbageEnable"><br />
+            <input type="checkbox" id="garbageEnable" checked="checked"><br />
             <label for='intervalInputId'>Garbage Generation Interval(sec):</label>
             <input type="range" name="intervalInputName" id="intervalInputId" value="10" min="5" max="60" oninput="intervalOutputId.value = intervalInputId.value">
             <output name="intervalOutputName" id="intervalOutputId">10</output><br />
@@ -64,6 +63,10 @@
             <output name="multiplierlOutputName" id="multiplierOutputId">1</output><br />
             <button onclick="buildSettings()">Save</button>
             <button onclick="hideSettings()">Cancel</button>
+        </div>
+        <div id="gameOver">
+            <button class="gameOverButton" onclick="restart()">Restart</button>
+            <button class="gameOverButton" onclick="quit()">Quit</button>
         </div>
     </section>
 }

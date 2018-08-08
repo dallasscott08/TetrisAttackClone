@@ -3,8 +3,8 @@ var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
-var minGarbageWidth, garbageTimer, garbageInterval, paused, pauseTimer, pauseDuration;
-var pauseMultiplier, maxPauseDuration;
+var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
+var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration;
 
 function Coordinates(row, column) {
     this.row = row;
@@ -359,7 +359,7 @@ function render(now) {
         fallTimer.last = now - cd;
         aniMatrixFalling();
     }
-    if (garbageTimer.elapsed >= garbageInterval) {
+    if (garbageEnabled && garbageTimer.elapsed >= garbageInterval) {
         var garbageThen = garbageTimer.elapsed % garbageInterval;
         garbageTimer.last = 0;//now - garbageThen;
         if (!paused) { generateGarbage(); }
@@ -757,12 +757,29 @@ function showSettings() {
 }
 
 function pause() { paused = paused ? false : true; }
-function stop() { doAnimation = false; }
+function stop() {
+    $("#gameOver").show();
+    doAnimation = false;
+}
+
+function restart() {
+    player1Score = 0;
+    player2Score = 0;
+    start();
+    $("#gameOver").hide();
+}
+
+function quit() {
+    $("#game").hide();
+    $("#gameOver").hide();
+    $("#mainScreen").show();
+}
 
 function start() {
     $("#mainScreen").hide();
+    $("#game").show();
+    createCanvas();
     doAnimation = true;
-    buildSettings();
     matrix = initializeMatrix(rowCount, columnCount);
     selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3)); cleanColumns();
     dropAllBlocks();
@@ -785,21 +802,28 @@ function getRadioValue(radioName) {
 }
 
 function buildSettings() {
-    var temp = document.getElementById('garbageEnable').checked;
+    $("#settingsScreen").hide();
+    garbageEnabled = document.getElementById('garbageEnable').checked;
     var val = getRadioValue('speedRadio');
-    var val2 = getRadioValue('matchRadio');
     xMoveAmt = .2;
     yFallAmt = .2;
     yRiseAmt = .01;
+    if (val === "1") {
+        yRiseAmt = .0025;
+    }
+    else if (val === "3") {
+        yRiseAmt = .025;
+    }
     riseInterval = 1000 / 60;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 50;
     garbageInterval = document.getElementById('intervalInputId').value * 1000;
     pauseMultiplier = document.getElementById('multiplierInputId').value * 1000;
     maxPauseDuration = pauseMultiplier * 10;
-    matchAmount = 3;
+    matchAmount = getRadioValue('matchRadio');
     fallTickReset = 1 / yFallAmt;
     riseTickReset = 1 / yRiseAmt;
+    $("#mainScreen").show();
 }
 
 $(document).ready(function () {
@@ -821,10 +845,7 @@ $(document).ready(function () {
     riseOffset = 0;
     pauseDuration = 0;
     doAnimation = false;
-});
-
-$(window).on('load', function () {
-    createCanvas();
+    buildSettings();
 });
 
 $(document).on('keydown', function (event) {
