@@ -7,49 +7,63 @@
     <meta charset="utf-8" />
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js"></script>
 </head>
-
 @section featured {
-<section class="featured">
-    <img src="~/Images/Website Background Pattern.jpg" class="bg">
-    <h1>@Page.Title</h1>
-    <img src="~/Images/Canvas.jpg" id="gamebg" class="gameWindow">
-    <img src="~/Images/SpritesAndCursor_v1.png" id="sprites">
-    <canvas id="game" class="gameWindow"></canvas>
-    <h2>
-        <span id="p1Score">0</span>
-        <span id="p2Score">0</span>
-    </h2>
-    <button onclick="start()">Start Game</button>
-    <button onclick="showSettings()">Settings</button>
-    <button onclick="buildSettings()">Save</button>
-    <button onclick="hideSettings()">Cancel</button>
-    <ul class='settingsList'>
-        <li>
-            <input type='radio' value='1' name='radio' id='speed1'/>
-            <label for='speed1'>Slow</label>
-        </li>
-        <li>
-            <input type='radio' value='2' name='radio'  id='speed2'/>
-            <label for='speed2'>Normal</label>
-        </li>
-        <li>
-            <input type='radio' value='3' name='radio'  id='speed3'/>
-            <label for='speed3'>Fast</label>
-        </li>
-    </ul>
-    <ul class='settingsList'>
-        <li>
-            <input type='radio' value='2' name='radio' id='match1'/>
-            <label for='match1'>2</label>
-        </li>
-        <li>
-            <input type='radio' value='3' name='radio'  id='match2'/>
-            <label for='match2'>3</label>
-        </li>
-        <li>
-            <input type='radio' value='4' name='radio'  id='match3'/>
-            <label for='match3'>4</label>
-        </li>
-    </ul>
-</section>
- }
+    <section class="featured">
+        <img src="~/Images/Website Background Pattern.jpg" class="bg">
+        <h1>@Page.Title</h1>
+        <img src="~/Images/Canvas.jpg" id="gamebg" class="gameWindow">
+        <img src="~/Images/SpritesAndCursor_v1.png" id="sprites">
+        <canvas id="game" class="gameWindow"></canvas>
+        <h2>
+            <span id="p1Score">0</span>
+            <span id="p2Score">0</span>
+
+        </h2>
+        <div id="mainScreen" class="gameWindow">
+            <button onclick="start()">Start Game</button>
+            <button onclick="showSettings()">Settings</button>
+        </div>
+        <div class="gameWindow" id="settingsScreen">
+            <ul class='settingsList'>
+                Rise Speed:
+                <li>
+                    <input type='radio' value='1' name='radio' id='speed1' />
+                    <label for='speed1'>Slow</label>
+                </li>
+                <li>
+                    <input type='radio' value='2' name='radio' id='speed2' />
+                    <label for='speed2'>Normal</label>
+                </li>
+                <li>
+                    <input type='radio' value='3' name='radio' id='speed3' />
+                    <label for='speed3'>Fast</label>
+                </li>
+            </ul>
+            <ul class='settingsList'>
+                Match Amount:
+                <li>
+                    <input type='radio' value='2' name='radio1' id='match1' />
+                    <label for='match1'>2</label>
+                </li>
+                <li>
+                    <input type='radio' value='3' name='radio1' id='match2' />
+                    <label for='match2'>3</label>
+                </li>
+                <li>
+                    <input type='radio' value='4' name='radio1' id='match3' />
+                    <label for='match3'>4</label>
+                </li>
+            </ul>
+            <label for='garbageEnable'>Enable Garbage:</label>
+            <input type="checkbox" id="garbageEnable"><br />
+            <label for='intervalInputId'>Garbage Generation Interval(sec):</label>
+            <input type="range" name="intervalInputName" id="intervalInputId" value="10" min="5" max="60" oninput="intervalOutputId.value = intervalInputId.value">
+            <output name="intervalOutputName" id="intervalOutputId">10</output><br />
+            <label for='multiplierOutputId'>Pause Multiplier(sec):</label>
+            <input type="range" name="multiplierInputName" id="multiplierInputId" value="1" min="0" max="10" oninput="multiplierOutputId.value = multiplierInputId.value">
+            <output name="multiplierlOutputName" id="multiplierOutputId">1</output><br />
+            <button onclick="buildSettings()">Save</button>
+            <button onclick="hideSettings()">Cancel</button>
+        </div>
+    </section>
+}

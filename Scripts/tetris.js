@@ -1,4 +1,4 @@
-﻿﻿﻿﻿var matrix;//6 columns x 12 rows
+﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
 var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
@@ -231,7 +231,7 @@ function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
 }
 
 function aniMatrixRising() {
-    if (!paused) { riseTickCounter++; }    
+    if (!paused) { riseTickCounter++; }
     riseOffset = yRiseAmt * riseTickCounter;
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
@@ -586,7 +586,7 @@ function switchGarbage(garbageCoords, blockCoords) {
             matrix[coord.row][coord.column] = new Block(coord.row, coord.column, blockType);
         }
     }
-    
+
     newGarbage.buildGarbage(false);
 }
 
@@ -746,20 +746,21 @@ function dropAllBlocks() {
     }
 }
 
-function startScreen() {
-    ctx.font = "50px Impact";
-    ctx.fillStyle = "#d42825";
-    ctx.textAlign = "center";
-    ctx.fillText("HTML5 Game", canvasWidth / 2, canvasHeight / 2);
+function hideSettings() {
+    $("#settingsScreen").hide();
+    $("#mainScreen").show();
+}
 
-    ctx.font = "20px Arial";
-    ctx.fillText("Press Enter To Start", canvasWidth / 2, canvasHeight / 2 + 50);
+function showSettings() {
+    $("#mainScreen").hide();
+    $("#settingsScreen").show();
 }
 
 function pause() { paused = paused ? false : true; }
 function stop() { doAnimation = false; }
 
 function start() {
+    $("#mainScreen").hide();
     doAnimation = true;
     buildSettings();
     matrix = initializeMatrix(rowCount, columnCount);
@@ -773,14 +774,15 @@ function start() {
 }
 
 function buildSettings() {
+    var temp = document.getElementById('garbageEnable').checked;
     xMoveAmt = .2;
     yFallAmt = .2;
     yRiseAmt = .01;
     riseInterval = 1000 / 60;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 50;
-    garbageInterval = 10000;
-    pauseMultiplier = 1000;
+    garbageInterval = document.getElementById('intervalInputId').value * 1000;
+    pauseMultiplier = document.getElementById('multiplierInputId').value * 1000;
     maxPauseDuration = pauseMultiplier * 10;
     matchAmount = 3;
     fallTickReset = 1 / yFallAmt;
@@ -810,7 +812,6 @@ $(document).ready(function () {
 
 $(window).on('load', function () {
     createCanvas();
-    startScreen();
 });
 
 $(document).on('keydown', function (event) {

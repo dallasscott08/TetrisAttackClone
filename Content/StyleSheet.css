@@ -47,21 +47,35 @@ span{
     height: 128px;
 }
 
+#mainScreen {
+    z-index: 2;
+}
+
+#mainScreen button {
+    position: relative;
+    color: #d42825;
+    font-size: 300%;
+    left: 35%;
+    top:40%;
+}
+
 .settingsList {
-    z-index:2;
-    font-size:300%;
-    position:relative;
-	left:5%;
-	list-style: none;
+    list-style: none;
+}
+
+#settingsScreen {
+    background-color: #1b162f;
+    z-index: 2;
+    font-size: 300%;
+    display: none;
 }
 
 .settingsList li {
     display: inline-block;
-    margin-right: 15px;
 }
 
 .settingsList input {
-    visibility:hidden;
+    visibility: hidden;
 }
 
 .settingsList label {
@@ -70,4 +84,16 @@ span{
 
 .settingsList input:checked + label {
     background: #d42825;
+}
+
+#settingsScreen label, #settingsScreen input, #settingsScreen output, #settingsScreen button {
+    position: relative;
+    left: 2%;
+    margin-top: 4%;
+}
+
+#settingsScreen button{
+    height:10%;
+    width:20%;
+    font-size: 100%;
 }
