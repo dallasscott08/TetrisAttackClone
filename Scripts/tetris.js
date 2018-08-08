@@ -773,8 +773,21 @@ function start() {
     requestAnimFrame(render);
 }
 
+function getRadioValue(radioName) {
+    var radios = document.getElementsByName(radioName);
+
+    for (var i = 0, length = radios.length; i < length; i++) {
+        if (radios[i].checked) {
+            return radios[i].value;
+        }
+    }
+    return null;
+}
+
 function buildSettings() {
     var temp = document.getElementById('garbageEnable').checked;
+    var val = getRadioValue('speedRadio');
+    var val2 = getRadioValue('matchRadio');
     xMoveAmt = .2;
     yFallAmt = .2;
     yRiseAmt = .01;
