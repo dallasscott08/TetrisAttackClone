@@ -97,26 +97,26 @@ function SelectorSprite(options) {
     this.yPos = options.row + 1;
     this.spriteWidth = 36;
     this.spriteHeight = 21.6;
-    this.canvasX = (this.xPos * blockSize) - 10;
-    this.canvasY = (this.yPos * blockSize) - 10;
+    this.canvasX = (this.xPos * blockSize) - 5;
+    this.canvasY = (this.yPos * blockSize) - 5;
     this.canvasWidth = blockSize * 2.25;
     this.canvasHeight = blockSize * 1.35;
 }
 
 SelectorSprite.prototype = {
     clear: function () {
-        ctx.clearRect((this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
+        ctx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
     },
     clearOffset: function () {
         this.yPos += (yRiseAmt * riseTickCounter);
-        ctx.clearRect((this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10, this.canvasWidth, this.canvasHeight);
+        ctx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
-            (this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10,
+            this.canvasX, (this.yPos * blockSize) - 5,
             this.canvasWidth, this.canvasHeight);
     },
     drawOffset: function () {
@@ -125,7 +125,7 @@ SelectorSprite.prototype = {
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
-            (this.xPos * blockSize) - 10, (this.yPos * blockSize) - 10,
+            this.canvasX, (this.yPos * blockSize) - 5,
             this.canvasWidth, this.canvasHeight);
     },
     determineXY: function () {
