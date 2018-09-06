@@ -4,7 +4,7 @@ var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer
 var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
-var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration;
+var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
 
 function Coordinates(row, column) {
     this.row = row;
@@ -506,7 +506,7 @@ function deleteBlocks(matchingBlocks) {
             transformGarbage(block.coords);
         }
         else if (block.blockType !== max) {
-            player1Score++;
+            player1Score += scoreMultiplier;
             block.blockType = max;
             block.sprite.clear();
         }
@@ -855,6 +855,7 @@ $(document).ready(function () {
     fallOffset = 0;
     riseOffset = 0;
     pauseDuration = 0;
+    scoreMultiplier = 1;
     doAnimation = false;
     buildSettings();
 });
