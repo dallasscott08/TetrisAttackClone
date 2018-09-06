@@ -438,6 +438,16 @@ function blocksMatch(block1, block2) {
     else { return false; }
 }
 
+function checkForAdjacentGarbage(coordArray) {
+    for (var c = 0; c < coordArray.length; c++) {
+        var block = matrix[coordArray[c].row - 1][coordArray[c].column];
+        if (block.blockType < 0) {
+            return new Coordinates(block.row, block.column);
+        }
+    }
+    return null;
+ }
+
 function cleanArray(coordArray, isRow) {
     var deleteArray = [];
     var startCleanObj = cleanFirstBlockCoords(coordArray)
@@ -472,8 +482,9 @@ function cleanArray(coordArray, isRow) {
         else {
             if (matchCounter >= matchAmount) {
                 countArray.push(blockCoord);
-                if (!isRow && matrix[countArray[0].row - 1][countArray[0].column].blockType < 0) {
-                    var garbage = findGarbageStartRecursively(matrix[countArray[0].row - 1][countArray[0].column]);
+                var adjacentGarbage = blockCoord.row === 0 ? null : checkForAdjacentGarbage(countArray);
+                if (adjacentGarbage != null) {
+                    var garbage = findGarbageStartRecursively(matrix[adjacentGarbage.row][adjacentGarbage.column]);
                     countArray.push(garbage);
                 }
                 deleteArray = deleteArray.concat(countArray);
