@@ -5,6 +5,15 @@ var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset,
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
+var skinSettings;
+
+function SkinSettings(){
+    this.blockSpriteSize = 32;//16;
+    this.selectorSpriteHeight = 43.2;//21.6;
+    this.selectorSpriteWidth = 72;//36;
+    this.spriteSheetSpriteOffset = 6;//3
+    this.selectorSpriteSheetSpriteXOffset = 272;//136
+}
 
 function Coordinates(row, column) {
     this.row = row;
@@ -18,14 +27,14 @@ function Timer() {
 
 Timer.prototype = {
     tick: function (now) {
-        this.last = this.last || now
-        this.elapsed = now - this.last
+        this.last = this.last || now;
+        this.elapsed = now - this.last;
     }
-}
+};
 
 function BlockSprite(options) {
     this.size = blockSize;
-    this.spriteSize = 16;
+    this.spriteSize = skinSettings.blockSpriteSize;//16;
     this.blockType = options.blockType;
     this.row = options.row;
     this.column = options.column;
@@ -75,10 +84,10 @@ BlockSprite.prototype = {
             this.size, this.size);
     },
     determineXY: function () {
-        this.pixelsLeft = (this.spriteSize * this.blockType) + (3 * (1 + this.blockType));
-        this.pixelsTop = 3;
+        this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
+        this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
     }
-}
+};
 
 function Block(row, column, blockType) {
     this.row = row;
@@ -95,8 +104,8 @@ function SelectorSprite(options) {
     this.column = options.column;
     this.xPos = options.column;
     this.yPos = options.row + 1;
-    this.spriteWidth = 36;
-    this.spriteHeight = 21.6;
+    this.spriteWidth = skinSettings.selectorSpriteWidth;
+    this.spriteHeight = skinSettings.selectorSpriteHeight;
     this.canvasX = (this.xPos * blockSize) - 5;
     this.canvasY = (this.yPos * blockSize) - 5;
     this.canvasWidth = blockSize * 2.25;
@@ -129,10 +138,10 @@ SelectorSprite.prototype = {
             this.canvasWidth, this.canvasHeight);
     },
     determineXY: function () {
-        this.pixelsLeft = 136;
-        this.pixelsTop = 3;
+        this.pixelsLeft = skinSettings.selectorSpriteSheetSpriteXOffset;
+        this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
     }
-}
+};
 
 function Selector(coordinates) {
     this.coordinates = coordinates;
@@ -142,7 +151,7 @@ function Selector(coordinates) {
 
 function GarbageSprite(options) {
     this.size = blockSize;
-    this.spriteSize = 16;
+    this.spriteSize = skinSettings.blockSpriteSize;
     this.blockType = options.blockType;
     this.row = options.row;
     this.spriteWidth = this.spriteSize * options.width;
@@ -194,10 +203,10 @@ GarbageSprite.prototype = {
     },
     determineXY: function () {
         var absBlockType = Math.abs(this.blockType);
-        this.pixelsLeft = 3;
-        this.pixelsTop = (this.spriteSize * absBlockType) + (3 * (1 + absBlockType));
+        this.pixelsLeft = skinSettings.spriteSheetSpriteOffset;
+        this.pixelsTop = (this.spriteSize * absBlockType) + (skinSettings.spriteSheetSpriteOffset * (1 + absBlockType));
     }
-}
+};
 
 function Garbage(row, startColumn, width, blockType) {
     this.blockType = blockType;
@@ -220,7 +229,7 @@ Garbage.prototype = {
             matrix[coord.row][coord.column].isFalling = falling;
         }
     }
-}
+};
 
 function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
     var coordinatesArray = [];
@@ -248,7 +257,7 @@ function aniMatrixRising() {
             }
             else if (!block.isFalling &&
                 block.blockType !== max) {
-                //block.sprite.clearRiseOffset();
+                block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
             }
         }
@@ -834,6 +843,7 @@ function buildSettings() {
     matchAmount = getRadioValue('matchRadio');
     fallTickReset = 1 / yFallAmt;
     riseTickReset = 1 / yRiseAmt;
+    skinSettings = new SkinSettings();
     $("#mainScreen").show();
 }
 
