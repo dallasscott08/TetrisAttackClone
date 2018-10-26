@@ -5,7 +5,7 @@ var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset,
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
-var skinSettings;
+var skinSettings, enableParticleEffects;
 
 function SkinSettings(){
     this.blockSpriteSize = 32;//16;
@@ -391,6 +391,10 @@ function transformGarbage(coordArray) {
     }
 }
 
+function animateBlockClearParticles(block){
+
+}
+
 function findGarbageStartRecursively(block) {
     if (block.column === 0 ||
         matrix[block.row][block.column - 1].blockType >= 0 ||
@@ -518,6 +522,9 @@ function deleteBlocks(matchingBlocks) {
             player1Score += scoreMultiplier;
             block.blockType = max;
             block.sprite.clear();
+            if(enableParticleEffects){
+                animateBlockClearParticles(block);
+            }
         }
     }
 }
@@ -866,7 +873,8 @@ $(document).ready(function () {
     riseOffset = 0;
     pauseDuration = 0;
     scoreMultiplier = 1;
-    doAnimation = false;
+    doAnimation = false;;
+    enableParticleEffects = true;
     buildSettings();
 });
 
