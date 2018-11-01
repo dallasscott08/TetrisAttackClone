@@ -86,6 +86,40 @@ BlockSprite.prototype = {
     determineXY: function () {
         this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
         this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
+    },
+    determineColor: function(){
+        switch (this.blockType) {
+            case 0://Green
+                return {
+                    highlight: "#01F800",
+                    body:"#006800"
+                };
+            case 1://Purple
+                return {
+                    highlight: "#F818F8",
+                    body:"#4800A0"
+                };
+            case 2://Red
+                return {
+                    highlight: "#F81010",
+                    body:"#680000"
+            };
+            case 3://Yellow
+                return {
+                    highlight: "#F8F800",
+                    body:"#605000"
+                };
+            case 4://Light Blue
+                return {
+                    highlight: "#01F8F8",
+                    body:"#007878"
+                };
+            case 5://Dark Blue
+                return {
+                    highlight: "#4070F8",
+                    body:"#0000A8"
+                };
+        }
     }
 };
 
@@ -354,6 +388,7 @@ function render(now) {
     fallTimer.tick(now);
     garbageTimer.tick(now);
     timer.tick(now);
+    particleTimer.tick(now);
     if (timer.elapsed >= actionInterval) {
         var actionThen = timer.elapsed % actionInterval;
         timer.last = now - actionThen;
@@ -381,6 +416,14 @@ function render(now) {
         aniMatrixRising();
         selector.sprite.draw();
     }
+    if (particleTimer.elapsed >= (1000/60)) {
+        var then = particleTimer.elapsed % (1000/60);
+        particleTimer.last = now - then;
+        for(var i = 0; i < particleArrays.length; i++){
+            updateParticlePosition(particleArrays[i]);
+            cleanUpArray(particleArrays[i]);
+        }
+    }
 }
 
 function transformGarbage(coordArray) {
@@ -389,10 +432,6 @@ function transformGarbage(coordArray) {
         var newBlock = new Block(coord.row, coord.column, Math.floor(Math.random() * max));
         matrix[coord.row][coord.column] = newBlock;
     }
-}
-
-function animateBlockClearParticles(block){
-
 }
 
 function findGarbageStartRecursively(block) {
@@ -523,7 +562,8 @@ function deleteBlocks(matchingBlocks) {
             block.blockType = max;
             block.sprite.clear();
             if(enableParticleEffects){
-                animateBlockClearParticles(block);
+                var newParticles = generateCoordinateParticles(block.column * blockSize, block.row * blockSize, block.sprite.determineColor());
+                particleArrays.push(newParticles);
             }
         }
     }
@@ -735,6 +775,11 @@ function createCanvas() {
     canvas.height = canvas.clientHeight;
     ctx = canvas.getContext("2d");
 
+    var pCanvas = document.getElementById("particles");
+    pCanvas.width = pCanvas.clientWidth;
+    pCanvas.height = pCanvas.clientHeight;
+    particleCtx = pCanvas.getContext("2d");
+
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
     blockSize = canvas.clientHeight / rowCount;
@@ -860,6 +905,7 @@ $(document).ready(function () {
     garbageTimer = new Timer();
     timer = new Timer();
     pauseTimer = new Timer();
+    particleTimer = new Timer();
     rowCount = 12;
     columnCount = 6;
     minGarbageWidth = columnCount / 2;
