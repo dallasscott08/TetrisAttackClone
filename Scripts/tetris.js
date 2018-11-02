@@ -5,7 +5,7 @@ var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset,
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
-var skinSettings, enableParticleEffects;
+var skinSettings, enableParticleEffects, isSinglePlayer;
 
 function SkinSettings(){
     this.blockSpriteSize = 32;//16;
@@ -38,30 +38,30 @@ function BlockSprite(options) {
     this.blockType = options.blockType;
     this.row = options.row;
     this.column = options.column;
-    this.xPos = options.column;
+    this.xPos = options.column * blockSize + this.calculateXOffset();
     this.yPos = options.row + 1;
 }
 
 BlockSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos, this.yPos * blockSize, this.size, this.size);
     },
     clearRiseOffset: function () {
         var offSet = riseOffset;
-        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.size, this.size);
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
         var temp1 = this.yPos;
         var offSet = temp1 - temp - yFallAmt;
-        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.size, this.size);
+        ctx.clearRect(this.xPos, offSet * blockSize, this.size, this.size);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.xPos * blockSize, this.yPos * blockSize,
+            this.xPos, this.yPos * blockSize,
             this.size, this.size);
     },
     drawRiseOffset: function () {
@@ -69,7 +69,7 @@ BlockSprite.prototype = {
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.xPos * blockSize, (this.yPos - riseOffset) * blockSize,
+            this.xPos, (this.yPos - riseOffset) * blockSize,
             this.size, this.size);
     },
     drawFallOffset: function () {
@@ -80,7 +80,7 @@ BlockSprite.prototype = {
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
-            this.xPos * blockSize, offset * blockSize,
+            this.xPos, offset * blockSize,
             this.size, this.size);
     },
     determineXY: function () {
@@ -120,6 +120,9 @@ BlockSprite.prototype = {
                     body:"#0000A8"
                 };
         }
+    },
+    calculateXOffset: function () {
+        return isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
     }
 };
 
@@ -140,7 +143,7 @@ function SelectorSprite(options) {
     this.yPos = options.row + 1;
     this.spriteWidth = skinSettings.selectorSpriteWidth;
     this.spriteHeight = skinSettings.selectorSpriteHeight;
-    this.canvasX = (this.xPos * blockSize) - 5;
+    this.canvasX = options.column * blockSize + this.calculateXOffset() - 5;
     this.canvasY = (this.yPos * blockSize) - 5;
     this.canvasWidth = blockSize * 2.25;
     this.canvasHeight = blockSize * 1.35;
@@ -174,6 +177,9 @@ SelectorSprite.prototype = {
     determineXY: function () {
         this.pixelsLeft = skinSettings.selectorSpriteSheetSpriteXOffset;
         this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
+    },
+    calculateXOffset: function () {
+        return isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
     }
 };
 
@@ -190,30 +196,30 @@ function GarbageSprite(options) {
     this.row = options.row;
     this.spriteWidth = this.spriteSize * options.width;
     this.canvasWidth = blockSize * options.width
-    this.xPos = options.column;
+    this.xPos = options.column * blockSize + this.calculateXOffset();
     this.yPos = options.row + 1;
 }
 
 GarbageSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.xPos * blockSize, this.yPos * blockSize, this.canvasWidth, this.size);
+        ctx.clearRect(this.xPos, this.yPos * blockSize, this.canvasWidth, this.size);
     },
     clearRiseOffset: function () {
         var offSet = riseOffset;
-        ctx.clearRect(this.xPos * blockSize, (this.yPos - offSet) * blockSize, this.canvasWidth, this.size);
+        ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.canvasWidth, this.size);
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
         var temp1 = this.yPos;
         var offSet = temp1 - temp - yFallAmt;
-        ctx.clearRect(this.xPos * blockSize, offSet * blockSize, this.canvasWidth, this.size);
+        ctx.clearRect(this.xPos, offSet * blockSize, this.canvasWidth, this.size);
     },
     draw: function () {
         this.determineXY();
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
-            this.xPos * blockSize, this.yPos * blockSize,
+            this.xPos, this.yPos * blockSize,
             this.canvasWidth, this.size);
     },
     drawRiseOffset: function () {
@@ -221,7 +227,7 @@ GarbageSprite.prototype = {
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
-            this.xPos * blockSize, (this.yPos - riseOffset) * blockSize,
+            this.xPos, (this.yPos - riseOffset) * blockSize,
             this.canvasWidth, this.size);
     },
     drawFallOffset: function () {
@@ -232,13 +238,16 @@ GarbageSprite.prototype = {
         ctx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
-            this.xPos * blockSize, offset * blockSize,
+            this.xPos, offset * blockSize,
             this.canvasWidth, this.size);
     },
     determineXY: function () {
         var absBlockType = Math.abs(this.blockType);
         this.pixelsLeft = skinSettings.spriteSheetSpriteOffset;
         this.pixelsTop = (this.spriteSize * absBlockType) + (skinSettings.spriteSheetSpriteOffset * (1 + absBlockType));
+    },
+    calculateXOffset: function () {
+        return isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
     }
 };
 
@@ -562,7 +571,7 @@ function deleteBlocks(matchingBlocks) {
             block.blockType = max;
             block.sprite.clear();
             if(enableParticleEffects){
-                var newParticles = generateCoordinateParticles(block.column * blockSize, block.row * blockSize, block.sprite.determineColor());
+                var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.sprite.determineColor());
                 particleArrays.push(newParticles);
             }
         }
@@ -896,6 +905,7 @@ function buildSettings() {
     fallTickReset = 1 / yFallAmt;
     riseTickReset = 1 / yRiseAmt;
     skinSettings = new SkinSettings();
+    isSinglePlayer = true;
     $("#mainScreen").show();
 }
 

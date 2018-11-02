@@ -212,7 +212,7 @@ Particle.prototype = {
     clear: function(){
 		particleCtx.beginPath();		
         particleCtx.globalCompositeOperation = 'destination-out'
-        particleCtx.arc(this.x, this.y, particleSettings.particleSize + 2, 0, 2 * Math.PI, true);
+        particleCtx.arc(this.x, this.y, particleSettings.particleSize + 5, 0, 2 * Math.PI, true);
         particleCtx.fill();
     },
     draw: function() {
@@ -222,10 +222,14 @@ Particle.prototype = {
         particleCtx.globalCompositeOperation = 'source-over'
         particleCtx.fillStyle = this.color;
         // Draws a circle of radius 20 at the coordinates 100,100 on the canvas
+        particleCtx.shadowColor = this.highlight;
+        particleCtx.shadowOffsetX = 0;
+        particleCtx.shadowOffsetY = 0;
+        particleCtx.shadowBlur = 5;
         particleCtx.arc(this.x, this.y, particleSettings.particleSize, 0, Math.PI*2, true); 
         particleCtx.closePath();
         particleCtx.fill();
-        particleCtx.lineWidth = 2;
+        particleCtx.lineWidth = 1;
         particleCtx.strokeStyle = this.highlight;
         particleCtx.stroke();
     }
