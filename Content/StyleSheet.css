@@ -36,6 +36,10 @@ h2{
 	left: 7%;
 }
 
+#game{
+    background: black;
+}
+
 span{
     padding-left:.5em;
     padding-right:.5em;
