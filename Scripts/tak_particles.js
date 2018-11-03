@@ -164,11 +164,10 @@ var particleCtx;// = pCanvas.getContext("2d");
 var particleSettings = {
     density: 20,
     particleSize: 5,
-    count: 10,
-    //startingX: canvas.width / 2,
-    //startingY: canvas.height / 4,
-    gravity: 0.1,
-    maxLife: 100
+    count: 5,
+    gravity: .5,
+    maxLife: 100,
+    shadowSize: 15
 };
 
 var particleTimer,// = new Timer(),
@@ -211,7 +210,7 @@ Particle.prototype = {
     },
     clear: function(){
 		particleCtx.beginPath();		
-        particleCtx.globalCompositeOperation = 'destination-out'
+        particleCtx.globalCompositeOperation = 'destination-out';
         particleCtx.arc(this.x, this.y, particleSettings.particleSize + 5, 0, 2 * Math.PI, true);
         particleCtx.fill();
     },
@@ -222,16 +221,33 @@ Particle.prototype = {
         particleCtx.globalCompositeOperation = 'source-over'
         particleCtx.fillStyle = this.color;
         // Draws a circle of radius 20 at the coordinates 100,100 on the canvas
-        particleCtx.shadowColor = this.highlight;
+        /*particleCtx.shadowColor = this.highlight;
         particleCtx.shadowOffsetX = 0;
         particleCtx.shadowOffsetY = 0;
-        particleCtx.shadowBlur = 5;
+        particleCtx.shadowBlur = 5;*/
         particleCtx.arc(this.x, this.y, particleSettings.particleSize, 0, Math.PI*2, true); 
         particleCtx.closePath();
         particleCtx.fill();
         particleCtx.lineWidth = 1;
         particleCtx.strokeStyle = this.highlight;
         particleCtx.stroke();
+    },
+    clearShadow: function () {
+        particleShadowCtx.beginPath();
+        particleShadowCtx.globalCompositeOperation = 'destination-out';
+        particleShadowCtx.arc(this.x, this.y, particleSettings.particleSize + particleSettings.shadowSize, 0, 2 * Math.PI, true);
+        particleShadowCtx.fill();
+    },
+    drawShadow: function () {
+        particleShadowCtx.beginPath();
+        particleShadowCtx.globalCompositeOperation = 'source-over';
+        particleShadowCtx.shadowColor = this.highlight;
+        particleShadowCtx.shadowOffsetX = 0;
+        particleShadowCtx.shadowOffsetY = 0;
+        particleShadowCtx.shadowBlur = particleSettings.shadowSize;
+        particleShadowCtx.arc(this.x, this.y, particleSettings.particleSize, 0, Math.PI * 2, true);
+        particleShadowCtx.closePath();
+        particleShadowCtx.fill();
     }
 }
 
@@ -262,7 +278,9 @@ function generateCoordinateParticles(x, y, color){
 function updateParticlePosition(particles) {
     for(var i = 0; i < particles.length; i++){
         particles[i].clear();
+        particles[i].clearShadow();
         particles[i].step();
+        particles[i].drawShadow();
         particles[i].draw();
     }
 }

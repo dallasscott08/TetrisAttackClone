@@ -5,7 +5,8 @@ var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset,
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
-var skinSettings, enableParticleEffects, isSinglePlayer;
+var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleShadowCtx;
+var particleInterval;
 
 function SkinSettings(){
     this.blockSpriteSize = 32;//16;
@@ -151,15 +152,15 @@ function SelectorSprite(options) {
 
 SelectorSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
+        selectorCtx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
     },
     clearOffset: function () {
         this.yPos += (yRiseAmt * riseTickCounter);
-        ctx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
+        selectorCtx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
     },
     draw: function () {
         this.determineXY();
-        ctx.drawImage(document.getElementById("sprites"),
+        selectorCtx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
             this.canvasX, (this.yPos * blockSize) - 5,
@@ -168,7 +169,7 @@ SelectorSprite.prototype = {
     drawOffset: function () {
         this.determineXY();
         this.yPos -= (yRiseAmt * riseTickCounter);
-        ctx.drawImage(document.getElementById("sprites"),
+        selectorCtx.drawImage(document.getElementById("sprites"),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
             this.canvasX, (this.yPos * blockSize) - 5,
@@ -195,7 +196,7 @@ function GarbageSprite(options) {
     this.blockType = options.blockType;
     this.row = options.row;
     this.spriteWidth = this.spriteSize * options.width;
-    this.canvasWidth = blockSize * options.width
+    this.canvasWidth = blockSize * options.width;
     this.xPos = options.column * blockSize + this.calculateXOffset();
     this.yPos = options.row + 1;
 }
@@ -342,26 +343,7 @@ function aniMatrixFalling() {
 }
 
 function animateSelector(coordinates) {
-    var block = matrix[selector.coordinates.row][selector.coordinates.column];
-    var block2 = matrix[selector.coordinates.row][selector.coordinates.column + 1];
     selector.sprite.clear();
-    if (riseTickCounter !== 0) {
-        if (block.blockType !== max) {
-            block.sprite.drawRiseOffset();
-        }
-        if (block2.blockType !== max) {
-            block2.sprite.drawRiseOffset();
-        }
-    }
-    else {
-        if (block.blockType !== max) {
-            block.sprite.draw();
-        }
-        if (block2.blockType !== max) {
-            block2.sprite.draw();
-        }
-    }
-
     selector = new Selector(coordinates);
     selector.sprite.drawOffset();
 }
@@ -414,7 +396,7 @@ function render(now) {
     }
     if (garbageEnabled && garbageTimer.elapsed >= garbageInterval) {
         var garbageThen = garbageTimer.elapsed % garbageInterval;
-        garbageTimer.last = 0;//now - garbageThen;
+        garbageTimer.last = now - garbageThen;
         if (!paused) { generateGarbage(); }
     }
     if (riseTimer.elapsed >= riseInterval) {
@@ -425,9 +407,9 @@ function render(now) {
         aniMatrixRising();
         selector.sprite.draw();
     }
-    if (particleTimer.elapsed >= (1000/60)) {
-        var then = particleTimer.elapsed % (1000/60);
-        particleTimer.last = now - then;
+    if (particleTimer.elapsed >= particleInterval) {
+        var particleThen = particleTimer.elapsed % particleInterval;
+        particleTimer.last = now - particleThen;
         for(var i = 0; i < particleArrays.length; i++){
             updateParticlePosition(particleArrays[i]);
             cleanUpArray(particleArrays[i]);
@@ -511,7 +493,7 @@ function checkForAdjacentGarbage(coordArray) {
 
 function cleanArray(coordArray, isRow) {
     var deleteArray = [];
-    var startCleanObj = cleanFirstBlockCoords(coordArray)
+    var startCleanObj = cleanFirstBlockCoords(coordArray);
     var countArray = startCleanObj.countArray;
     var matchCounter = startCleanObj.matchCounter;
     var startPoint = isRow ? checkFirstBlockForGarbage(coordArray) : 1;
@@ -579,7 +561,7 @@ function deleteBlocks(matchingBlocks) {
 }
 
 function cleanColumns() {
-    var deleteCoords = []
+    var deleteCoords = [];
     for (var c = 0; c < columnCount; c++) {
         var columnArray = buildArrayFromRow(c);
         var cleanedRowCoords = cleanArray(columnArray, false);
@@ -589,7 +571,7 @@ function cleanColumns() {
 }
 
 function cleanRows() {
-    var deleteCoords = []
+    var deleteCoords = [];
     for (var r = 0; r < rowCount; r++) {
         var rowCoordArray = buildArrayFromColumns(r);
         var cleanedColumnCoords = cleanArray(rowCoordArray, true);
@@ -694,7 +676,7 @@ function raiseBlocksUpLogically() {
 }
 
 function generateRow() {
-    var row = []
+    var row = [];
     for (var c = 0; c < columnCount; c++) {
         var newBlock = new Block(rowCount - 1, c, Math.floor(Math.random() * max));
         newBlock.isOffscreen = true;
@@ -784,10 +766,20 @@ function createCanvas() {
     canvas.height = canvas.clientHeight;
     ctx = canvas.getContext("2d");
 
-    var pCanvas = document.getElementById("particles");
-    pCanvas.width = pCanvas.clientWidth;
-    pCanvas.height = pCanvas.clientHeight;
-    particleCtx = pCanvas.getContext("2d");
+    var particleCanvas = document.getElementById("particles");
+    particleCanvas.width = particleCanvas.clientWidth;
+    particleCanvas.height = particleCanvas.clientHeight;
+    particleCtx = particleCanvas.getContext("2d");
+
+    var selectorCanvas = document.getElementById("selector");
+    selectorCanvas.width = selectorCanvas.clientWidth;
+    selectorCanvas.height = selectorCanvas.clientHeight;
+    selectorCtx = selectorCanvas.getContext("2d");
+
+    var shadowCanvas = document.getElementById("particleshadows");
+    shadowCanvas.width = shadowCanvas.clientWidth;
+    shadowCanvas.height = shadowCanvas.clientHeight;
+    particleShadowCtx = shadowCanvas.getContext("2d");
 
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
@@ -896,6 +888,7 @@ function buildSettings() {
         yRiseAmt = .025;
     }
     riseInterval = 1000 / 60;
+    particleInterval = 1000 / 60;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 50;
     garbageInterval = document.getElementById('intervalInputId').value * 1000;
