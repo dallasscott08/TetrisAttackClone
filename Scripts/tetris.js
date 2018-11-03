@@ -6,7 +6,7 @@ var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
 var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleShadowCtx;
-var particleInterval;
+var particleInterval, xOffset;
 
 function SkinSettings(){
     this.blockSpriteSize = 32;//16;
@@ -848,10 +848,33 @@ function quit() {
     $("#mainScreen").show();
 }
 
+function drawGuides(){
+    var guideColor = "#FFFFFF";
+    var guideWidth = 1;
+    var shadowSize = 5;
+
+    ctx.beginPath();
+    ctx.moveTo(xOffset - 1, 15);
+    ctx.lineWidth = guideWidth;
+    ctx.strokeStyle = guideColor;
+    ctx.lineTo(xOffset - 1, canvasHeight);
+    ctx.stroke();
+
+    var rightGuideX = columnCount * blockSize + xOffset + 1;
+    ctx.beginPath();    
+    ctx.moveTo(rightGuideX, 15);
+    ctx.lineWidth = guideWidth;
+    ctx.shadowColor = guideColor;
+    ctx.strokeStyle = guideColor;
+    ctx.lineTo(rightGuideX, canvasHeight);
+    ctx.stroke();
+}
+
 function start() {
     $("#mainScreen").hide();
     $("#game").show();
     createCanvas();
+    xOffset = isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
     doAnimation = true;
     matrix = initializeMatrix(rowCount, columnCount);
     selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3)); cleanColumns();
@@ -859,6 +882,7 @@ function start() {
     cleanRows();
     dropAllBlocks();
     resetMatrixPosition();
+    drawGuides();
     selector.sprite.draw();
     requestAnimFrame(render);
 }
