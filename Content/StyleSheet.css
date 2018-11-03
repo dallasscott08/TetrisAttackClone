@@ -13,6 +13,10 @@ html {
 	left: 0;
 }
 
+#sprites{
+    display: none;
+}
+
 h1{
     z-index:1;
     font-size:700%;
