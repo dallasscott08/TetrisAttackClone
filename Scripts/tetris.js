@@ -269,7 +269,7 @@ Garbage.prototype = {
         matrix[this.row][this.column] = this;
         for (var c = 1; c < this.coords.length; c++) {
             var coord = this.coords[c];
-            matrix[coord.row][coord.column].blockType = this.blockType;
+            matrix[coord.row][coord.column] = new Block(coord.row, coord.column, this.blockType);
             matrix[coord.row][coord.column].isFalling = falling;
         }
     }
@@ -850,7 +850,7 @@ function quit() {
 
 function drawGuides(){
     var guideColor = "#FFFFFF";
-    var guideWidth = 1;
+    var guideWidth = 2;
     var shadowSize = 5;
 
     ctx.beginPath();
