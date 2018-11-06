@@ -9,11 +9,13 @@ var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleSh
 var particleInterval, xOffset;
 
 function SkinSettings(){
-    this.blockSpriteSize = 32;//16;
-    this.selectorSpriteHeight = 43.2;//21.6;
-    this.selectorSpriteWidth = 72;//36;
-    this.spriteSheetSpriteOffset = 6;//3
-    this.selectorSpriteSheetSpriteXOffset = 272;//136
+    this.blockSpriteSize = 32;//16;//
+    this.selectorSpriteHeight = 43.2;//21.6;//
+    this.selectorSpriteWidth = 72;//36;//
+    this.spriteSheetSpriteOffset = 6;//3;//
+    this.selectorSpriteSheetSpriteXOffset = 272;//136;//
+    this.spriteSheet = "effectsprites";//"oldsprites";//
+    this.guideColor = "#FFFFFF";
 }
 
 function Coordinates(row, column) {
@@ -59,7 +61,7 @@ BlockSprite.prototype = {
     },
     draw: function () {
         this.determineXY();
-        ctx.drawImage(document.getElementById("sprites"),
+        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
             this.xPos, this.yPos * blockSize,
@@ -67,7 +69,7 @@ BlockSprite.prototype = {
     },
     drawRiseOffset: function () {
         this.determineXY();
-        ctx.drawImage(document.getElementById("sprites"),
+        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
             this.xPos, (this.yPos - riseOffset) * blockSize,
@@ -78,7 +80,7 @@ BlockSprite.prototype = {
         var temp = riseOffset - fallOffset;
         var temp1 = this.yPos;
         var offset = temp1 - temp;
-        ctx.drawImage(document.getElementById("sprites"),
+        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteSize, this.spriteSize,
             this.xPos, offset * blockSize,
@@ -160,7 +162,7 @@ SelectorSprite.prototype = {
     },
     draw: function () {
         this.determineXY();
-        selectorCtx.drawImage(document.getElementById("sprites"),
+        selectorCtx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
             this.canvasX, (this.yPos * blockSize) - 5,
@@ -169,7 +171,7 @@ SelectorSprite.prototype = {
     drawOffset: function () {
         this.determineXY();
         this.yPos -= (yRiseAmt * riseTickCounter);
-        selectorCtx.drawImage(document.getElementById("sprites"),
+        selectorCtx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteHeight,
             this.canvasX, (this.yPos * blockSize) - 5,
@@ -203,11 +205,11 @@ function GarbageSprite(options) {
 
 GarbageSprite.prototype = {
     clear: function () {
-        ctx.clearRect(this.xPos, this.yPos * blockSize, this.canvasWidth, this.size);
+        ctx.clearRect(this.xPos, this.yPos * blockSize, this.canvasWidth, this.size + 1);
     },
     clearRiseOffset: function () {
         var offSet = riseOffset;
-        ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.canvasWidth, this.size);
+        ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.canvasWidth, this.size + 1);
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
@@ -217,7 +219,7 @@ GarbageSprite.prototype = {
     },
     draw: function () {
         this.determineXY();
-        ctx.drawImage(document.getElementById("sprites"),
+        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
             this.xPos, this.yPos * blockSize,
@@ -225,7 +227,7 @@ GarbageSprite.prototype = {
     },
     drawRiseOffset: function () {
         this.determineXY();
-        ctx.drawImage(document.getElementById("sprites"),
+        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
             this.xPos, (this.yPos - riseOffset) * blockSize,
@@ -236,7 +238,7 @@ GarbageSprite.prototype = {
         var temp = riseOffset - fallOffset;
         var temp1 = this.yPos;
         var offset = temp1 - temp;
-        ctx.drawImage(document.getElementById("sprites"),
+        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
             this.pixelsLeft, this.pixelsTop,
             this.spriteWidth, this.spriteSize,
             this.xPos, offset * blockSize,
@@ -293,16 +295,13 @@ function aniMatrixRising() {
                 matrix[r - 1][c].blockType === max) {
                 block.sprite.clearRiseOffset();
             }
-            else if (block.blockType < 0 && !block.isFalling &&
-                block.blockType !== max) {
+            else if(block.blockType !== max && !block.isFalling){
+                if(block.blockType < 0 && !block.hasOwnProperty('coords')){continue;}
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
-                c += block.width - 1;
-            }
-            else if (!block.isFalling &&
-                block.blockType !== max) {
-                block.sprite.clearRiseOffset();
-                block.sprite.drawRiseOffset();
+                if (block.blockType < 0) {
+                    c += block.width - 1;
+                }
             }
         }
     }
@@ -320,13 +319,16 @@ function aniMatrixFalling() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && block.isFalling) {
+                if(block.blockType < 0 && !block.hasOwnProperty('coords')){continue;}
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
+                if(block.blockType < 0){
+                    c += block.width - 1;
+                }
                 if (fallTickCounter === fallTickReset) {
                     if (block.blockType < 0) {
                         switchGarbage(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
-                        c += block.width - 1;
                     }
                     else {
                         switchBlocks(new Coordinates(block.row, block.column),
@@ -849,23 +851,23 @@ function quit() {
 }
 
 function drawGuides(){
-    var guideColor = "#FFFFFF";
-    var guideWidth = 2;
+    var guideWidth = 3;
     var shadowSize = 5;
 
+    var leftGuideX = xOffset - guideWidth - 1;
     ctx.beginPath();
-    ctx.moveTo(xOffset - 1, 15);
+    ctx.moveTo(leftGuideX, 15);
     ctx.lineWidth = guideWidth;
-    ctx.strokeStyle = guideColor;
-    ctx.lineTo(xOffset - 1, canvasHeight);
+    ctx.strokeStyle = skinSettings.guideColor;
+    ctx.lineTo(leftGuideX, canvasHeight);
     ctx.stroke();
 
-    var rightGuideX = columnCount * blockSize + xOffset + 1;
+    var rightGuideX = columnCount * blockSize + xOffset  + guideWidth + 1;
     ctx.beginPath();    
     ctx.moveTo(rightGuideX, 15);
     ctx.lineWidth = guideWidth;
-    ctx.shadowColor = guideColor;
-    ctx.strokeStyle = guideColor;
+    ctx.shadowColor = skinSettings.guideColor;
+    ctx.strokeStyle = skinSettings.guideColor;
     ctx.lineTo(rightGuideX, canvasHeight);
     ctx.stroke();
 }
@@ -946,7 +948,7 @@ $(document).ready(function () {
     riseOffset = 0;
     pauseDuration = 0;
     scoreMultiplier = 1;
-    doAnimation = false;;
+    doAnimation = false;
     enableParticleEffects = true;
     buildSettings();
 });
