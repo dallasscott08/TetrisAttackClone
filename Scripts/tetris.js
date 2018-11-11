@@ -42,7 +42,7 @@ function BlockSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row + 1;
+    this.yPos = options.row - 1;
 }
 
 BlockSprite.prototype = {
@@ -143,7 +143,7 @@ function SelectorSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.xPos = options.column;
-    this.yPos = options.row + 1;
+    this.yPos = options.row - 1;
     this.spriteWidth = skinSettings.selectorSpriteWidth;
     this.spriteHeight = skinSettings.selectorSpriteHeight;
     this.canvasX = options.column * blockSize + this.calculateXOffset() - 5;
@@ -200,7 +200,7 @@ function GarbageSprite(options) {
     this.spriteWidth = this.spriteSize * options.width;
     this.canvasWidth = blockSize * options.width;
     this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row + 1;
+    this.yPos = options.row - 1;
 }
 
 GarbageSprite.prototype = {
@@ -256,7 +256,6 @@ GarbageSprite.prototype = {
 
 function Garbage(row, startColumn, width, blockType) {
     this.blockType = blockType;
-    this.coords = buildGarbageCoords(row, startColumn, width, blockType);
     this.row = row;
     this.column = startColumn;
     this.width = width;
@@ -264,6 +263,7 @@ function Garbage(row, startColumn, width, blockType) {
     this.isFalling = false;
     this.isOffscreen = false;
     this.isSelected = false;
+    this.coords = this.buildGarbageCoords();
 }
 
 Garbage.prototype = {
@@ -274,16 +274,15 @@ Garbage.prototype = {
             matrix[coord.row][coord.column] = new Block(coord.row, coord.column, this.blockType);
             matrix[coord.row][coord.column].isFalling = falling;
         }
+    },
+    buildGarbageCoords: function() {
+        var coordinatesArray = [];
+        for (var c = 0; c < this.width; c++) {
+            coordinatesArray.push(new Coordinates(this.row, this.column + c));
+        }
+        return coordinatesArray;
     }
 };
-
-function buildGarbageCoords(row, startColumn, garbageWidth, blockType) {
-    var coordinatesArray = [];
-    for (var c = 0; c < garbageWidth; c++) {
-        coordinatesArray.push(new Coordinates(row, startColumn + c));
-    }
-    return coordinatesArray;
-}
 
 function aniMatrixRising() {
     if (!paused) { riseTickCounter++; }
@@ -292,11 +291,11 @@ function aniMatrixRising() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType === max && r > 0 &&
-                matrix[r - 1][c].blockType === max) {
+                (matrix[r - 1][c].blockType === max || 
+                    (matrix[r - 1][c].blockType < 0 && !matrix[r - 1][c].isFalling))) {
                 block.sprite.clearRiseOffset();
             }
             else if(block.blockType !== max && !block.isFalling){
-                if(block.blockType < 0 && !block.hasOwnProperty('coords')){continue;}
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
                 if (block.blockType < 0) {
@@ -319,7 +318,6 @@ function aniMatrixFalling() {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
             if (block.blockType !== max && block.isFalling) {
-                if(block.blockType < 0 && !block.hasOwnProperty('coords')){continue;}
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
                 if(block.blockType < 0){
@@ -414,7 +412,8 @@ function render(now) {
         particleTimer.last = now - particleThen;
         for(var i = 0; i < particleArrays.length; i++){
             updateParticlePosition(particleArrays[i]);
-            cleanUpArray(particleArrays[i]);
+            particleArrays[i] = cleanUpArray(particleArrays[i]);
+            particleArrays = cleanParticleMatrix();
         }
     }
 }
@@ -476,7 +475,7 @@ function checkFirstBlockForGarbage(coordArray) {
 }
 
 function blocksMatch(block1, block2) {
-    if (block1.blockType !== max && !block1.isFalling && !block2.isFalling &&
+    if (block1.blockType >= 0 && block1.blockType !== max && !block1.isFalling && !block2.isFalling &&
         block1.blockType === block2.blockType) {
         return true;
     }
@@ -503,6 +502,10 @@ function cleanArray(coordArray, isRow) {
     for (var i = startPoint; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         if (isRow && block.blockType < 0) {
+            if(!block.hasOwnProperty('coords'))
+            {
+                var ajsoda = "";
+            }
             i += block.width - 1;
             block = matrix[coordArray[i].row][coordArray[i].column];
         }
@@ -546,11 +549,12 @@ function deleteBlocks(matchingBlocks) {
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
         var block = matrix[blockCoord.row][blockCoord.column];
-        if (block.blockType < 0 &&
-            block.coords != null) {
+        if (block.blockType < 0) {
             transformGarbage(block.coords);
+            j += block.width - 1;
         }
-        else if (block.blockType !== max) {
+        else if (block.blockType !== max &&
+            block.blockType >= 0) {
             player1Score += scoreMultiplier;
             block.blockType = max;
             block.sprite.clear();
@@ -582,18 +586,31 @@ function cleanRows() {
     return deleteCoords;
 }
 
+function revertGarbage(coords, falling){
+    coords.forEach(function (coord) {
+        matrix[coord.row][coord.column].isFalling = falling;
+    });
+}
+
 function checkGarbage(garbage) {
     if (garbage.row === rowCount - 1) {
         garbage.isFalling = false;
         return;
     }
     else {
+        if(!garbage.hasOwnProperty('coords'))
+        {
+            var ajsoda = "";
+        }
         for (var i = 0; i < garbage.coords.length; i++) {
-            if (matrix[garbage.coords[i].row + 1][garbage.coords[i].column].blockType !== max) {
+            var coord = garbage.coords[i];
+            matrix[coord.row][coord.column].isFalling = false;
+            if (matrix[coord.row + 1][coord.column].blockType !== max) {
                 garbage.isFalling = false;
                 return;
             }
         }
+        revertGarbage(garbage.coords, true);
         garbage.isFalling = true;
     }
 }
@@ -637,23 +654,18 @@ function switchGarbage(garbageCoords, blockCoords) {
     for (var c = 0; c < garbage.width; c++) {
         var coord = garbage.coords[c];
         var blockType = matrix[blockCoords.row][blockCoords.column + c].blockType;
-
-        if (blockType < 0) {
-            var otherGarbage = new Garbage(coord.row, coord.column, garbage.width, blockType);
-            otherGarbage.buildGarbage(false);
-            break;
-        } else {
-            matrix[coord.row][coord.column] = new Block(coord.row, coord.column, blockType);
-        }
+        matrix[coord.row][coord.column] = new Block(coord.row, coord.column, blockType);//empty block
+        matrix[coord.row][coord.column].isFalling = true;
+        matrix[blockCoords.row][coord.column] = new Block(blockCoords.row, coord.column, newGarbage.blockType);//garbage block
     }
 
-    newGarbage.buildGarbage(false);
+    matrix[blockCoords.row][blockCoords.column] = newGarbage;
 }
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
-        if (matrix[0][c].blockType !== max &&
-            !matrix[0][c].isFalling) {
+        if (matrix[2][c].blockType !== max &&
+            !matrix[2][c].isFalling) {
             return true;
         }
     }
@@ -699,13 +711,14 @@ function resetBlockPositions() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (r === rowCount - 1) { block.isOffscreen = false; }
-            if (block.blockType !== max) {
+            if (r === rowCount - 2) { block.isOffscreen = false; }
+            if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.clear();
-                block.sprite.yPos = block.row + 1;
+            }
+            block.sprite.yPos = block.row - 1;
+            if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.draw();
             }
-            if (block.blockType < 0) { c += block.width - 1; }
         }
     }
 }
@@ -746,7 +759,7 @@ function initializeMatrix(rows, columns) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
             var newBlock;
-            if (r < rows / 2) {
+            if (r < Math.round(rows / 1.5)) {
                 newBlock = new Block(r, c, max);
             }
             else {
@@ -785,7 +798,7 @@ function createCanvas() {
 
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
-    blockSize = canvas.clientHeight / rowCount;
+    blockSize = canvas.clientHeight / (rowCount - 2);
 }
 
 function dropBlockDownRecursively(block) {
@@ -879,7 +892,8 @@ function start() {
     xOffset = isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
     doAnimation = true;
     matrix = initializeMatrix(rowCount, columnCount);
-    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3)); cleanColumns();
+    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3)); 
+    cleanColumns();
     dropAllBlocks();
     cleanRows();
     dropAllBlocks();
@@ -935,7 +949,7 @@ $(document).ready(function () {
     timer = new Timer();
     pauseTimer = new Timer();
     particleTimer = new Timer();
-    rowCount = 12;
+    rowCount = 12 + 2;
     columnCount = 6;
     minGarbageWidth = columnCount / 2;
     max = 6;
@@ -984,7 +998,7 @@ $(document).on('keydown', function (event) {
                 }
                 break;
             case 40://Down
-                if (selector.coordinates.row < rowCount - 2) {
+                if (selector.coordinates.row < rowCount - 1) {
                     animateSelector(new Coordinates(selector.coordinates.row + 1,
                         selector.coordinates.column));
                 }

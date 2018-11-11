@@ -262,10 +262,16 @@ function isParticleOffScreen(particle){
 
 // Remove particles that aren't on the canvas
 function cleanUpArray(particles) {
-    particles = particles.filter((p) => { 
-      return (p.x > -100 && p.y > -100); 
+    return particles.filter((p) => { 
+      return (p.x > -100 && p.y > -100 && p.x < canvasWidth + 100 && p.y < canvasHeight + 100); 
     });
 };
+
+function cleanParticleMatrix(){
+    return particleArrays.filter((pa) => {
+        return (pa.length > 0);
+    });
+}
 
 function generateCoordinateParticles(x, y, color){
     var particles = [];
