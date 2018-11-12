@@ -42,7 +42,7 @@ function BlockSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row - 1;
+    this.yPos = options.row;
 }
 
 BlockSprite.prototype = {
@@ -143,7 +143,7 @@ function SelectorSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.xPos = options.column;
-    this.yPos = options.row - 1;
+    this.yPos = options.row;
     this.spriteWidth = skinSettings.selectorSpriteWidth;
     this.spriteHeight = skinSettings.selectorSpriteHeight;
     this.canvasX = options.column * blockSize + this.calculateXOffset() - 5;
@@ -200,7 +200,7 @@ function GarbageSprite(options) {
     this.spriteWidth = this.spriteSize * options.width;
     this.canvasWidth = blockSize * options.width;
     this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row - 1;
+    this.yPos = options.row;
 }
 
 GarbageSprite.prototype = {
@@ -715,7 +715,7 @@ function resetBlockPositions() {
             if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.clear();
             }
-            block.sprite.yPos = block.row - 1;
+            block.sprite.yPos = block.row;
             if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.draw();
             }
@@ -998,7 +998,7 @@ $(document).on('keydown', function (event) {
                 }
                 break;
             case 40://Down
-                if (selector.coordinates.row < rowCount - 1) {
+                if (selector.coordinates.row < rowCount - 2) {
                     animateSelector(new Coordinates(selector.coordinates.row + 1,
                         selector.coordinates.column));
                 }
