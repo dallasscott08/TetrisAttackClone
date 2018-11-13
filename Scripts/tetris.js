@@ -713,7 +713,11 @@ function resetBlockPositions() {
             if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.clear();
             }
+<<<<<<< HEAD
             //block.sprite.yPos = block.row - 1;
+=======
+            block.sprite.yPos = block.row;
+>>>>>>> master
             if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.draw();
             }
