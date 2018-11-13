@@ -42,7 +42,7 @@ function BlockSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row - 1;
+    this.yPos = options.row;
 }
 
 BlockSprite.prototype = {
@@ -143,7 +143,7 @@ function SelectorSprite(options) {
     this.row = options.row;
     this.column = options.column;
     this.xPos = options.column;
-    this.yPos = options.row - 1;
+    this.yPos = options.row;
     this.spriteWidth = skinSettings.selectorSpriteWidth;
     this.spriteHeight = skinSettings.selectorSpriteHeight;
     this.canvasX = options.column * blockSize + this.calculateXOffset() - 5;
@@ -200,7 +200,7 @@ function GarbageSprite(options) {
     this.spriteWidth = this.spriteSize * options.width;
     this.canvasWidth = blockSize * options.width;
     this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row - 1;
+    this.yPos = options.row;
 }
 
 GarbageSprite.prototype = {
@@ -602,18 +602,16 @@ function checkGarbage(garbage) {
         {
             var ajsoda = "";
         }
-        for (var i = 0; i < garbage.coords.length; i++) {
+        for (i = 0; i < garbage.coords.length; i++) {
             var coord = garbage.coords[i];
-            matrix[coord.row][coord.column].isFalling = false;
+            matrix[coord.row][coord.column].isFalling = true;
             if (matrix[coord.row + 1][coord.column].blockType !== max) {
-                garbage.isFalling = false;
+                revertGarbage(garbage.coords.slice(0, i + 1), false);
                 return;
             }
         }
-        revertGarbage(garbage.coords, true);
-        garbage.isFalling = true;
     }
-}
+ }
 
 function checkBlock(block) {
     if (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max) {
@@ -664,8 +662,8 @@ function switchGarbage(garbageCoords, blockCoords) {
 
 function topCollisionDetected() {
     for (var c = 0; c < columnCount; c++) {
-        if (matrix[2][c].blockType !== max &&
-            !matrix[2][c].isFalling) {
+        if (matrix[1][c].blockType !== max &&
+            !matrix[1][c].isFalling) {
             return true;
         }
     }
@@ -715,7 +713,7 @@ function resetBlockPositions() {
             if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.clear();
             }
-            block.sprite.yPos = block.row - 1;
+            //block.sprite.yPos = block.row - 1;
             if (block.blockType !== max || block.hasOwnProperty('coords')) {
                 block.sprite.draw();
             }
@@ -998,7 +996,7 @@ $(document).on('keydown', function (event) {
                 }
                 break;
             case 40://Down
-                if (selector.coordinates.row < rowCount - 1) {
+                if (selector.coordinates.row < rowCount - 2) {
                     animateSelector(new Coordinates(selector.coordinates.row + 1,
                         selector.coordinates.column));
                 }
