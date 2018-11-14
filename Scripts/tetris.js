@@ -485,7 +485,7 @@ function blocksMatch(block1, block2) {
 function checkForAdjacentGarbage(coordArray) {
     for (var c = 0; c < coordArray.length; c++) {
         var block = matrix[coordArray[c].row - 1][coordArray[c].column];
-        if (block.blockType < 0) {
+        if (block.blockType < 0 && !block.isFalling) {
             return new Coordinates(block.row, block.column);
         }
     }
