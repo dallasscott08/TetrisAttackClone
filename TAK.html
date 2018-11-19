@@ -5,16 +5,17 @@
 		<link rel="stylesheet" type="text/css" href="Content/TAKstyle.css">
 	    <meta charset="utf-8" />
         <script src="Scripts/jquery-3.3.1.min.js"></script>
-	    <script src="Scripts/tak_particles.js"></script>
-        <!--<script src="../../../TetrisAttackClone/Scripts/tak_particles.js"></script>-->
-	    <script src="Scripts/tetris.js"></script>
-	    <!--<script src="../../../TetrisAttackClone/Scripts/tetris.js"></script>-->
+	    <!--<script src="Scripts/tak_particles.js"></script>-->
+        <script src="../../../TetrisAttackClone/Scripts/tak_particles.js"></script>
+	    <!--<script src="Scripts/tetris.js"></script>-->
+	    <script src="../../../TetrisAttackClone/Scripts/tetris.js"></script>
 	    <meta name="viewport" content="width=device-width" />
+		<img src="Images/TaK_sprites_redone.png" id="effectsprites" class="spritesheet">
+		<img src="Images/SpritesAndCursor_v1.png" id="oldsprites" class="spritesheet">
 	</head>
 
 	<body>
-        <img src="Images/TaK_sprites_redone.png" id="effectsprites" class="spritesheet">
-        <img src="Images/SpritesAndCursor_v1.png" id="oldsprites" class="spritesheet">
+
 		<!--<img src="Images/Canvas.jpg" id="gamebg" class="gameWindow">-->
 
 		<ul id="LinkDiv">
@@ -26,6 +27,7 @@
 
 		<div class="Home"><a href="http://www.dallasdscott.com/index.html"><img id="Logo" src="Images/Name Logo2.png" alt="Website Logo"/></a></div>
 	    <h1 id="Title">T.A.K.</h1>
+	    <canvas id="guides" class="gameWindow"></canvas>
 	    <canvas id="game" class="gameWindow"></canvas>
 	    <canvas id="selector" class="gameWindow"></canvas>
 	    <canvas id="particleshadows" class="gameWindow"></canvas>
@@ -39,6 +41,8 @@
             <button onclick="showSettings()">Settings</button>
         </div>
         <div class="gameWindow" id="settingsScreen">
+            <label for='singlePlayer'>Single Player:</label>
+            <input type="checkbox" id="singlePlayer" checked="checked"><br />
             <ul class='settingsList'>
                 Rise Speed:
                 <li>

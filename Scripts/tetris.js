@@ -6,7 +6,7 @@ var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
 var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleShadowCtx;
-var particleInterval, xOffset;
+var particleInterval, xOffset, guideCtx;
 
 function SkinSettings(){
     this.blockSpriteSize = 32;//16;//
@@ -774,6 +774,11 @@ function initializeMatrix(rows, columns) {
 }
 
 function createCanvas() {
+    var guideCanvas = document.getElementById("guides");
+    guideCanvas.width = guideCanvas.clientWidth;
+    guideCanvas.height = guideCanvas.clientHeight;
+    guideCtx = guideCanvas.getContext("2d");
+
     var canvas = document.getElementById("game");
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
@@ -840,6 +845,17 @@ function hideSettings() {
 function showSettings() {
     $("#mainScreen").hide();
     $("#settingsScreen").show();
+    hideScores();
+}
+
+function hideScores(){
+    $("#p1Score").hide();
+    $("#p2Score").hide();    
+}
+
+function showScores(){
+    $("#p1Score").show();
+    if(!isSinglePlayer){ $("#p2Score").show(); } 
 }
 
 function pause() { paused = paused ? false : true; }
@@ -857,34 +873,50 @@ function restart() {
 
 function quit() {
     $("#game").hide();
+    hideScores();
     $("#gameOver").hide();
     $("#mainScreen").show();
 }
 
 function drawGuides(){
-    var guideWidth = 3;
-    var shadowSize = 5;
-
+    var guideWidth = 2;
+    var shadowSize = 30;
     var leftGuideX = xOffset - guideWidth - 1;
-    ctx.beginPath();
-    ctx.moveTo(leftGuideX, 15);
-    ctx.lineWidth = guideWidth;
-    ctx.strokeStyle = skinSettings.guideColor;
-    ctx.lineTo(leftGuideX, canvasHeight);
-    ctx.stroke();
-
     var rightGuideX = columnCount * blockSize + xOffset  + guideWidth + 1;
-    ctx.beginPath();    
-    ctx.moveTo(rightGuideX, 15);
-    ctx.lineWidth = guideWidth;
-    ctx.shadowColor = skinSettings.guideColor;
-    ctx.strokeStyle = skinSettings.guideColor;
-    ctx.lineTo(rightGuideX, canvasHeight);
-    ctx.stroke();
+    var bottomGuideY = canvasHeight + 1;
+
+    guideCtx.beginPath();
+    guideCtx.moveTo(leftGuideX, 15);
+    guideCtx.lineWidth = guideWidth;
+    guideCtx.shadowColor = skinSettings.guideColor;
+    guideCtx.strokeStyle = skinSettings.guideColor;
+    guideCtx.shadowBlur = shadowSize;
+    guideCtx.lineTo(leftGuideX, bottomGuideY);
+    guideCtx.stroke();
+
+    guideCtx.beginPath();    
+    guideCtx.moveTo(rightGuideX, 15);
+    guideCtx.lineWidth = guideWidth;
+    guideCtx.shadowColor = skinSettings.guideColor;
+    guideCtx.strokeStyle = skinSettings.guideColor;
+    guideCtx.shadowBlur = shadowSize;
+    guideCtx.lineTo(rightGuideX, bottomGuideY);
+    guideCtx.stroke();
+
+    guideCtx.beginPath();
+    guideCtx.moveTo(leftGuideX, bottomGuideY);
+    guideCtx.lineWidth = guideWidth;
+    guideCtx.shadowColor = skinSettings.guideColor;
+    guideCtx.strokeStyle = skinSettings.guideColor;
+    guideCtx.shadowBlur = shadowSize;
+    guideCtx.lineTo(rightGuideX, bottomGuideY);
+    guideCtx.stroke();
 }
 
 function start() {
     $("#mainScreen").hide();
+    moveScoreLocation();
+    showScores();
     $("#game").show();
     createCanvas();
     xOffset = isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
@@ -912,8 +944,20 @@ function getRadioValue(radioName) {
     return null;
 }
 
+function moveScoreLocation(){
+    if(isSinglePlayer){
+        $("#p1Score").animate({ left: '230px' });
+        $("#p2Score").hide();
+    }
+    else{
+        $("#p1Score").animate({ top: '230px' });
+        $("#p2Score").show();
+    }
+}
+
 function buildSettings() {
     $("#settingsScreen").hide();
+    hideScores();
     garbageEnabled = document.getElementById('garbageEnable').checked;
     var val = getRadioValue('speedRadio');
     xMoveAmt = .2;
@@ -936,7 +980,7 @@ function buildSettings() {
     fallTickReset = 1 / yFallAmt;
     riseTickReset = 1 / yRiseAmt;
     skinSettings = new SkinSettings();
-    isSinglePlayer = true;
+    isSinglePlayer = document.getElementById('singlePlayer').checked;
     $("#mainScreen").show();
 }
 
@@ -962,6 +1006,7 @@ $(document).ready(function () {
     scoreMultiplier = 1;
     doAnimation = false;
     enableParticleEffects = true;
+    $('#guides').height($('#guides').height() + 20);
     buildSettings();
 });
 
