@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
 
 html{
+    /*background-image: linear-gradient(to right, #01F800, #F818F8, #F81010, #F8F800, #01F8F8, #4070F8);*/
 	background-color: #10062B;
 	min-height: 100%;
 	min-width: 100%;
@@ -66,7 +67,7 @@ img{
 
 #Scoreboard{
     z-index:2;
-    font-size:850%;
+    font-size:300%;
     position:fixed;
 	left:28%;
 	top:55%;
@@ -80,9 +81,9 @@ img{
 .gameWindow{
     z-index:1;
     width:85%;
-    height:75%;
+    height:60%;
     position:fixed;
-	top: 15%;
+	top: 30%;
 	left: 7%;
 }
 
@@ -110,7 +111,7 @@ span{
 #settingsScreen {
     background-color: #10062B;
     z-index: 2;
-    font-size: 300%;
+    font-size: 100%;
     display: none;
 }
 
@@ -133,7 +134,7 @@ span{
 #settingsScreen label, #settingsScreen input, #settingsScreen output, #settingsScreen button {
     position: relative;
     left: 2%;
-    margin-top: 4%;
+    margin-top: 1%;
 }
 
 #settingsScreen button {
