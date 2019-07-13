@@ -12,6 +12,21 @@ html{
 	left: 0;
 }
 
+img.bg {
+	/* Set rules to fill background */
+	min-height: 100%;
+	min-width: 100%;
+	
+	/* Set up proportionate scaling */
+	width: 100%;
+	height: auto;
+			
+	/* Set up positioning */
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
 .spritesheet{
 	display: none;
 }
@@ -46,11 +61,12 @@ img{
 	width:55%;
 }
 
-#Title{
+#GameBanner{
     z-index:2;
-    font-size:700%;
     position:fixed;
-	left:38%;
+	left:30%;
+    height:20%;
+    width:100%;
 }
 
 #LinkDiv{
@@ -78,13 +94,13 @@ img{
     float:left;	
 }
 
-.gameWindow{
+.gameWindow, .gameWindow canvas{
     z-index:1;
-    width:85%;
-    height:60%;
+    width:100%;
+    height:100%;
     position:fixed;
-	top: 30%;
-	left: 7%;
+	top: 0%;
+	left: 0%;
 }
 
 span{
@@ -92,27 +108,12 @@ span{
     padding-right:.5em;
 }
 
-#mainScreen {
-    z-index: 2;
-}
-
-#mainScreen button {
-    position: relative;
-    color: #D42825;
-    font-size: 300%;
-    left: 35%;
-    top: 40%;
+#settings{
+    margin-top: 1%;
 }
 
 .settingsList {
     list-style: none;
-}
-
-#settingsScreen {
-    background-color: #10062B;
-    z-index: 2;
-    font-size: 100%;
-    display: none;
 }
 
 .settingsList li {
@@ -131,31 +132,55 @@ span{
     background: #D42825;
 }
 
-#settingsScreen label, #settingsScreen input, #settingsScreen output, #settingsScreen button {
+#settingsScreen label, #settingsScreen input, #settingsScreen output {
     position: relative;
     left: 2%;
     margin-top: 1%;
 }
 
-#settingsScreen button {
-    height: 10%;
-    width: 20%;
-    font-size: 100%;
+button{
+    height:20%;
+    width:20%;
+    color:#01F8F8;
+    font-size:200%;
+    background-size: 100% 100%;
+    border: none;
+    background-color: Transparent;
+    background-image:url(../Images/Button.svg);
+}
+
+button:active {
+    background-image:url(../Images/Clicked_Button.svg);
+}
+
+#mainScreen, #gameOver{
+    z-index: 2;
+    top: 40%;
+}
+
+#mainScreen button, #gameOver button{
+    position: relative;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #gameOver {
-    z-index: 2;
-    position: fixed;
-    left: 18.5%;
-    top: 45%;
-    width: 15%;
-    display:none;
+    display: none;
 }
 
-.gameOverButton {
-    margin-left: auto;
-    margin-right: auto;
-    width:100%;
-    font-size: 200%;
-    color: #D42825;
+#settingsScreen {
+    background-color: #10062B;
+    z-index: 2;
+    font-size: 100%;
+    display: none;
+}
+
+#performance{
+    z-index: 2;
+    font-size:100%;
+    position:fixed;
+	left:1%;
+	bottom:1%;	
+    display: none;
 }

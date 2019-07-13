@@ -5,13 +5,52 @@
 		<link rel="stylesheet" type="text/css" href="Content/TAKstyle.css">
 	    <meta charset="utf-8" />
         <script src="Scripts/jquery-3.3.1.min.js"></script>
-	    <!--<script src="Scripts/tak_particles.js"></script>-->
-        <script src="../../../TetrisAttackClone/Scripts/tak_particles.js"></script>
-	    <!--<script src="Scripts/tetris.js"></script>-->
-	    <script src="../../../TetrisAttackClone/Scripts/tetris.js"></script>
+        <script src="Scripts/jquery-ui.min.js"></script>
+	    <script src="Scripts/background.js"></script>
+	    <script src="Scripts/spritesheet_animation.js"></script>
+	    <script src="Scripts/tak_particles.js"></script>
+	    <script src="Scripts/tak_objects.js"></script>
+        <!--<script src="../../../TetrisAttackClone/Scripts/tak_particles.js"></script>-->
+	    <script src="Scripts/tetris.js"></script>
+	    <!--<script src="../../../TetrisAttackClone/Scripts/tetris.js"></script>-->
 	    <meta name="viewport" content="width=device-width" />
 		<img src="Images/TaK_sprites_redone.png" id="effectsprites" class="spritesheet">
+		<!--<img src="Images/Particles.png" id="particlesprites" class="spritesheet">-->
 		<img src="Images/SpritesAndCursor_v1.png" id="oldsprites" class="spritesheet">
+		<img src="Images/Cube Sprites 125.png" id="newsprites" class="spritesheet">
+		<img src="Images/Particle Sprites.png" id="particlesprites" class="spritesheet">
+		<img src="Images/Particle Sprites Reversed.png" id="reversedparticlesprites" class="spritesheet">
+        <!--<img src="Images/TaK background.png" class="bg">-->
+        <img src="Images/Selector.svg" id="selectorVector" class="spritesheet"> 
+        <img src="Images/Particles/Light Blue Particle.svg" id="blueParticle" class="spritesheet"> 
+        <img src="Images/Particles/Dark Blue Particle.svg" id="darkBlueParticle" class="spritesheet">
+        <img src="Images/Particles/Yellow Particle.svg" id="yellowParticle" class="spritesheet">
+        <img src="Images/Particles/Red Particle.svg" id="redParticle" class="spritesheet">
+        <img src="Images/Particles/Green Particle.svg" id="greenParticle" class="spritesheet">
+        <img src="Images/Particles/Purple Particle.svg" id="purpleParticle" class="spritesheet">
+        <img src="Images/Cubes/Light Blue Cube.svg" id="blueCube" class="spritesheet"> 
+        <img src="Images/Cubes/Dark Blue Cube.svg" id="darkBlueCube" class="spritesheet">
+        <img src="Images/Cubes/Yellow Cube.svg" id="yellowCube" class="spritesheet">
+        <img src="Images/Cubes/Red Cube.svg" id="redCube" class="spritesheet">
+        <img src="Images/Cubes/Green Cube.svg" id="greenCube" class="spritesheet">
+        <img src="Images/Cubes/Purple Cube.svg" id="purpleCube" class="spritesheet">
+        <img src="Images/Garbage/Garbage 1.svg" id="garbage1" class="spritesheet">
+        <img src="Images/Garbage/Garbage 2.svg" id="garbage2" class="spritesheet">
+        <img src="Images/Garbage/Garbage 3.svg" id="garbage3" class="spritesheet">
+        <img src="Images/Garbage/Garbage 4.svg" id="garbage4" class="spritesheet">
+        <ol id="vectors" class="spritesheet">
+            <li><img src="Images/Particles/Lighting - 1.svg"></li>
+            <li><img src="Images/Particles/Lighting - 2.svg"></li>
+            <li><img src="Images/Particles/Lighting - 3.svg"></li>
+            <li><img src="Images/Particles/Lighting - 4.svg"></li>
+            <li><img src="Images/Particles/Lighting - 5.svg"></li>
+            <li><img src="Images/Particles/Lighting - 6.svg"></li>
+            <li><img src="Images/Particles/Lighting - 7.svg"></li>
+            <li><img src="Images/Particles/Lighting - 8.svg"></li>
+            <li><img src="Images/Particles/Lighting - 9.svg"></li>
+            <li><img src="Images/Particles/Lighting - 10.svg"></li>
+            <li><img src="Images/Particles/Lighting - 11.svg"></li>
+        </ol>
 	</head>
 
 	<body>
@@ -25,20 +64,38 @@
 			<a href="http://www.dallasdscott.com/Contact.html" class="glow">Contact</a>
 		</ul>
 
-		<div class="Home"><a href="http://www.dallasdscott.com/index.html"><img id="Logo" src="Images/Name Logo2.png" alt="Website Logo"/></a></div>
-	    <h1 id="Title">T.A.K.</h1>
-	    <canvas id="guides" class="gameWindow"></canvas>
-	    <canvas id="game" class="gameWindow"></canvas>
-	    <canvas id="selector" class="gameWindow"></canvas>
-	    <canvas id="particleshadows" class="gameWindow"></canvas>
-	    <canvas id="particles" class="gameWindow"></canvas>
+        <div class="Home">
+            <a href="http://www.dallasdscott.com/index.html">
+                <img id="Logo" src="Images/Name Logo2.png" alt="Website Logo"/>
+            </a>
+        </div>
+        <div id="GameBanner">
+            <img src="Images/Banner.svg"/>
+        </div>
+        <div class="gameWindow">
+            <canvas id="background"></canvas>
+            <canvas id="guides"></canvas>
+            <canvas id="blockglow"></canvas>
+            <canvas id="game"></canvas>
+            <canvas id="selector"></canvas>
+            <canvas id="particleshadows"></canvas>
+            <canvas id="particles"></canvas>
+        </div>
 	    <ul id="Scoreboard">
 	    	<span id="p1Score">0</span>
 	    	<span id="p2Score">0</span>
-		</ul>
+        </ul>
+        <div id="performance">
+            <span>FPS: </span>
+            <span id="fps"></span>
+        </div>
         <div class="gameWindow" id="mainScreen">
             <button onclick="start()">Start Game</button>
-            <button onclick="showSettings()">Settings</button>
+            <button id="settings" onclick="showSettings()">Settings</button>
+        </div>
+        <div class="gameWindow" id="gameOver">
+            <button onclick="restart()">Restart</button>
+            <button onclick="quit()">Quit</button>
         </div>
         <div class="gameWindow" id="settingsScreen">
             <label for='singlePlayer'>Single Player:</label>
@@ -73,6 +130,21 @@
                     <label for='match3'>4</label>
                 </li>
             </ul>
+            <ul class='settingsList'>
+                Skin Type:
+                <li>
+                    <input type='radio' value='0' name='imageTypeRadio' id='skin1' />
+                    <label for='skin1'>Classic</label>
+                </li>
+                <li>
+                    <input type='radio' value='1' name='imageTypeRadio' id='skin2' checked="checked" />
+                    <label for='skin2'>Neo Tokyo</label>
+                </li>
+                <li>
+                    <input type='radio' value='2' name='imageTypeRadio' id='skin3' />
+                    <label for='skin3'>Toon</label>
+                </li>
+            </ul>
             <label for='garbageEnable'>Enable Garbage:</label>
             <input type="checkbox" id="garbageEnable" checked="checked"><br />
             <label for='intervalInputId'>Garbage Generation Interval(sec):</label>
@@ -81,12 +153,13 @@
             <label for='multiplierOutputId'>Pause Multiplier(sec):</label>
             <input type="range" name="multiplierInputName" id="multiplierInputId" value="1" min="0" max="10" oninput="multiplierOutputId.value = multiplierInputId.value">
             <output name="multiplierlOutputName" id="multiplierOutputId">1</output><br />
+            <label for='glowEnable'>Enable Glow:</label>
+            <input type="checkbox" id="glowEnable" checked="checked"><br />
+            <label for='particleGlowEnable'>Enable Particle Glow:</label>
+            <input type="checkbox" id="particleGlowEnable" checked="checked"><br />
             <button onclick="buildSettings()">Save</button>
             <button onclick="hideSettings()">Cancel</button>
         </div>
-        <div id="gameOver">
-            <button class="gameOverButton" onclick="restart()">Restart</button>
-            <button class="gameOverButton" onclick="quit()">Quit</button>
         </div>
 	</body>
 </html>

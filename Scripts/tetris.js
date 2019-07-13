@@ -1,288 +1,16 @@
 ﻿var matrix;//6 columns x 12 rows
 var selector, rowCount, columnCount, ctx, canvasWidth, canvasHeight, blockSize;
-var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer, actionInterval;
-var riseInterval, fallInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
+var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer;
+var riseInterval, fallInterval, shakeInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
-var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled;
+var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled, actionInterval;
 var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
 var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleShadowCtx;
-var particleInterval, xOffset, guideCtx;
-
-function SkinSettings(){
-    this.blockSpriteSize = 32;//16;//
-    this.selectorSpriteHeight = 43.2;//21.6;//
-    this.selectorSpriteWidth = 72;//36;//
-    this.spriteSheetSpriteOffset = 6;//3;//
-    this.selectorSpriteSheetSpriteXOffset = 272;//136;//
-    this.spriteSheet = "effectsprites";//"oldsprites";//
-    this.guideColor = "#FFFFFF";
-}
-
-function Coordinates(row, column) {
-    this.row = row;
-    this.column = column;
-}
-
-function Timer() {
-    this.last = null;
-    this.elapsed = 0;
-}
-
-Timer.prototype = {
-    tick: function (now) {
-        this.last = this.last || now;
-        this.elapsed = now - this.last;
-    }
-};
-
-function BlockSprite(options) {
-    this.size = blockSize;
-    this.spriteSize = skinSettings.blockSpriteSize;//16;
-    this.blockType = options.blockType;
-    this.row = options.row;
-    this.column = options.column;
-    this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row;
-}
-
-BlockSprite.prototype = {
-    clear: function () {
-        ctx.clearRect(this.xPos, this.yPos * blockSize, this.size, this.size);
-    },
-    clearRiseOffset: function () {
-        var offSet = riseOffset;
-        ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.size, this.size);
-    },
-    clearFallOffset: function () {
-        var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offSet = temp1 - temp - yFallAmt;
-        ctx.clearRect(this.xPos, offSet * blockSize, this.size, this.size);
-    },
-    draw: function () {
-        this.determineXY();
-        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
-            this.xPos, this.yPos * blockSize,
-            this.size, this.size);
-    },
-    drawRiseOffset: function () {
-        this.determineXY();
-        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
-            this.xPos, (this.yPos - riseOffset) * blockSize,
-            this.size, this.size);
-    },
-    drawFallOffset: function () {
-        this.determineXY();
-        var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offset = temp1 - temp;
-        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteSize, this.spriteSize,
-            this.xPos, offset * blockSize,
-            this.size, this.size);
-    },
-    determineXY: function () {
-        this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
-        this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
-    },
-    determineColor: function(){
-        switch (this.blockType) {
-            case 0://Green
-                return {
-                    highlight: "#01F800",
-                    body:"#006800"
-                };
-            case 1://Purple
-                return {
-                    highlight: "#F818F8",
-                    body:"#4800A0"
-                };
-            case 2://Red
-                return {
-                    highlight: "#F81010",
-                    body:"#680000"
-            };
-            case 3://Yellow
-                return {
-                    highlight: "#F8F800",
-                    body:"#605000"
-                };
-            case 4://Light Blue
-                return {
-                    highlight: "#01F8F8",
-                    body:"#007878"
-                };
-            case 5://Dark Blue
-                return {
-                    highlight: "#4070F8",
-                    body:"#0000A8"
-                };
-        }
-    },
-    calculateXOffset: function () {
-        return isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
-    }
-};
-
-function Block(row, column, blockType) {
-    this.row = row;
-    this.column = column;
-    this.blockType = blockType;
-    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column });
-    this.isFalling = false;
-    this.isOffscreen = false;
-    this.isSelected = false;
-}
-
-function SelectorSprite(options) {
-    this.row = options.row;
-    this.column = options.column;
-    this.xPos = options.column;
-    this.yPos = options.row;
-    this.spriteWidth = skinSettings.selectorSpriteWidth;
-    this.spriteHeight = skinSettings.selectorSpriteHeight;
-    this.canvasX = options.column * blockSize + this.calculateXOffset() - 5;
-    this.canvasY = (this.yPos * blockSize) - 5;
-    this.canvasWidth = blockSize * 2.25;
-    this.canvasHeight = blockSize * 1.35;
-}
-
-SelectorSprite.prototype = {
-    clear: function () {
-        selectorCtx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
-    },
-    clearOffset: function () {
-        this.yPos += (yRiseAmt * riseTickCounter);
-        selectorCtx.clearRect(this.canvasX, (this.yPos * blockSize) - 5, this.canvasWidth, this.canvasHeight);
-    },
-    draw: function () {
-        this.determineXY();
-        selectorCtx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteWidth, this.spriteHeight,
-            this.canvasX, (this.yPos * blockSize) - 5,
-            this.canvasWidth, this.canvasHeight);
-    },
-    drawOffset: function () {
-        this.determineXY();
-        this.yPos -= (yRiseAmt * riseTickCounter);
-        selectorCtx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteWidth, this.spriteHeight,
-            this.canvasX, (this.yPos * blockSize) - 5,
-            this.canvasWidth, this.canvasHeight);
-    },
-    determineXY: function () {
-        this.pixelsLeft = skinSettings.selectorSpriteSheetSpriteXOffset;
-        this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
-    },
-    calculateXOffset: function () {
-        return isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
-    }
-};
-
-function Selector(coordinates) {
-    this.coordinates = coordinates;
-    this.coordinates2 = new Coordinates(coordinates.row, coordinates.column + 1);
-    this.sprite = new SelectorSprite({ row: coordinates.row, column: coordinates.column });
-}
-
-function GarbageSprite(options) {
-    this.size = blockSize;
-    this.spriteSize = skinSettings.blockSpriteSize;
-    this.blockType = options.blockType;
-    this.row = options.row;
-    this.spriteWidth = this.spriteSize * options.width;
-    this.canvasWidth = blockSize * options.width;
-    this.xPos = options.column * blockSize + this.calculateXOffset();
-    this.yPos = options.row;
-}
-
-GarbageSprite.prototype = {
-    clear: function () {
-        ctx.clearRect(this.xPos, this.yPos * blockSize, this.canvasWidth, this.size + 1);
-    },
-    clearRiseOffset: function () {
-        var offSet = riseOffset;
-        ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.canvasWidth, this.size + 1);
-    },
-    clearFallOffset: function () {
-        var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offSet = temp1 - temp - yFallAmt;
-        ctx.clearRect(this.xPos, offSet * blockSize, this.canvasWidth, this.size);
-    },
-    draw: function () {
-        this.determineXY();
-        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteWidth, this.spriteSize,
-            this.xPos, this.yPos * blockSize,
-            this.canvasWidth, this.size);
-    },
-    drawRiseOffset: function () {
-        this.determineXY();
-        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteWidth, this.spriteSize,
-            this.xPos, (this.yPos - riseOffset) * blockSize,
-            this.canvasWidth, this.size);
-    },
-    drawFallOffset: function () {
-        this.determineXY();
-        var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offset = temp1 - temp;
-        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
-            this.pixelsLeft, this.pixelsTop,
-            this.spriteWidth, this.spriteSize,
-            this.xPos, offset * blockSize,
-            this.canvasWidth, this.size);
-    },
-    determineXY: function () {
-        var absBlockType = Math.abs(this.blockType);
-        this.pixelsLeft = skinSettings.spriteSheetSpriteOffset;
-        this.pixelsTop = (this.spriteSize * absBlockType) + (skinSettings.spriteSheetSpriteOffset * (1 + absBlockType));
-    },
-    calculateXOffset: function () {
-        return isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
-    }
-};
-
-function Garbage(row, startColumn, width, blockType) {
-    this.blockType = blockType;
-    this.row = row;
-    this.column = startColumn;
-    this.width = width;
-    this.sprite = new GarbageSprite({ blockType: blockType, row: row, column: startColumn, width: width });
-    this.isFalling = false;
-    this.isOffscreen = false;
-    this.isSelected = false;
-    this.coords = this.buildGarbageCoords();
-}
-
-Garbage.prototype = {
-    buildGarbage: function (falling) {
-        matrix[this.row][this.column] = this;
-        for (var c = 1; c < this.coords.length; c++) {
-            var coord = this.coords[c];
-            matrix[coord.row][coord.column] = new Block(coord.row, coord.column, this.blockType);
-            matrix[coord.row][coord.column].isFalling = falling;
-        }
-    },
-    buildGarbageCoords: function() {
-        var coordinatesArray = [];
-        for (var c = 0; c < this.width; c++) {
-            coordinatesArray.push(new Coordinates(this.row, this.column + c));
-        }
-        return coordinatesArray;
-    }
-};
+var particleInterval, xOffset, guideCtx, vectors, spriteType, glowAmount, glowEnabled;
+var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowClearBuffer, gameGlowAmount;
+var circleAlpha, circlesFading, circleFadeIncrement, circleFadeInterval, circleFadeTimer, blockFade;
+var classicClearTimer, classicClearInterval, classicSkinMatches;
+var times = [];
 
 function aniMatrixRising() {
     if (!paused) { riseTickCounter++; }
@@ -348,6 +76,24 @@ function animateSelector(coordinates) {
     selector.sprite.drawOffset();
 }
 
+function fadeCircles(){
+    if(circleAlpha >= 1){
+        circlesFading = true;
+    }
+    else if(circleAlpha < circleFadeIncrement){
+        circlesFading = false;
+        circleAlpha = 0;
+        return;
+    }
+ 
+    if(!circlesFading){
+        circleAlpha = circleAlpha + circleFadeIncrement > 1 ? 1 : circleAlpha + circleFadeIncrement;
+    }
+    else{
+        circleAlpha-= circleFadeIncrement;
+    }
+ }
+
 function cleanMatrix() {
     var deleteCoordsColumns = cleanColumns();
     var deleteCoordsRows = cleanRows();
@@ -356,6 +102,15 @@ function cleanMatrix() {
     }
     for (var j = 0; j < deleteCoordsRows.length; j++) {
         deleteBlocks(deleteCoordsRows[j]);
+    }
+    
+    if(deleteCoordsColumns.length > 0 || deleteCoordsRows.length > 0) {
+        $("#game, #guides, #selector").effect("shake", {direction:"up", distance:2}, 350);
+        if(!blockFade){
+            blockFade = true;
+            circleAlpha = circleFadeIncrement;
+            circlesFading = false;
+        }
     }
     $("#p1Score").text(player1Score);
     //$("#p2Score").text(player2Score);
@@ -372,6 +127,16 @@ function pauseMatrix(now) {
     else { paused = true; }
 }
 
+function measureFPS(){
+    var now = performance.now();
+    while (times.length > 0 && times[0] <= now - 1000) {
+      times.shift();
+    }
+    times.push(now);
+    fps = times.length;
+    $("#fps").text(fps);
+}
+
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
     requestAnimFrame(render);
@@ -380,11 +145,22 @@ function render(now) {
     garbageTimer.tick(now);
     timer.tick(now);
     particleTimer.tick(now);
+    classicClearTimer.tick(now);
+    measureFPS();
+
+    if(blockFade){
+        circleFadeTimer.tick(now);
+    }
+    if(circleFadeTimer.elapsed >= circleFadeInterval){
+        var fadeThen = circleFadeTimer.elapsed % circleFadeInterval;
+        circleFadeTimer.last = now - fadeThen; 
+        blockFade = false;
+    }
     if (timer.elapsed >= actionInterval) {
         var actionThen = timer.elapsed % actionInterval;
         timer.last = now - actionThen;
         cleanMatrix();
-        selector.sprite.draw();
+        selector.sprite.drawNoOffset();
     }
     if (pauseDuration > 0) {
         pauseMatrix(now);
@@ -392,7 +168,9 @@ function render(now) {
     if (fallTimer.elapsed >= fallInterval) {
         var cd = fallTimer.elapsed % fallInterval;
         fallTimer.last = now - cd;
+        blockGlowCtx.clearRect(leftGuideX - glowClearBuffer, 0, rightGuideX - leftGuideX + glowClearBuffer * 2, canvasHeight);
         aniMatrixFalling();
+        if(glowEnabled && spriteType !== imageType.PNG) { renderGlow(blockGlowCtx, canvas, gameGlowAmount); }
     }
     if (garbageEnabled && garbageTimer.elapsed >= garbageInterval) {
         var garbageThen = garbageTimer.elapsed % garbageInterval;
@@ -404,16 +182,33 @@ function render(now) {
         riseTimer.last = now - then;
         selector.sprite.clear();
         if (!paused) { selector.sprite.yPos -= yRiseAmt; }
+        blockGlowCtx.clearRect(leftGuideX - glowClearBuffer, 0, rightGuideX - leftGuideX  + glowClearBuffer * 2, canvasHeight);
         aniMatrixRising();
-        selector.sprite.draw();
+        if(glowEnabled && spriteType !== imageType.PNG) { renderGlow(blockGlowCtx, canvas, gameGlowAmount); }
+        selector.sprite.drawNoOffset();
+    }
+    if (pSettings.effectType === effectType.CORNER && classicSkinMatches.length > 0 && classicClearTimer.elapsed >= classicClearInterval) {
+        var clearThen = classicClearTimer.elapsed % classicClearInterval;
+        classicClearTimer.last = now - clearThen;
+        var blockCoord = classicSkinMatches.shift();;
+        var block = matrix[blockCoord.row][blockCoord.column];
+        block.blockType = max;
+        block.sprite.clear();
+        var newParticles = initializeCorners(block.sprite.xPos, block.row * blockSize, blockCoord.type);
+        particleArrays.push(newParticles);
     }
     if (particleTimer.elapsed >= particleInterval) {
         var particleThen = particleTimer.elapsed % particleInterval;
-        particleTimer.last = now - particleThen;
-        for(var i = 0; i < particleArrays.length; i++){
-            updateParticlePosition(particleArrays[i]);
+        particleTimer.last = now - particleThen;        
+        if(particleArrays.length > 0) {
+            updateParticlePosition(particleArrays);
+        }
+        for(var i = 0; i < particleArrays.length; i++) {
             particleArrays[i] = cleanUpArray(particleArrays[i]);
             particleArrays = cleanParticleMatrix();
+        }
+        if(circleAlpha > 0 && blockFade) {
+            fadeCircles();
         }
     }
 }
@@ -502,10 +297,6 @@ function cleanArray(coordArray, isRow) {
     for (var i = startPoint; i < coordArray.length - 1; i++) {
         var block = matrix[coordArray[i].row][coordArray[i].column];
         if (isRow && block.blockType < 0) {
-            if(!block.hasOwnProperty('coords'))
-            {
-                var ajsoda = "";
-            }
             i += block.width - 1;
             block = matrix[coordArray[i].row][coordArray[i].column];
         }
@@ -546,6 +337,7 @@ function cleanArray(coordArray, isRow) {
 }
 
 function deleteBlocks(matchingBlocks) {
+    if(pSettings.effectType === effectType.CORNER) {var type = getRandNumInRange(0,16);}
     for (var j = 0; j < matchingBlocks.length; j++) {
         var blockCoord = matchingBlocks[j];
         var block = matrix[blockCoord.row][blockCoord.column];
@@ -556,12 +348,18 @@ function deleteBlocks(matchingBlocks) {
         else if (block.blockType !== max &&
             block.blockType >= 0) {
             player1Score += scoreMultiplier;
-            block.blockType = max;
-            block.sprite.clear();
-            if(enableParticleEffects){
-                var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.sprite.determineColor());
-                particleArrays.push(newParticles);
+            if(pSettings.effectType === effectType.CORNER){
+                blockCoord.type = type;
+                classicSkinMatches.push(blockCoord);
             }
+            else{
+                block.sprite.clear();
+                if(enableParticleEffects){
+                    var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.blockType);
+                    particleArrays.push(newParticles);
+                }
+            }
+            block.blockType = max;
         }
     }
 }
@@ -571,7 +369,9 @@ function cleanColumns() {
     for (var c = 0; c < columnCount; c++) {
         var columnArray = buildArrayFromRow(c);
         var cleanedRowCoords = cleanArray(columnArray, false);
-        deleteCoords.push(cleanedRowCoords);
+        if(cleanedRowCoords.length > 0) {
+            deleteCoords.push(cleanedRowCoords);
+        }
     }
     return deleteCoords;
 }
@@ -581,7 +381,9 @@ function cleanRows() {
     for (var r = 0; r < rowCount; r++) {
         var rowCoordArray = buildArrayFromColumns(r);
         var cleanedColumnCoords = cleanArray(rowCoordArray, true);
-        deleteCoords.push(cleanedColumnCoords);
+        if(cleanedColumnCoords.length > 0) {
+            deleteCoords.push(cleanedColumnCoords);
+        }
     }
     return deleteCoords;
 }
@@ -698,7 +500,7 @@ function generateRow() {
 }
 
 function generateGarbage() {
-    var garbageWidth = Math.floor(Math.random() * minGarbageWidth) + minGarbageWidth;
+    var garbageWidth = getRandNumInRange(minGarbageWidth, columnCount);
     var startColumn = Math.floor(Math.random() * (columnCount - garbageWidth));
     var garbage = new Garbage(0, startColumn, garbageWidth, -(garbageWidth - 2));
     garbage.isFalling = true;
@@ -714,8 +516,12 @@ function resetBlockPositions() {
                 block.sprite.clear();
             }
             //block.sprite.yPos = block.row - 1;
-            if (block.blockType !== max || block.hasOwnProperty('coords')) {
-                block.sprite.draw();
+            if(block.hasOwnProperty('coords')){
+                block.sprite.drawNoOffset();
+                c += block.coords.length - 1;
+            }
+            else if (block.blockType !== max ) {
+                block.sprite.drawNoOffset();
             }
         }
     }
@@ -757,7 +563,7 @@ function initializeMatrix(rows, columns) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
             var newBlock;
-            if (r < Math.round(rows / 1.5)) {
+            if (r < ~~((rows / 1.5 + 0.5))) {
                 newBlock = new Block(r, c, max);
             }
             else {
@@ -765,7 +571,7 @@ function initializeMatrix(rows, columns) {
             }
             initialMatrix[r][c] = newBlock;
             if (newBlock.blockType !== max) {
-                newBlock.sprite.draw();
+                newBlock.sprite.drawNoOffset();
             }
         }
     }
@@ -779,29 +585,32 @@ function createCanvas() {
     guideCanvas.height = guideCanvas.clientHeight;
     guideCtx = guideCanvas.getContext("2d");
 
-    var canvas = document.getElementById("game");
+    canvas = document.getElementById("game");
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     ctx = canvas.getContext("2d");
-
-    var particleCanvas = document.getElementById("particles");
-    particleCanvas.width = particleCanvas.clientWidth;
-    particleCanvas.height = particleCanvas.clientHeight;
-    particleCtx = particleCanvas.getContext("2d");
 
     var selectorCanvas = document.getElementById("selector");
     selectorCanvas.width = selectorCanvas.clientWidth;
     selectorCanvas.height = selectorCanvas.clientHeight;
     selectorCtx = selectorCanvas.getContext("2d");
 
-    var shadowCanvas = document.getElementById("particleshadows");
-    shadowCanvas.width = shadowCanvas.clientWidth;
-    shadowCanvas.height = shadowCanvas.clientHeight;
-    particleShadowCtx = shadowCanvas.getContext("2d");
+    blockGlowCanvas = document.getElementById("blockglow");
+    blockGlowCanvas.width = blockGlowCanvas.clientWidth;
+    blockGlowCanvas.height = blockGlowCanvas.clientHeight;
+    blockGlowCtx = blockGlowCanvas.getContext("2d");
 
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
-    blockSize = canvas.clientHeight / (rowCount - 2);
+    blockSize = ~~((canvas.clientHeight / (rowCount - 2)) + 0.5);
+
+    lightSource = {
+        x: ~~(canvasWidth / 2 + 0.5),
+        y: 0,
+        strength: 1000
+    };
+
+    setupParticleCanvas();
 }
 
 function dropBlockDownRecursively(block) {
@@ -815,7 +624,7 @@ function dropBlockDownRecursively(block) {
 
         matrix[block.row][block.column].sprite.clear();
         if (matrix[block.row + 1][block.column].blockType !== max) {
-            matrix[block.row + 1][block.column].sprite.draw();
+            matrix[block.row + 1][block.column].sprite.drawNoOffset();
         }
     }
 }
@@ -873,6 +682,7 @@ function restart() {
 
 function quit() {
     $("#game").hide();
+    $("#performance").hide();
     hideScores();
     $("#gameOver").hide();
     $("#mainScreen").show();
@@ -881,36 +691,31 @@ function quit() {
 function drawGuides(){
     var guideWidth = 2;
     var shadowSize = 30;
-    var leftGuideX = xOffset - guideWidth - 1;
-    var rightGuideX = columnCount * blockSize + xOffset  + guideWidth + 1;
+    leftGuideX = xOffset - guideWidth - 1;
+    rightGuideX = columnCount * blockSize + xOffset  + guideWidth + 1;
     var bottomGuideY = canvasHeight + 1;
 
     guideCtx.beginPath();
     guideCtx.moveTo(leftGuideX, 15);
     guideCtx.lineWidth = guideWidth;
-    guideCtx.shadowColor = skinSettings.guideColor;
     guideCtx.strokeStyle = skinSettings.guideColor;
-    guideCtx.shadowBlur = shadowSize;
     guideCtx.lineTo(leftGuideX, bottomGuideY);
-    guideCtx.stroke();
-
-    guideCtx.beginPath();    
+      
     guideCtx.moveTo(rightGuideX, 15);
     guideCtx.lineWidth = guideWidth;
-    guideCtx.shadowColor = skinSettings.guideColor;
     guideCtx.strokeStyle = skinSettings.guideColor;
-    guideCtx.shadowBlur = shadowSize;
     guideCtx.lineTo(rightGuideX, bottomGuideY);
-    guideCtx.stroke();
-
-    guideCtx.beginPath();
+    
     guideCtx.moveTo(leftGuideX, bottomGuideY);
     guideCtx.lineWidth = guideWidth;
-    guideCtx.shadowColor = skinSettings.guideColor;
     guideCtx.strokeStyle = skinSettings.guideColor;
-    guideCtx.shadowBlur = shadowSize;
     guideCtx.lineTo(rightGuideX, bottomGuideY);
     guideCtx.stroke();
+    guideCtx.closePath();
+
+    guideCtx.rect(leftGuideX, 0, rightGuideX-leftGuideX, canvasHeight);
+    guideCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    guideCtx.fill();
 }
 
 function start() {
@@ -918,18 +723,20 @@ function start() {
     moveScoreLocation();
     showScores();
     $("#game").show();
+    $("#performance").show();
     createCanvas();
     xOffset = isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
+    xOffset = ~~(xOffset + 0.5);
     doAnimation = true;
     matrix = initializeMatrix(rowCount, columnCount);
-    selector = new Selector(new Coordinates(rowCount / 2, columnCount / 3)); 
+    selector = new Selector(new Coordinates(~~(rowCount / 2 + 0.5), ~~(columnCount / 3 + 0.5))); 
     cleanColumns();
     dropAllBlocks();
     cleanRows();
     dropAllBlocks();
     resetMatrixPosition();
     drawGuides();
-    selector.sprite.draw();
+    selector.sprite.drawNoOffset();
     requestAnimFrame(render);
 }
 
@@ -955,6 +762,20 @@ function moveScoreLocation(){
     }
 }
 
+function setEffectType(){
+    switch(spriteType){
+        case imageType.PATH:
+            pSettings.effectType = effectType.EXPLODE;
+            break;
+        case imageType.VECTOR:
+            pSettings.effectType = effectType.SHATTER;
+            break;
+        case imageType.PNG:
+            pSettings.effectType = effectType.CORNER;
+            break;
+    }
+}
+
 function buildSettings() {
     $("#settingsScreen").hide();
     hideScores();
@@ -973,6 +794,10 @@ function buildSettings() {
     particleInterval = 1000 / 60;
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 50;
+    shakeInterval = 1000 / 2;
+    glowEnabled = document.getElementById('glowEnable').checked;
+    pSettings.glowEnabled = document.getElementById('particleGlowEnable').checked;
+    glowAmount = 2;// * blockSize;
     garbageInterval = document.getElementById('intervalInputId').value * 1000;
     pauseMultiplier = document.getElementById('multiplierInputId').value * 1000;
     maxPauseDuration = pauseMultiplier * 10;
@@ -981,19 +806,36 @@ function buildSettings() {
     riseTickReset = 1 / yRiseAmt;
     skinSettings = new SkinSettings();
     isSinglePlayer = document.getElementById('singlePlayer').checked;
+    glowClearBuffer = 20;
+    gameGlowAmount = [8];    
+    spriteType = getRadioValue('imageTypeRadio');
+    circlesFading = false;
+    blockFade = false;
+    circleFadeIncrement = .02;
+    circleFadeInterval = 3000;
+    circleAlpha = 0;
+    classicClearInterval = 500;
+    setEffectType();
+    setSelectorSizeMultiplier();
+
     $("#mainScreen").show();
 }
 
 $(document).ready(function () {
+    drawBackground();
     riseTimer = new Timer();
     fallTimer = new Timer();
     garbageTimer = new Timer();
     timer = new Timer();
     pauseTimer = new Timer();
     particleTimer = new Timer();
+    shakeTimer = new Timer();
+    circleFadeTimer = new Timer();
+    classicClearTimer = new Timer();
+    classicSkinMatches = [];
     rowCount = 12 + 2;
     columnCount = 6;
-    minGarbageWidth = columnCount / 2;
+    minGarbageWidth = ~~(columnCount / 2 + 0.5);
     max = 6;
 
     fallTickCounter = 0;
@@ -1004,6 +846,7 @@ $(document).ready(function () {
     riseOffset = 0;
     pauseDuration = 0;
     scoreMultiplier = 1;
+    shaking = false;
     doAnimation = false;
     enableParticleEffects = true;
     $('#guides').height($('#guides').height() + 20);
