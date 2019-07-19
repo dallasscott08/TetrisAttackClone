@@ -187,17 +187,7 @@ Particle.prototype = {
         var a = this.pointsDistance(lightSource, C);
         var c = this.pointsDistance({ x: this.x + pSettings.particleSize/2,
             y: this.y + pSettings.particleSize/2 }, lightSource);
-        var sin = a/c;        
-        
-        /*particleCtx.beginPath();
-        particleCtx.moveTo(lightSource.x, lightSource.y);
-        particleCtx.lineTo(C.x, C.y);
-        particleCtx.lineTo(this.x, this.y);
-        particleCtx.lineTo(lightSource.x, lightSource.y);
-        particleCtx.strokeStyle = "black";
-        particleCtx.lineWidth = 3;
-        particleCtx.stroke();
-        particleCtx.closePath();*/
+        var sin = a/c;       
         return Math.asin(sin);
     },
     calculateSlope: function(){
@@ -524,9 +514,9 @@ function setupParticleCanvas() {
     { min: canvasArea / pSettings.countDivisor, max: canvasArea * 10 / pSettings.countDivisor } 
     : { min: canvasArea / pSettings.countDivisor * .2, max: canvasArea * 10 / pSettings.countDivisor * .2};
 
-    particleSpriteSheet = new SpriteSheet(pSettings.spriteSheetId, pSettings.spriteFrameWidth, 
+    particleSpriteSheet = new SpriteGroup(pSettings.spriteSheetId, pSettings.spriteFrameWidth, 
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize);
-    reverseParticleSpriteSheet = new SpriteSheet(pSettings.reversedSpriteSheetId, pSettings.spriteFrameWidth, 
+    reverseParticleSpriteSheet = new SpriteGroup(pSettings.reversedSpriteSheetId, pSettings.spriteFrameWidth, 
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize);
 }
 
@@ -660,13 +650,4 @@ function groupBy (objectArray, property) {
         total[key].push(obj);
         return total;
     }, {});
-}
-
-function buildColorsArray(particle){
-    var greenArray = ["rgba(1, 248, 0, 1)", "rgba(1, 148, 0, 1)", "rgba(1, 248, 100, 1)", "rgba(100, 248, 0, 1)"];
-    var yellowArray = ["rgba(248, 248, 0, 1)", "rgba(248, 148, 0, 1)", "rgba(148, 248, 0, 1)", "rgba(255, 255, 255, 1)"];
-    var lightBlueArray = ["rgba(1, 248, 248, 1)", "rgba(1, 148, 148, 1)", "rgba(1, 148, 248, 1)", "rgba(1, 248, 148, 1)"];
-    var darkBlueArray = ["rgba(64, 112, 248, 1)", "rgba(16, 160, 248, 1)", "rgba(112, 64, 248, 1)", "rgba(64, 64, 148, 1)"];
-    var purpleArray = ["rgba(248, 24, 248, 1)", "rgba(148, 24, 248, 1)", "rgba(248, 24, 148, 1)", "rgba(148, 24, 148, 1)"];
-    var redArray = ["rgba(248, 16, 16, 1)", "rgba(200, 64, 64, 1)", "rgba(152, 64, 64, 1)", "rgba(148, 16, 64, 1)"];
 }

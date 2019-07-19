@@ -6,7 +6,7 @@
  * @param {number} - Number of frames per row in spritesheet.
  * @param {number} - Size of a given zone in spritesheet.
  */
-function SpriteSheet(imageId, frameWidth, frameHeight, framesPerRow, zoneHeight) {
+function SpriteGroup(imageId, frameWidth, frameHeight, framesPerRow, zoneHeight) {
   this.image = document.getElementById(imageId);
   this.frameWidth = frameWidth;
   this.frameHeight = frameHeight;

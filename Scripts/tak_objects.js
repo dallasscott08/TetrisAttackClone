@@ -109,13 +109,7 @@ BlockSprite.prototype = {
         ctx.save();
         ctx.beginPath();
         ctx.globalCompositeOperation = 'lighter';
-        /*var gradient = ctx.createRadialGradient(this.xPos + (this.size + 1)/2, y + (this.size + 1)/2, 0.000, 
-        this.xPos + (this.size + 1)/2, y + (this.size + 1)/2, this.size - (this.size * radiusPercent));
-        gradient.addColorStop(0.000, 'rgba(0, 0, 0, 0.000)');
-        gradient.addColorStop(0.550, 'rgba(0, 0, 0, 0.000)');
-        gradient.addColorStop(0.850, color.highlight);
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.000)');*/
-        ctx.fillStyle = color.highlight;//gradient;//
+        ctx.fillStyle = color.highlight;
         ctx.arc(this.xPos + (this.size)/2, y + (this.size)/2, 
         this.size - ~~(this.size * radiusPercent + 0.5), 0, Math.PI*2, true); 
         ctx.globalAlpha = circleAlpha;
@@ -341,7 +335,7 @@ GarbageSprite.prototype = {
     determineXY: function () {
         var absBlockType = Math.abs(this.blockType);
         this.pixelsLeft = skinSettings.spriteSheetSpriteOffset;
-        this.pixelsTop = (this.spriteSize * absBlockType) + (skinSettings.spriteSheetSpriteOffset * (1 + absBlockType));
+        this.pixelsTop = (this.spriteSize * absBlockType) + (skinSettings.spriteSheetSpriteOffset * (1 + absBlockType)) + 133;
     },
     calculateXOffset: function () {
         var offSet = isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
