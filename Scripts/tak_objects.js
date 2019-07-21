@@ -4,9 +4,9 @@
     this.selectorSpriteWidth = 36;//72;//
     this.spriteSheetSpriteOffset = 3;//6;//
     this.selectorSpriteSheetSpriteXOffset = 136;//272;//
-    this.spriteSheet = "oldsprites";//"effectsprites";//
+    this.spriteSheet = "old-sprites";//"effectsprites";//
     this.guideColor = "#FFFFFF";
-    this.selectorVector = "selectorVector";
+    this.selectorVector = "selector-vector";
 }
 
 function Coordinates(row, column) {
@@ -128,17 +128,17 @@ BlockSprite.prototype = {
     getBlockVectorFromType: function(){
         switch(this.blockType) {
             case 0://Green
-                return document.getElementById("greenCube");
+                return document.getElementById("green-cube");
             case 1://Purple
-                return document.getElementById("purpleCube");
+                return document.getElementById("purple-cube");
             case 2://Red
-                return document.getElementById("redCube");
+                return document.getElementById("red-cube");
             case 3://Yellow
-                return document.getElementById("yellowCube");
+                return document.getElementById("yellow-cube");
             case 4://Light Blue
-                return document.getElementById("blueCube");
+                return document.getElementById("blue-cube");
             case 5://Dark Blue
-                return document.getElementById("darkBlueCube");
+                return document.getElementById("dark-blue-cube");
         }
     }
 };

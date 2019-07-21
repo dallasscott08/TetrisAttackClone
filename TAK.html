@@ -14,26 +14,26 @@
 	    <script src="Scripts/tetris.js"></script>
 	    <!--<script src="../../../TetrisAttackClone/Scripts/tetris.js"></script>-->
 	    <meta name="viewport" content="width=device-width" />
-		<img src="Images/TaK_sprites_redone.png" id="effectsprites" class="spritesheet">
+		<img src="Images/TaK_sprites_redone.png" id="effect-sprites" class="spritesheet">
 		<!--<img src="Images/Particles.png" id="particlesprites" class="spritesheet">-->
-		<img src="Images/SpritesAndCursor_v1.png" id="oldsprites" class="spritesheet">
-		<img src="Images/Cube Sprites 125.png" id="newsprites" class="spritesheet">
-		<img src="Images/Particle Sprites.png" id="particlesprites" class="spritesheet">
-		<img src="Images/Particle Sprites Reversed.png" id="reversedparticlesprites" class="spritesheet">
+		<img src="Images/SpritesAndCursor_v1.png" id="old-sprites" class="spritesheet">
+		<img src="Images/Cube Sprites 125.png" id="new-sprites" class="spritesheet">
+		<img src="Images/Particle Sprites.png" id="particle-sprites" class="spritesheet">
+		<img src="Images/Particle Sprites Reversed.png" id="reversed-particle-sprites" class="spritesheet">
         <!--<img src="Images/TaK background.png" class="bg">-->
-        <img src="Images/Selector.svg" id="selectorVector" class="spritesheet"> 
-        <img src="Images/Particles/Light Blue Particle.svg" id="blueParticle" class="spritesheet"> 
-        <img src="Images/Particles/Dark Blue Particle.svg" id="darkBlueParticle" class="spritesheet">
-        <img src="Images/Particles/Yellow Particle.svg" id="yellowParticle" class="spritesheet">
-        <img src="Images/Particles/Red Particle.svg" id="redParticle" class="spritesheet">
-        <img src="Images/Particles/Green Particle.svg" id="greenParticle" class="spritesheet">
-        <img src="Images/Particles/Purple Particle.svg" id="purpleParticle" class="spritesheet">
-        <img src="Images/Cubes/Light Blue Cube.svg" id="blueCube" class="spritesheet"> 
-        <img src="Images/Cubes/Dark Blue Cube.svg" id="darkBlueCube" class="spritesheet">
-        <img src="Images/Cubes/Yellow Cube.svg" id="yellowCube" class="spritesheet">
-        <img src="Images/Cubes/Red Cube.svg" id="redCube" class="spritesheet">
-        <img src="Images/Cubes/Green Cube.svg" id="greenCube" class="spritesheet">
-        <img src="Images/Cubes/Purple Cube.svg" id="purpleCube" class="spritesheet">
+        <img src="Images/Selector.svg" id="selector-vector" class="spritesheet"> 
+        <img src="Images/Particles/Light Blue Particle.svg" id="blue-particle" class="spritesheet"> 
+        <img src="Images/Particles/Dark Blue Particle.svg" id="dark-blue-particle" class="spritesheet">
+        <img src="Images/Particles/Yellow Particle.svg" id="yellow-particle" class="spritesheet">
+        <img src="Images/Particles/Red Particle.svg" id="red-particle" class="spritesheet">
+        <img src="Images/Particles/Green Particle.svg" id="green-particle" class="spritesheet">
+        <img src="Images/Particles/Purple Particle.svg" id="purple-particle" class="spritesheet">
+        <img src="Images/Cubes/Light Blue Cube.svg" id="blue-cube" class="spritesheet"> 
+        <img src="Images/Cubes/Dark Blue Cube.svg" id="dark-blue-cube" class="spritesheet">
+        <img src="Images/Cubes/Yellow Cube.svg" id="yellow-cube" class="spritesheet">
+        <img src="Images/Cubes/Red Cube.svg" id="red-cube" class="spritesheet">
+        <img src="Images/Cubes/Green Cube.svg" id="green-cube" class="spritesheet">
+        <img src="Images/Cubes/Purple Cube.svg" id="purple-cube" class="spritesheet">
         <img src="Images/Garbage/Garbage 1.svg" id="garbage1" class="spritesheet">
         <img src="Images/Garbage/Garbage 2.svg" id="garbage2" class="spritesheet">
         <img src="Images/Garbage/Garbage 3.svg" id="garbage3" class="spritesheet">
@@ -57,106 +57,119 @@
 
 		<!--<img src="Images/Canvas.jpg" id="gamebg" class="gameWindow">-->
 
-		<ul id="LinkDiv">
-			<a href="http://www.dallasdscott.com/index.html" class="glow" id="First">Home</a>
+		<ul id="link-div">
+			<a href="http://www.dallasdscott.com/index.html" class="glow" id="first">Home</a>
 			<a href="http://www.dallasdscott.com/About%20Me%20Page.html" class="glow">About Me</a>
 			<a href="http://www.dallasdscott.com/Resume.html" class="glow">Resume</a>
 			<a href="http://www.dallasdscott.com/Contact.html" class="glow">Contact</a>
 		</ul>
 
-        <div class="Home">
+        <div class="home">
             <a href="http://www.dallasdscott.com/index.html">
                 <img id="Logo" src="Images/Name Logo2.png" alt="Website Logo"/>
             </a>
         </div>
-        <div id="GameBanner">
+        <div id="game-banner">
             <img src="Images/Banner.svg"/>
         </div>
-        <div class="gameWindow">
+        <div class="game-window">
             <canvas id="background"></canvas>
             <canvas id="guides"></canvas>
-            <canvas id="blockglow"></canvas>
+            <canvas id="block-glow"></canvas>
             <canvas id="game"></canvas>
             <canvas id="selector"></canvas>
-            <canvas id="particleshadows"></canvas>
+            <canvas id="particle-shadows"></canvas>
             <canvas id="particles"></canvas>
         </div>
-	    <ul id="Scoreboard">
-	    	<span id="p1Score">0</span>
-	    	<span id="p2Score">0</span>
-        </ul>
+	    <div id="scoreboard">
+            <h2>SCORE</h2>
+	    	<span id="p1-score">0</span>
+            <span id="p2-score">0</span>
+            <h2>TIME</h2>
+            <span id="time">0</span>
+            <h2>PAUSE TIME</h2>
+            <span id="pause-duration">0</span>
+        </div>
+	    <div id="settings-display">
+            <h2>SPEED LVL</h2>
+            <span id="speed">0</span>
+            <h2>GARBAGE INTERVAL</h2>
+            <span id="garbage-interval">0</span>
+            <h2>PAUSE MULTIPLIER</h2>
+            <span id="pause-multiplier">0</span>
+        </div>
         <div id="performance">
             <span>FPS: </span>
             <span id="fps"></span>
         </div>
-        <div class="gameWindow" id="mainScreen">
+        <div class="game-window" id="main-screen">
             <button onclick="start()">Start Game</button>
             <button id="settings" onclick="showSettings()">Settings</button>
         </div>
-        <div class="gameWindow" id="gameOver">
+        <div class="game-window" id="game-over">
             <button onclick="restart()">Restart</button>
             <button onclick="quit()">Quit</button>
         </div>
-        <div class="gameWindow" id="settingsScreen">
-            <label for='singlePlayer'>Single Player:</label>
-            <input type="checkbox" id="singlePlayer" checked="checked"><br />
-            <ul class='settingsList'>
+        <div class="game-window" id="settings-screen">
+            <label for='single-player'>Single Player:</label>
+            <input type="checkbox" id="single-player" checked="checked"><br />
+            <ul class='settings-list'>
                 Rise Speed:
                 <li>
-                    <input type='radio' value='1' name='speedRadio' id='speed1' />
+                    <input type='radio' value='1' name='speed-radio' id='speed1' />
                     <label for='speed1'>Slow</label>
                 </li>
                 <li>
-                    <input type='radio' value='2' name='speedRadio' id='speed2' checked="checked" />
+                    <input type='radio' value='2' name='speed-radio' id='speed2' checked="checked" />
                     <label for='speed2'>Normal</label>
                 </li>
                 <li>
-                    <input type='radio' value='3' name='speedRadio' id='speed3' />
+                    <input type='radio' value='3' name='speed-radio' id='speed3' />
                     <label for='speed3'>Fast</label>
                 </li>
             </ul>
-            <ul class='settingsList'>
+            <ul class='settings-list'>
                 Match Amount:
                 <li>
-                    <input type='radio' value='2' name='matchRadio' id='match1' />
+                    <input type='radio' value='2' name='match-radio' id='match1' />
                     <label for='match1'>2</label>
                 </li>
                 <li>
-                    <input type='radio' value='3' name='matchRadio' id='match2' checked="checked" />
+                    <input type='radio' value='3' name='match-radio' id='match2' checked="checked" />
                     <label for='match2'>3</label>
                 </li>
                 <li>
-                    <input type='radio' value='4' name='matchRadio' id='match3' />
+                    <input type='radio' value='4' name='match-radio' id='match3' />
                     <label for='match3'>4</label>
                 </li>
             </ul>
-            <ul class='settingsList'>
+            <ul class='settings-list'>
                 Skin Type:
                 <li>
-                    <input type='radio' value='0' name='imageTypeRadio' id='skin1' />
+                    <input type='radio' value='0' name='image-type-radio' id='skin1' />
                     <label for='skin1'>Classic</label>
                 </li>
                 <li>
-                    <input type='radio' value='1' name='imageTypeRadio' id='skin2' checked="checked" />
+                    <input type='radio' value='1' name='image-type-radio' id='skin2' checked="checked" />
                     <label for='skin2'>Neo Tokyo</label>
                 </li>
                 <li>
-                    <input type='radio' value='2' name='imageTypeRadio' id='skin3' />
+                    <input type='radio' value='2' name='image-type-radio' id='skin3' />
                     <label for='skin3'>Toon</label>
                 </li>
             </ul>
-            <label for='garbageEnable'>Enable Garbage:</label>
-            <input type="checkbox" id="garbageEnable" checked="checked"><br />
-            <label for='intervalInputId'>Garbage Generation Interval(sec):</label>
-            <input type="range" name="intervalInputName" id="intervalInputId" value="10" min="5" max="60" oninput="intervalOutputId.value = intervalInputId.value">
-            <output name="intervalOutputName" id="intervalOutputId">10</output><br />
-            <label for='multiplierOutputId'>Pause Multiplier(sec):</label>
-            <input type="range" name="multiplierInputName" id="multiplierInputId" value="1" min="0" max="10" oninput="multiplierOutputId.value = multiplierInputId.value">
-            <output name="multiplierlOutputName" id="multiplierOutputId">1</output><br />
-            <label for='glowEnable'>Enable Glow:</label>
-            <input type="checkbox" id="glowEnable" checked="checked"><br />
-            <label for='particleGlowEnable'>Enable Particle Glow:</label>
-            <input type="checkbox" id="particleGlowEnable" checked="checked"><br />
+            <label for='garbage-enable'>Enable Garbage:</label>
+            <input type="checkbox" id="garbage-enable" checked="checked"><br />
+            <label for='interval-input-id'>Garbage Generation Interval(sec):</label>
+            <input type="range" name="interval-input-name" id="interval-input-id" value="10" min="5" max="60" oninput="interval-output-id.value = interval-input-id.value">
+            <output name="interval-output-name" id="intervalOutputId">10</output><br />
+            <label for='multiplier-output-id'>Pause Multiplier(sec):</label>
+            <input type="range" name="multiplier-input-name" id="multiplier-input-id" value="1" min="0" max="10" oninput="multiplier-output-id.value = multiplier-input-id.value">
+            <output name="multiplierl-output-name" id="multiplier-output-id">1</output><br />
+            <label for='glow-enable'>Enable Glow:</label>
+            <input type="checkbox" id="glow-enable" checked="checked"><br />
+            <label for='particle-glow-enable'>Enable Particle Glow:</label>
+            <input type="checkbox" id="particle-glow-enable" checked="checked"><br />
             <button onclick="buildSettings()">Save</button>
             <button onclick="hideSettings()">Cancel</button>
         </div>

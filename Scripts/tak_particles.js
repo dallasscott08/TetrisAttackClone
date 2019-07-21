@@ -31,8 +31,8 @@ var pSettings = {
     shadowSize: 15,
     particleImageType: imageType.PATH,
     particleSpritesheetSpriteSize: 64,
-    spriteSheetId: "particlesprites",
-    reversedSpriteSheetId: "reversedparticlesprites",
+    spriteSheetId: "particle-sprites",
+    reversedSpriteSheetId: "reversed-particle-sprites",
     particleSpriteSheetSpriteOffset: 12,
     particleSpriteSheetFrames: 1,
     particleColorNum: 5,
@@ -248,17 +248,17 @@ Particle.prototype = {
 function getParticleVectorFromType(type){
     switch(type) {
         case 0://Green
-            return document.getElementById("greenParticle");
+            return document.getElementById("green-particle");
         case 1://Purple
-            return document.getElementById("purpleParticle");
+            return document.getElementById("purple-particle");
         case 2://Red
-            return document.getElementById("redParticle");
+            return document.getElementById("red-particle");
         case 3://Yellow
-            return document.getElementById("yellowParticle");
+            return document.getElementById("yellow-particle");
         case 4://Light Blue
-            return document.getElementById("blueParticle");
+            return document.getElementById("blue-particle");
         case 5://Dark Blue
-            return document.getElementById("darkBlueParticle");
+            return document.getElementById("dark-blue-particle");
     }
 }
 
@@ -475,13 +475,13 @@ function setupParticleCanvas() {
     particleCanvas.height = particleCanvas.clientHeight;
     particleCtx = particleCanvas.getContext("2d");
 
-    var shadowCanvas = document.getElementById("particleshadows");
+    var shadowCanvas = document.getElementById("particle-shadows");
     shadowCanvas.width = shadowCanvas.clientWidth;
     shadowCanvas.height = shadowCanvas.clientHeight;
     particleShadowCtx = shadowCanvas.getContext("2d");
 
     particleBufferCanvas = {
-        glow: document.getElementById("particleshadows"),//document.createElement('canvas'),
+        glow: document.getElementById("particle-shadows"),//document.createElement('canvas'),
         image: document.getElementById("particles")//document.createElement('canvas')
     }; 
     

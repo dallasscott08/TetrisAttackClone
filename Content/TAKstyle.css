@@ -42,7 +42,7 @@ a{
 	padding: 0 15px;
 }
 
-#First{
+#first{
 	border-left: 1px solid white;
 	border-right: 1px solid white;
 }
@@ -53,7 +53,7 @@ img{
 	left:3.5%;
 }
 
-.Logo{
+.logo{
     z-index:-1;
 	top:30%;
 	left:22%;
@@ -61,7 +61,7 @@ img{
 	width:55%;
 }
 
-#GameBanner{
+#game-banner{
     z-index:2;
     position:fixed;
 	left:30%;
@@ -69,7 +69,7 @@ img{
     width:100%;
 }
 
-#LinkDiv{
+#link-div{
 	position:absolute;
 	padding:2px;
 	top:1%;
@@ -77,24 +77,44 @@ img{
 	margin:auto;
 }
 
-#LinkDiv a{
+#link-div a{
 	float:left;
 }
 
-#Scoreboard{
+#scoreboard, #settings-display{
     z-index:2;
-    font-size:300%;
+    font-size:150%;
+    font-weight: 500;
     position:fixed;
-	left:28%;
 	top:55%;
-	width: auto;	
+    width: fit-content;
+    text-shadow: .20rem .20rem #000000;
+    display:inline-block;
 }
 
-#Scoreboard span{
-    float:left;	
+#scoreboard{
+	left:25%;
 }
 
-.gameWindow, .gameWindow canvas{
+#settings-display{
+	right:20%;
+}
+
+#scoreboard span, #settings-display span{
+    background-color: rgba(0, 0, 0, .25);
+    box-shadow: 0 0 5px 10px rgba(0, 0, 0, .25);
+    border-radius: 2px;
+}
+
+#scoreboard h2, #settings-display h2{
+    background-color: rgba(0, 0, 0, .25);
+    box-shadow: 0 0 5px 10px rgba(0, 0, 0, .25);
+    font-size: 75%;
+    font-weight: 400;
+    border-radius: 2px;
+}
+
+.game-window, .game-window canvas{
     z-index:1;
     width:100%;
     height:100%;
@@ -112,27 +132,27 @@ span{
     margin-top: 1%;
 }
 
-.settingsList {
+.settings-list {
     list-style: none;
 }
 
-.settingsList li {
+.settings-list li {
     display: inline-block;
 }
 
-.settingsList input {
+.settings-list input {
     visibility: hidden;
 }
 
-.settingsList label {
+.settings-list label {
     cursor: pointer;
 }
 
-.settingsList input:checked + label {
+.settings-list input:checked + label {
     background: #D42825;
 }
 
-#settingsScreen label, #settingsScreen input, #settingsScreen output {
+#settings-screen label, #settings-screen input, #settings-screen output {
     position: relative;
     left: 2%;
     margin-top: 1%;
@@ -153,23 +173,23 @@ button:active {
     background-image:url(../Images/Clicked_Button.svg);
 }
 
-#mainScreen, #gameOver{
+#main-screen, #game-over{
     z-index: 2;
     top: 40%;
 }
 
-#mainScreen button, #gameOver button{
+#main-screen button, #game-over button{
     position: relative;
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
-#gameOver {
+#game-over {
     display: none;
 }
 
-#settingsScreen {
+#settings-screen {
     background-color: #10062B;
     z-index: 2;
     font-size: 100%;

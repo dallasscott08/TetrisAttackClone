@@ -9,7 +9,7 @@ var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleSh
 var particleInterval, xOffset, guideCtx, vectors, spriteType, glowAmount, glowEnabled;
 var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowClearBuffer, gameGlowAmount;
 var circleAlpha, circlesFading, circleFadeIncrement, circleFadeInterval, circleFadeTimer, blockFade;
-var classicClearTimer, classicClearInterval, classicSkinMatches;
+var classicClearTimer, classicClearInterval, classicSkinMatches, gameStartTime;
 var times = [];
 
 function aniMatrixRising() {
@@ -112,8 +112,8 @@ function cleanMatrix() {
             circlesFading = false;
         }
     }
-    $("#p1Score").text(player1Score);
-    //$("#p2Score").text(player2Score);
+    $("#p1-score").text(player1Score);
+    //$("#p2-score").text(player2Score);
 }
 
 function pauseMatrix(now) {
@@ -123,8 +123,12 @@ function pauseMatrix(now) {
         pauseTimer.last = 0;//now - pauseThen;
         pauseDuration = 0;
         paused = false;
+        $("#pause-duration").text(0);
     }
-    else { paused = true; }
+    else { 
+        paused = true;
+        $("#pause-duration").text(((pauseDuration - pauseTimer.elapsed)/1000).toFixed(0));
+     }
 }
 
 function measureFPS(){
@@ -147,6 +151,7 @@ function render(now) {
     particleTimer.tick(now);
     classicClearTimer.tick(now);
     measureFPS();
+    $("#time").text(millisToMinutesAndSeconds(now - gameStartTime));
 
     if(blockFade){
         circleFadeTimer.tick(now);
@@ -595,7 +600,7 @@ function createCanvas() {
     selectorCanvas.height = selectorCanvas.clientHeight;
     selectorCtx = selectorCanvas.getContext("2d");
 
-    blockGlowCanvas = document.getElementById("blockglow");
+    blockGlowCanvas = document.getElementById("block-glow");
     blockGlowCanvas.width = blockGlowCanvas.clientWidth;
     blockGlowCanvas.height = blockGlowCanvas.clientHeight;
     blockGlowCtx = blockGlowCanvas.getContext("2d");
@@ -647,29 +652,30 @@ function dropAllBlocks() {
 }
 
 function hideSettings() {
-    $("#settingsScreen").hide();
-    $("#mainScreen").show();
+    $("#settings-screen").hide();
+    $("#main-screen").show();
 }
 
 function showSettings() {
-    $("#mainScreen").hide();
-    $("#settingsScreen").show();
+    $("#main-screen").hide();
+    $("#settings-screen").show();
     hideScores();
 }
 
 function hideScores(){
-    $("#p1Score").hide();
-    $("#p2Score").hide();    
+    $("#scoreboard").hide(); 
+    $("#settings-display").hide(); 
 }
 
-function showScores(){
-    $("#p1Score").show();
-    if(!isSinglePlayer){ $("#p2Score").show(); } 
+function showScores(){   
+    $("#scoreboard").show();
+    $("#settings-display").show();
+    if(!isSinglePlayer){ $("#p2-score").show(); } 
 }
 
 function pause() { paused = paused ? false : true; }
 function stop() {
-    $("#gameOver").show();
+    $("#game-over").show();
     doAnimation = false;
 }
 
@@ -677,15 +683,15 @@ function restart() {
     player1Score = 0;
     player2Score = 0;
     start();
-    $("#gameOver").hide();
+    $("#game-over").hide();
 }
 
 function quit() {
     $("#game").hide();
     $("#performance").hide();
     hideScores();
-    $("#gameOver").hide();
-    $("#mainScreen").show();
+    $("#game-over").hide();
+    $("#main-screen").show();
 }
 
 function drawGuides(){
@@ -719,7 +725,7 @@ function drawGuides(){
 }
 
 function start() {
-    $("#mainScreen").hide();
+    $("#main-screen").hide();
     moveScoreLocation();
     showScores();
     $("#game").show();
@@ -753,12 +759,12 @@ function getRadioValue(radioName) {
 
 function moveScoreLocation(){
     if(isSinglePlayer){
-        $("#p1Score").animate({ left: '230px' });
-        $("#p2Score").hide();
+        $("#p1-score").animate({ left: '230px' });
+        $("#p2-score").hide();
     }
     else{
-        $("#p1Score").animate({ top: '230px' });
-        $("#p2Score").show();
+        $("#p1-score").animate({ top: '230px' });
+        $("#p2-score").show();
     }
 }
 
@@ -777,10 +783,10 @@ function setEffectType(){
 }
 
 function buildSettings() {
-    $("#settingsScreen").hide();
+    $("#settings-screen").hide();
     hideScores();
-    garbageEnabled = document.getElementById('garbageEnable').checked;
-    var val = getRadioValue('speedRadio');
+    garbageEnabled = document.getElementById('garbage-enable').checked;
+    var val = getRadioValue('speed-radio');
     xMoveAmt = .2;
     yFallAmt = .2;
     yRiseAmt = .01;
@@ -795,20 +801,20 @@ function buildSettings() {
     actionInterval = 1000 / 2;
     fallInterval = 1000 / 50;
     shakeInterval = 1000 / 2;
-    glowEnabled = document.getElementById('glowEnable').checked;
-    pSettings.glowEnabled = document.getElementById('particleGlowEnable').checked;
+    glowEnabled = document.getElementById('glow-enable').checked;
+    pSettings.glowEnabled = document.getElementById('particle-glow-enable').checked;
     glowAmount = 2;// * blockSize;
-    garbageInterval = document.getElementById('intervalInputId').value * 1000;
-    pauseMultiplier = document.getElementById('multiplierInputId').value * 1000;
+    garbageInterval = document.getElementById('interval-input-id').value * 1000;
+    pauseMultiplier = document.getElementById('multiplier-input-id').value * 1000;
     maxPauseDuration = pauseMultiplier * 10;
-    matchAmount = getRadioValue('matchRadio');
+    matchAmount = getRadioValue('match-radio');
     fallTickReset = 1 / yFallAmt;
     riseTickReset = 1 / yRiseAmt;
     skinSettings = new SkinSettings();
-    isSinglePlayer = document.getElementById('singlePlayer').checked;
+    isSinglePlayer = document.getElementById('single-player').checked;
     glowClearBuffer = 20;
     gameGlowAmount = [8];    
-    spriteType = getRadioValue('imageTypeRadio');
+    spriteType = getRadioValue('image-type-radio');
     circlesFading = false;
     blockFade = false;
     circleFadeIncrement = .02;
@@ -817,8 +823,17 @@ function buildSettings() {
     classicClearInterval = 500;
     setEffectType();
     setSelectorSizeMultiplier();
+    var dropAnimationGroup = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
+        1, 76);
+    var clearAnimationGroup = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
+        1, 76);
+    $("#speed").text(val);
+    $("#garbage-interval").text(garbageInterval/1000);
+    $("#pause-multiplier").text(pauseMultiplier/1000);
+    gameStartTime = performance.now();
 
-    $("#mainScreen").show();
+
+    $("#main-screen").show();
 }
 
 $(document).ready(function () {
@@ -895,6 +910,18 @@ $(document).on('keydown', function (event) {
         }
     }
 });
+
+function millisToMinutesAndSeconds(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    //var milliseconds  = ((millis % 1000) / 100).toFixed(0);
+    return pad(minutes) + ":" + pad(seconds);// + "'" + pad(milliseconds,3);
+}
+
+function pad(n, z) {
+    z = z || 2;
+    return ('00' + n).slice(-z);
+}
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
