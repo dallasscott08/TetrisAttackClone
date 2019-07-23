@@ -80,7 +80,7 @@ function Particle(x,y, type) {
     this.alpha = .5;
 
     if(pSettings.effectType === effectType.CORNER) {
-        this.animation = new Animation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame, pSettings.spriteFramesPerRow);
+        this.animation = new Animation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame);
         this.endOfLife = 100;
         this.moveAmt = 1;
     }
