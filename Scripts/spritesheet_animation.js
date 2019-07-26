@@ -4,14 +4,16 @@
  * @param {number} - Width (in px) of each frame.
  * @param {number} - Height (in px) of each frame.
  * @param {number} - Number of frames per row in spritesheet.
- * @param {number} - Size of a given zone in spritesheet.
+ * @param {number} - Height of a given zone in spritesheet.
+ * @param {number} - Width of a given zone in spritesheet.
  */
-function SpriteGroup(imageId, frameWidth, frameHeight, framesPerRow, zoneHeight) {
+function SpriteGroup(imageId, frameWidth, frameHeight, framesPerRow, zoneHeight, zoneWidth) {
   this.image = document.getElementById(imageId);
   this.frameWidth = frameWidth;
   this.frameHeight = frameHeight;
   this.framesPerRow = framesPerRow;//Math.floor(this.image.width / this.frameWidth);
-  this.zoneHeight = zoneHeight
+  this.zoneHeight = zoneHeight;
+  this.zoneWidth = zoneWidth;
 }
 
 function Animation(frameSpeed, startFrame, endFrame) {
@@ -34,10 +36,10 @@ Animation.prototype = {
     }
     this.counter = (this.counter + 1) % this.frameSpeed;
   },
-  setSpriteSheetXY: function(spritesheet, padding, startPoint, zoneNumber) {
-    var row = ~~(this.animationSequence[this.currentFrame] / spritesheet.framesPerRow);
-    var col = ~~(this.animationSequence[this.currentFrame] % spritesheet.framesPerRow);
-    this.frameRow =  row * spritesheet.frameWidth + startPoint.y + (padding * (1 + row)) + (zoneNumber * spritesheet.zoneHeight);
-    this.frameColumn =  col * spritesheet.frameHeight + startPoint.x + (padding * (1 + col));
+  setSpriteSheetXY: function(spriteGroup, padding, startPoint, verticalZone, horizontalZone) {
+    var row = ~~(this.animationSequence[this.currentFrame] / spriteGroup.framesPerRow);
+    var col = ~~(this.animationSequence[this.currentFrame] % spriteGroup.framesPerRow);
+    this.frameRow =  row * spriteGroup.frameWidth + startPoint.y + (padding * (1 + row)) + (verticalZone * spriteGroup.zoneHeight);
+    this.frameColumn =  col * spriteGroup.frameHeight + startPoint.x + (padding * (1 + col)) + (horizontalZone * spriteGroup.zoneWidth);
   }
 }

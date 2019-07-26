@@ -116,7 +116,7 @@ Particle.prototype = {
                     this.life++;
                 }
                 this.animation.updateFrame();
-                this.animation.setSpriteSheetXY(particleSpriteSheet, 3, {x: 19, y: 0}, this.zone);
+                this.animation.setSpriteSheetXY(particleSpriteSheet, 3, {x: 19, y: 0}, this.zone, 0);
                 if(this.animation.currentFrame === this.animation.animationSequence.length -1)
                 {
                     this.life++;
@@ -515,9 +515,9 @@ function setupParticleCanvas() {
     : { min: canvasArea / pSettings.countDivisor * .2, max: canvasArea * 10 / pSettings.countDivisor * .2};
 
     particleSpriteSheet = new SpriteGroup(pSettings.spriteSheetId, pSettings.spriteFrameWidth, 
-        pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize);
+        pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
     reverseParticleSpriteSheet = new SpriteGroup(pSettings.reversedSpriteSheetId, pSettings.spriteFrameWidth, 
-        pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize);
+        pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
 }
 
 function buildGradient(particle){

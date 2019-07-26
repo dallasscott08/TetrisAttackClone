@@ -34,6 +34,7 @@ function BlockSprite(options) {
     this.column = options.column;
     this.xPos = options.column * blockSize + this.calculateXOffset();
     this.yPos = options.row;
+    this.animation = null;
 }
 
 BlockSprite.prototype = {
@@ -118,8 +119,21 @@ BlockSprite.prototype = {
         ctx.restore();
     },
     determineXY: function () {
-        this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
-        this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
+        if(this.animation != null){
+            this.animation.updateFrame();
+            this.animation.setSpriteSheetXY(blockSpriteSheet, 3, {x: 0, y: 0}, 0, this.blockType);
+            if(this.animation.frameRow > 22){
+                var asda = "";
+            }
+            this.pixelsLeft = this.animation.frameColumn;
+            this.pixelsTop = this.animation.frameRow;
+            if(this.animation.currentFrame === this.animation.animationSequence.length -1)
+                this.animation = null;
+        }
+        else{
+            this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
+            this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
+        }
     },
     calculateXOffset: function () {
         var offSet =  isSinglePlayer ? canvasWidth / 2 - (blockSize * columnCount) / 2 : canvasWidth / 3 - (blockSize * columnCount) / 2;
@@ -143,12 +157,12 @@ BlockSprite.prototype = {
     }
 };
 
-function Block(row, column, blockType) {
+function Block(row, column, blockType, isFalling) {
     this.row = row;
     this.column = column;
     this.blockType = blockType;
     this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column });
-    this.isFalling = false;
+    this.isFalling = isFalling || false;
     this.isOffscreen = false;
     this.isSelected = false;
 }
