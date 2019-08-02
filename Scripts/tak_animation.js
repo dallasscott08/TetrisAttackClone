@@ -42,7 +42,7 @@ function aniMatrixFalling() {
                         switchGarbage(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
                     }
-                    else if(block.row + 1 < rowCount){
+                    else if(block.row + 1 < rowCount && matrix[block.row + 1][block.column].blockType === max){
                         switchBlocks(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
                     }
@@ -181,12 +181,13 @@ function render(now) {
     if (pSettings.effectType === effectType.CORNER && classicSkinMatches.length > 0 && classicClearTimer.elapsed >= classicClearInterval) {
         var clearThen = classicClearTimer.elapsed % classicClearInterval;
         classicClearTimer.last = now - clearThen;
-        var blockCoord = classicSkinMatches.shift();;
-        var block = matrix[blockCoord.row][blockCoord.column];
-        block.blockType = max;
-        block.sprite.clear();
-        var newParticles = initializeCorners(block.sprite.xPos, block.row * blockSize, blockCoord.type);
-        particleArrays.push(newParticles);
+        for(var i = 0; i < classicSkinMatches.length; i++) {
+            var blockCoord = classicSkinMatches[i].shift();
+            var block = matrix[blockCoord.row][blockCoord.column];
+            var newParticles = initializeCorners(block.sprite.xPos, block.row * blockSize, particleSpriteImg);
+            particleArrays.push(newParticles);
+        }
+        classicSkinMatches = filterMatrix(classicSkinMatches);
     }
     if (particleTimer.elapsed >= particleInterval) {
         var particleThen = particleTimer.elapsed % particleInterval;
@@ -196,7 +197,7 @@ function render(now) {
         }
         for(var i = 0; i < particleArrays.length; i++) {
             particleArrays[i] = cleanUpArray(particleArrays[i]);
-            particleArrays = cleanParticleMatrix();
+            particleArrays = filterMatrix(particleArrays);
         }
         if(circleAlpha > 0 && blockFade) {
             fadeCircles();

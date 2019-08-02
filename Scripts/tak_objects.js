@@ -103,8 +103,6 @@ BlockSprite.prototype = {
         ctx.strokeStyle = color.highlight;
         roundRect(ctx, this.xPos, y, this.size, this.size, 10, true, true);
 
-
-
         //draw arc
         var radiusPercent = .9;
         ctx.save();
@@ -122,9 +120,6 @@ BlockSprite.prototype = {
         if(this.animation != null){
             this.animation.updateFrame();
             this.animation.setSpriteSheetXY(blockSpriteSheet, 3, {x: 0, y: 0}, 0, this.blockType);
-            if(this.animation.frameRow > 22){
-                var asda = "";
-            }
             this.pixelsLeft = this.animation.frameColumn;
             this.pixelsTop = this.animation.frameRow;
             if(this.animation.currentFrame === this.animation.animationSequence.length -1)
