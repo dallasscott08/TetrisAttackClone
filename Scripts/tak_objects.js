@@ -176,11 +176,11 @@ function SelectorSprite(options) {
 
 SelectorSprite.prototype = {
     clear: function () {
-        selectorCtx.clearRect(this.canvasX, this.calculateCanvasY(), this.canvasWidth + 10, this.canvasHeight + 20);
+        selectorCtx.clearRect(this.canvasX-10, this.calculateCanvasY() - 10, this.canvasWidth + 20, this.canvasHeight + 20);
     },
     clearOffset: function () {
         this.yPos += (yRiseAmt * riseTickCounter);
-        selectorCtx.clearRect(this.canvasX, this.calculateCanvasY(), this.canvasWidth + 10, this.canvasHeight + 20);
+        selectorCtx.clearRect(this.canvasX -10, this.calculateCanvasY() - 10, this.canvasWidth + 20, this.canvasHeight + 20);
     },
     drawNoOffset: function () {
         this.draw(this.calculateCanvasY());
@@ -219,13 +219,14 @@ SelectorSprite.prototype = {
         selectorCtx.lineWidth = 5;
         selectorCtx.fillStyle = "Transparent";
         selectorCtx.strokeStyle = "White";
-        roundRect(selectorCtx, this.canvasX, y, this.canvasWidth/2, this.canvasHeight, 10, true, true);
-        roundRect(selectorCtx, this.canvasX + this.canvasWidth/2, y, this.canvasWidth/2, this.canvasHeight, 10, true, true);
+        var secondX = this.canvasX + this.canvasWidth/2;
+        roundRect(selectorCtx, this.canvasX, y, this.canvasWidth/2, this.canvasHeight, 10, true, true, false);
+        roundRect(selectorCtx, secondX, y, this.canvasWidth/2, this.canvasHeight, 10, true, true, false);
         var gapSize = ~~(this.canvasWidth/4 + 0.5);
         var gapStart = ~~(this.canvasWidth/8 + 0.5);
-        selectorCtx.clearRect(this.canvasX + gapStart, y, gapSize, this.canvasHeight);
-        selectorCtx.clearRect(this.canvasX, y + gapStart, this.canvasWidth, gapSize);
-        selectorCtx.clearRect(this.canvasX + this.canvasWidth/2 + gapStart, y, gapSize, this.canvasHeight);
+        selectorCtx.clearRect(this.canvasX + gapStart, y - 10, gapSize, this.canvasHeight + 20);
+        selectorCtx.clearRect(this.canvasX - 10, y + gapStart, this.canvasWidth + 20, gapSize);
+        selectorCtx.clearRect(this.canvasX + this.canvasWidth/2 + gapStart, y - 10, gapSize, this.canvasHeight + 20);
     },
     determineXY: function () {
         this.pixelsLeft = skinSettings.selectorSpriteSheetSpriteXOffset;
