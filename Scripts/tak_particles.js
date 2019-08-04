@@ -54,37 +54,43 @@ function Particle(x,y, type) {
     // Establish starting positions and velocities
     this.ox = ~~(x + 0.5);
     this.oy = ~~(y + 0.5);
-
+ 
     this.x = this.ox;
     this.y = this.oy;
-
-    // Determine original X-axis speed based on setting limitation
-    this.vx = ~~((Math.random() * 20 - 10) + 0.5);
-    this.vy = ~~((Math.random() * 20 - 15) + 0.5);
-
-    this.color = getColorProperties(type);
-
-    this.spriteSize = pSettings.particleSpriteSize;
-    this.spriteSheetFrame = 0;
-    this.particleType = type;
-    this.particleSize = getRandNumInRange(pSettings.minParticleSize, pSettings.maxParticleSize);
-    this.slope = calculateSlope({x: getRandNumInRange(0, canvasWidth), y: getRandNumInRange(0, canvasHeight)}, this);
-    this.moveAmt = 20;//Math.pow(2, 15/this.particleSize);//getRandNumInRange(pSettings.minMoveSpeed, pSettings.maxMoveSpeed);
-    this.goRight = (Math.floor(Math.random() * 2) == 0);
+    
     this.life = 0;
-    this.endOfLife = 75;//Math.pow(1.5, this.particleSize);//getRandNumInRange(pSettings.minLife, pSettings.maxLife);
-
-    this.flicker = true;//(Math.floor(Math.random() * 2) == 0);
-    this.isFading = true;
-    this.flickerAmt = .0075;//Math.pow(.8, this.particleSize);//.5 / this.particleSize;
-    this.alpha = .5;
-
+    this.type = type;
+ 
     if(pSettings.effectType === effectType.CORNER) {
+        this.spriteSize = pSettings.particleSpriteSize;
+        this.spriteSheetFrame = 0;
         this.animation = new Animation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame);
         this.endOfLife = 100;
         this.moveAmt = 1;
     }
-}
+    else if(pSettings.effectType === effectType.SHATTER) {
+        this.slope = calculateSlope({x: getRandNumInRange(0, canvasWidth), y: getRandNumInRange(0, canvasHeight)}, this);
+        this.goRight = (Math.floor(Math.random() * 2) == 0);        
+    
+        // Determine original X-axis speed based on setting limitation
+        this.vx = ~~((Math.random() * 20 - 10) + 0.5);
+        this.vy = ~~((Math.random() * 20 - 15) + 0.5);
+        this.endOfLife = 1;
+    }
+    else{
+        this.color = getColorProperties(this.type);
+        this.particleSize = getRandNumInRange(pSettings.minParticleSize, pSettings.maxParticleSize);
+        this.slope = calculateSlope({x: getRandNumInRange(0, canvasWidth), y: getRandNumInRange(0, canvasHeight)}, this);
+        this.goRight = (Math.floor(Math.random() * 2) == 0);
+        this.endOfLife = Math.pow(1.5, this.particleSize);//getRandNumInRange(pSettings.minLife, pSettings.maxLife);
+        this.moveAmt = Math.pow(2, 15/this.particleSize);//getRandNumInRange(pSettings.minMoveSpeed, pSettings.maxMoveSpeed);
+        
+        this.flicker = true;//(Math.floor(Math.random() * 2) == 0);
+        this.isFading = true;
+        this.flickerAmt = .0075;//Math.pow(.8, this.particleSize);//.5 / this.particleSize;
+        this.alpha = .5;
+    }
+ }
 
 // Some prototype methods for the particle's "draw" function
 Particle.prototype = {
@@ -156,7 +162,7 @@ Particle.prototype = {
         particleBufferCtx.glow.restore();
     },
     drawVector: function() {
-        var particleVector = getParticleVectorFromType(this.particleType);
+        var particleVector = getParticleVectorFromType(this.type);
         var angle = this.x > lightSource.x ? -this.calculateLightAngle() : this.calculateLightAngle();
         var lightDistance = this.percentFromLight();
         var shade = this.selectVector(lightDistance);
@@ -269,42 +275,42 @@ function getColorProperties (type){
             colorProperties = {
                 highlight: "#01F800",
                 body:"rgba(1, 248, 0, 0.25)",
-                randomizedColor: pSettings.greenColors[getRandNumInRange(0,pSettings.particleColorNum)]
+                //randomizedColor: pSettings.greenColors[getRandNumInRange(0,pSettings.particleColorNum)]
             };
             break;
         case 1://Purple
             colorProperties = {
                 highlight: "#F818F8",
                 body:"rgba(248, 22, 248, 0.25)",
-                randomizedColor: pSettings.purpleColors[getRandNumInRange(0,pSettings.particleColorNum)]
+                //randomizedColor: pSettings.purpleColors[getRandNumInRange(0,pSettings.particleColorNum)]
             };
             break;
         case 2://Red
             colorProperties = {
                 highlight: "#F81010",
                 body:"rgba(248, 18, 18, 0.25)",
-                randomizedColor: pSettings.redColors[getRandNumInRange(0,pSettings.particleColorNum)]
+                //randomizedColor: pSettings.redColors[getRandNumInRange(0,pSettings.particleColorNum)]
             };
             break;
         case 3://Yellow
             colorProperties = {
                 highlight: "#F8F800",
                 body:"rgba(248, 248, 0, 0.25)",
-                randomizedColor: pSettings.yellowColors[getRandNumInRange(0,pSettings.particleColorNum)]
+                //randomizedColor: pSettings.yellowColors[getRandNumInRange(0,pSettings.particleColorNum)]
             };
             break;
         case 4://Light Blue
             colorProperties = {
                 highlight: "#01F8F8",
                 body:"rgba(1, 248, 248, 0.25)",
-                randomizedColor: pSettings.lightBlueColors[getRandNumInRange(0,pSettings.particleColorNum)]
+                //randomizedColor: pSettings.lightBlueColors[getRandNumInRange(0,pSettings.particleColorNum)]
             };
             break;
         case 5://Dark Blue
             colorProperties = {
                 highlight: "#4070F8",
                 body:"rgba(63, 112, 248, 0.25)",
-                randomizedColor: pSettings.darkBlueColors[getRandNumInRange(0,pSettings.particleColorNum)]
+                //randomizedColor: pSettings.darkBlueColors[getRandNumInRange(0,pSettings.particleColorNum)]
             };
             break;
     }
@@ -341,8 +347,8 @@ function cleanUpArray(particles) {
     });
 };
 
-function cleanParticleMatrix() {
-    return particleArrays.filter((pa) => {
+function filterMatrix(matrix) {
+    return matrix.filter((pa) => {
         return (pa.length > 0);
     });
 }
@@ -520,39 +526,6 @@ function setupParticleCanvas() {
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
 }
 
-function buildGradient(particle){
-	var color;
-    var gradient = particleBufferCtx.image.createRadialGradient(particle.x, particle.y, 0.000, particle.x, particle.y, pSettings.particleSize);
-
-	switch(particle.particleType) {
-        case 0://Green
-        	color = "#01F800";
-            break; 
-        case 1://Purple
-        	color = "#F818F8";
-            break; 
-        case 2://Red
-        	color = "#F81010";
-            break; 
-        case 3://Yellow
-        	color = "#F8F800";
-            break; 
-        case 4://Light Blue
-        	color = "#01F8F8";
-            break; 
-        case 5://Dark Blue
-        	color = "#4070F8";
-            break; 
-    }
-
-	gradient.addColorStop(0.000, 'rgba(255, 255, 255, 0.000)');
-	gradient.addColorStop(0.600, 'rgba(0, 0, 0, 0.000)');
-	gradient.addColorStop(0.800, color);
-	gradient.addColorStop(0.850, 'rgba(255, 255, 255, 1.000)');
-	gradient.addColorStop(0.950, color);
-	return gradient;
-}
-
 function drawGlowingParticle(particle){	
     //particleBufferCtx.image.save();
     particleBufferCtx.image.beginPath();
@@ -641,7 +614,7 @@ function determineClearRect(particles){
     }
 }
     
-function groupBy (objectArray, property) {
+function groupBy(objectArray, property) {
     return objectArray.reduce(function (total, obj) {
         let key = obj[property];
         if (!total[key]) {

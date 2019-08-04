@@ -79,6 +79,8 @@ function setEffectType(){
 }
 
 function buildSettings() {
+    spriteType = getRadioValue('image-type-radio');
+    drawBackground();
     $("#settings-screen").hide();
     hideScores();
     garbageEnabled = document.getElementById('garbage-enable').checked;
@@ -110,7 +112,6 @@ function buildSettings() {
     isSinglePlayer = document.getElementById('single-player').checked;
     glowClearBuffer = 20;
     gameGlowAmount = [8];    
-    spriteType = getRadioValue('image-type-radio');
     circlesFading = false;
     blockFade = false;
     circleFadeIncrement = .02;

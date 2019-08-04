@@ -12,27 +12,43 @@ var starSize = {
 var bgGlowAmount = [8,4];
 
 function drawBackground(){
-
     backgroundCanvas = document.getElementById("background");
     backgroundCanvas.width = backgroundCanvas.clientWidth;
     backgroundCanvas.height = backgroundCanvas.clientHeight;
     backgroundCtx = backgroundCanvas.getContext("2d");
     center = { x: backgroundCanvas.width/2, y: backgroundCanvas.height/2 };
-    var radius = backgroundCanvas.height;
-    var lineWidth = 2;
-    var ringCount = 3;
-    var ringWidthDivisor = 20;
-    canvasArea = backgroundCanvas.height * backgroundCanvas.width;
-    starCount = circleCountMultiplier * canvasArea;
 
-    //drawPlainGradientCircle(center, radius, lineWidth);
-    for(var i = 0; i < ringCount; i++){
-        drawGradientLine(center, 
-            radius / ringWidthDivisor * Math.pow(2, i + 2),
-            lineWidth * Math.pow(2, i));
+    if(spriteType === imageType.VECTOR) {
+        var imageSize = { x: 318, y: 505 }
+        var xMargin = (center.x - imageSize.x) / 2;
+        var cube = document.getElementById("background-cube");
+        backgroundCtx.drawImage(cube,
+            center.x + xMargin, center.y - (imageSize.y/2),
+            imageSize.x, imageSize.y);
+        backgroundCtx.save(); // Save the current state
+        backgroundCtx.translate(xMargin + imageSize.x, center.y - (imageSize.y/2))
+        backgroundCtx.scale(-1, 1); // Set scale to flip the image
+        backgroundCtx.drawImage(cube,0,0,            
+            imageSize.x, imageSize.y);
+        backgroundCtx.restore();
     }
-    drawStars();
-    renderGlow(backgroundCtx, backgroundCanvas, bgGlowAmount);
+    else {
+        var radius = backgroundCanvas.height;
+        var lineWidth = 2;
+        var ringCount = 3;
+        var ringWidthDivisor = 20;
+        canvasArea = backgroundCanvas.height * backgroundCanvas.width;
+        starCount = circleCountMultiplier * canvasArea;
+
+        //drawPlainGradientCircle(center, radius, lineWidth);
+        for(var i = 0; i < ringCount; i++){
+            drawGradientLine(center, 
+                radius / ringWidthDivisor * Math.pow(2, i + 2),
+                lineWidth * Math.pow(2, i));
+        }
+        drawStars();
+        renderGlow(backgroundCtx, backgroundCanvas, bgGlowAmount);
+    }
 }
 
 function drawPlainGradientCircle(center, radius, lineWidth){
