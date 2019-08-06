@@ -220,13 +220,18 @@ SelectorSprite.prototype = {
         selectorCtx.fillStyle = "Transparent";
         selectorCtx.strokeStyle = "White";
         var secondX = this.canvasX + this.canvasWidth/2;
-        roundRect(selectorCtx, this.canvasX, y, this.canvasWidth/2, this.canvasHeight, 10, true, true, false);
-        roundRect(selectorCtx, secondX, y, this.canvasWidth/2, this.canvasHeight, 10, true, true, false);
-        var gapSize = ~~(this.canvasWidth/4 + 0.5);
-        var gapStart = ~~(this.canvasWidth/8 + 0.5);
-        selectorCtx.clearRect(this.canvasX + gapStart, y - 10, gapSize, this.canvasHeight + 20);
-        selectorCtx.clearRect(this.canvasX - 10, y + gapStart, this.canvasWidth + 20, gapSize);
-        selectorCtx.clearRect(this.canvasX + this.canvasWidth/2 + gapStart, y - 10, gapSize, this.canvasHeight + 20);
+        roundRect(selectorCtx, this.canvasX, y, this.canvasWidth/2, this.canvasHeight, 5, true, true, false);
+        roundRect(selectorCtx, secondX, y, this.canvasWidth/2, this.canvasHeight, 5, true, true, false);
+        var gapPercent = .5;
+        var bufferPercent = (1 - gapPercent) / 2;
+        var halfWidth = this.canvasWidth/2;
+        var verticalGapWidth = ~~(halfWidth * gapPercent + 0.5);
+        var verticalGapStart = ~~(halfWidth * bufferPercent + 0.5);
+        var horizontalGapHeight = ~~(this.canvasHeight * gapPercent + 0.5);
+        var horizontalGapStart = ~~(this.canvasHeight * bufferPercent + 0.5);
+        selectorCtx.clearRect(this.canvasX + verticalGapStart, y - 10, verticalGapWidth, this.canvasHeight + 20);
+        selectorCtx.clearRect(this.canvasX - 10, y + horizontalGapStart, this.canvasWidth + 20, horizontalGapHeight);
+        selectorCtx.clearRect(this.canvasX + halfWidth + verticalGapStart, y - 10, verticalGapWidth, this.canvasHeight + 20);
     },
     determineXY: function () {
         this.pixelsLeft = skinSettings.selectorSpriteSheetSpriteXOffset;

@@ -19,18 +19,23 @@ function drawBackground(){
     center = { x: backgroundCanvas.width/2, y: backgroundCanvas.height/2 };
 
     if(spriteType === imageType.VECTOR) {
-        var imageSize = { x: 318, y: 505 }
-        var xMargin = (center.x - imageSize.x) / 2;
+        var cubeSize = { x: 318, y: 505 }
+        var frownSize = { x: 250, y: 100 }
+        var xMargin = (center.x - cubeSize.x) / 2;
         var cube = document.getElementById("background-cube");
+        var frown = document.getElementById("background-frown");
         backgroundCtx.drawImage(cube,
-            center.x + xMargin, center.y - (imageSize.y/2),
-            imageSize.x, imageSize.y);
+            center.x + xMargin, center.y - (cubeSize.y/2),
+            cubeSize.x, cubeSize.y);
         backgroundCtx.save(); // Save the current state
-        backgroundCtx.translate(xMargin + imageSize.x, center.y - (imageSize.y/2))
+        backgroundCtx.translate(xMargin + cubeSize.x, center.y - (cubeSize.y/2))
         backgroundCtx.scale(-1, 1); // Set scale to flip the image
         backgroundCtx.drawImage(cube,0,0,            
-            imageSize.x, imageSize.y);
+            cubeSize.x, cubeSize.y);
         backgroundCtx.restore();
+        backgroundCtx.drawImage(frown,
+            center.x - (frownSize.x/2), center.y + (center.y/2) - (frownSize.y/2),
+            frownSize.x, frownSize.y);
     }
     else {
         var radius = backgroundCanvas.height;
