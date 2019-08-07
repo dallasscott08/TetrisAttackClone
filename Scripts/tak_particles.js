@@ -406,28 +406,28 @@ function generateCoordinateParticles(x, y, type) {
 function initializeCorners(x, y, type){
     var particles = [];
     var initialOffset = 5;
-    var particle = new Particle(x + initialOffset, y + initialOffset, type);//bottom left
+    var particle = new Particle(x - initialOffset, y + initialOffset, type);//bottom left
     particle.slope = -1;
     particle.goRight = false;
     particle.zone = type;
     particle.angle = 3.14159;
     particle.flip = true;
     particles.push(particle);
-    particle = new Particle(x + initialOffset, y - initialOffset, type);//top left
+    particle = new Particle(x - initialOffset, y - initialOffset, type);//top left
     particle.slope = 1;
     particle.goRight = false;
     particle.zone = type;
     particle.angle = 0;
     particle.flip = false;
     particles.push(particle);
-    particle = new Particle(x - initialOffset, y - initialOffset, type);//top right
+    particle = new Particle(x + initialOffset, y - initialOffset, type);//top right
     particle.slope = -1;
     particle.goRight = true;
     particle.zone = type;
     particle.angle = 0;
     particle.flip = true;
     particles.push(particle);
-    particle = new Particle(x - initialOffset, y + initialOffset, type);//bottom right
+    particle = new Particle(x + initialOffset, y + initialOffset, type);//bottom right
     particle.slope = 1;
     particle.goRight = true;
     particle.zone = type;

@@ -184,7 +184,7 @@ function render(now) {
         for(var i = 0; i < classicSkinMatches.length; i++) {
             var blockCoord = classicSkinMatches[i].shift();
             var block = matrix[blockCoord.row][blockCoord.column];
-            var newParticles = initializeCorners(block.sprite.xPos, block.row * blockSize, particleSpriteImg);
+            var newParticles = initializeCorners(block.sprite.xPos + (blockSize/2), block.row * blockSize + (blockSize/2), particleSpriteImg);
             particleArrays.push(newParticles);
         }
         classicSkinMatches = filterMatrix(classicSkinMatches);
