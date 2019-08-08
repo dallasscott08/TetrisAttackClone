@@ -12,21 +12,6 @@ html{
 	left: 0;
 }
 
-img.bg {
-	/* Set rules to fill background */
-	min-height: 100%;
-	min-width: 100%;
-	
-	/* Set up proportionate scaling */
-	width: 100%;
-	height: auto;
-			
-	/* Set up positioning */
-	position: fixed;
-	top: 0;
-	left: 0;
-}
-
 .spritesheet{
 	display: none;
 }
@@ -77,11 +62,42 @@ img{
 	margin:auto;
 }
 
-#link-div a{
+#link-div a {
 	float:left;
 }
 
-#scoreboard, #settings-display{
+button {
+    height:20%;
+    width:20%;
+    color:#01F8F8;
+    font-size:200%;
+    background-size: 100% 100%;
+    border: none;
+    background-color: Transparent;
+    background-image:url(../Images/Button.svg);
+}
+
+button:active {
+    background-image:url(../Images/Clicked_Button.svg);
+}
+
+#main-screen, #game-over {
+    z-index: 2;
+    top: 40%;
+}
+
+#main-screen button, #game-over button{
+    position: relative;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#game-over {
+    display: none;
+}
+
+#scoreboard, #settings-display {
     z-index:2;
     font-size:150%;
     font-weight: 500;
@@ -92,21 +108,26 @@ img{
     display:inline-block;
 }
 
-#scoreboard{
+#scoreboard {
 	left:25%;
 }
 
-#settings-display{
+#settings-display {
 	right:20%;
 }
 
-#scoreboard span, #settings-display span{
+span {
+    padding-left:.5em;
+    padding-right:.5em;
+}
+
+#scoreboard span, #settings-display span {
     background-color: rgba(0, 0, 0, .25);
     box-shadow: 0 0 5px 10px rgba(0, 0, 0, .25);
     border-radius: 2px;
 }
 
-#scoreboard h2, #settings-display h2{
+#scoreboard h2, #settings-display h2 {
     background-color: rgba(0, 0, 0, .25);
     box-shadow: 0 0 5px 10px rgba(0, 0, 0, .25);
     font-size: 75%;
@@ -114,7 +135,7 @@ img{
     border-radius: 2px;
 }
 
-.game-window, .game-window canvas{
+.game-window, .game-window canvas {
     z-index:1;
     width:100%;
     height:100%;
@@ -123,13 +144,39 @@ img{
 	left: 0%;
 }
 
-span{
-    padding-left:.5em;
-    padding-right:.5em;
+#performance {
+    z-index: 2;
+    font-size:100%;
+    position:fixed;
+	left:1%;
+	bottom:1%;	
+    display: none;
 }
 
-#settings{
-    margin-top: 1%;
+#settings-screen {
+    background-color: #10062B;
+    z-index: 2;
+    display: none;
+    padding-left:2%;
+}
+
+h1 {
+    font-weight: 400;
+    margin-left: 2%;
+}
+
+h1:after {
+    content: ""; /* This is necessary for the pseudo element to work. */
+    display: block; /* This will put the pseudo element on its own line. */
+    /*margin: 0 auto;  This will center the border. */
+    width: 35%; /* Change this to whatever width you want. */
+    padding-top: 20px; /* This creates some space between the element and the border. */
+    border-bottom: 1px solid #01F8F8; /* This creates the border. Replace black with whatever color you want. */
+}
+
+#settings-options {
+    font-size: 125%;
+    font-weight: 300;
 }
 
 .settings-list {
@@ -149,58 +196,13 @@ span{
 }
 
 .settings-list input:checked + label {
-    background: #D42825;
+    background: #F818F8;
+    border-radius: 5px;
+	padding: 5px;
 }
 
 #settings-screen label, #settings-screen input, #settings-screen output {
     position: relative;
     left: 2%;
     margin-top: 1%;
-}
-
-button{
-    height:20%;
-    width:20%;
-    color:#01F8F8;
-    font-size:200%;
-    background-size: 100% 100%;
-    border: none;
-    background-color: Transparent;
-    background-image:url(../Images/Button.svg);
-}
-
-button:active {
-    background-image:url(../Images/Clicked_Button.svg);
-}
-
-#main-screen, #game-over{
-    z-index: 2;
-    top: 40%;
-}
-
-#main-screen button, #game-over button{
-    position: relative;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#game-over {
-    display: none;
-}
-
-#settings-screen {
-    background-color: #10062B;
-    z-index: 2;
-    font-size: 100%;
-    display: none;
-}
-
-#performance{
-    z-index: 2;
-    font-size:100%;
-    position:fixed;
-	left:1%;
-	bottom:1%;	
-    display: none;
 }
