@@ -85,7 +85,7 @@ BlockSprite.prototype = {
            this.size, this.size);
     },
     drawSprite: function(y){
-       this.determineXY();
+       this.determineXY(y);
        ctx.drawImage(document.getElementById(skinSettings.spriteSheet),
            this.pixelsLeft, this.pixelsTop,
            this.spriteSize, this.spriteSize,
@@ -116,7 +116,7 @@ BlockSprite.prototype = {
         ctx.fill();
         ctx.restore();
     },
-    determineXY: function () {
+    determineXY: function (y) {
         if(this.animation != null){
             this.animation.updateFrame();
             this.animation.setSpriteSheetXY(blockSpriteSheet, 3, {x: 0, y: 0}, 0, this.blockType);
@@ -127,7 +127,7 @@ BlockSprite.prototype = {
         }
         else{
             this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
-            this.pixelsTop = skinSettings.spriteSheetSpriteOffset;
+            this.pixelsTop = y < canvasHeight - blockSize ? this.pixelsTop = skinSettings.spriteSheetSpriteOffset : (this.spriteSize * 4) + (skinSettings.spriteSheetSpriteOffset * 5);
         }
     },
     calculateXOffset: function () {
