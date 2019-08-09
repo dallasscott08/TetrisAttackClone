@@ -119,7 +119,7 @@ BlockSprite.prototype = {
     determineXY: function (y) {
         if(this.animation != null){
             this.animation.updateFrame();
-            this.animation.setSpriteSheetXY(blockSpriteSheet, 3, {x: 0, y: 0}, 0, this.blockType);
+            this.animation.setSpriteSheetXY(blockBounceSprites, 3, {x: 0, y: 0}, 0, this.blockType);
             this.pixelsLeft = this.animation.frameColumn;
             this.pixelsTop = this.animation.frameRow;
             if(this.animation.currentFrame === this.animation.animationSequence.length -1)

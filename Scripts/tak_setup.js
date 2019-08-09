@@ -9,7 +9,7 @@ var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleSh
 var particleInterval, xOffset, guideCtx, vectors, spriteType, glowAmount, glowEnabled;
 var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowClearBuffer, gameGlowAmount;
 var circleAlpha, circlesFading, circleFadeIncrement, circleFadeInterval, circleFadeTimer, blockFade;
-var classicClearTimer, classicClearInterval, classicSkinMatches, gameStartTime, blockSpriteSheet;
+var classicClearTimer, classicClearInterval, classicSkinMatches, gameStartTime, blockBounceSprites, blockTransformSprites;
 var times = [];
 
 function initializeMatrix(rows, columns) {
@@ -68,8 +68,10 @@ function createCanvas() {
         strength: 1000
     };
     
-    blockSpriteSheet = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
-        skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize+ 3);
+    blockBounceSprites = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
+        skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
+    blockTransformSprites = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
+        skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
 
     setupParticleCanvas();
 }
