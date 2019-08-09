@@ -42,7 +42,7 @@ var pSettings = {
     maxMoveSpeed: 100,
     spriteFrameHeight: 8,
     spriteFrameWidth: 9,
-    spriteFrameSpeed: 12,
+    spriteFrameSpeed: 5,
     spriteStartFrame: 0,
     spriteEndFrame: 8,
     spriteFramesPerRow: 4,
@@ -65,8 +65,8 @@ function Particle(x,y, type) {
         this.spriteSize = pSettings.particleSpriteSize;
         this.spriteSheetFrame = 0;
         this.animation = new Animation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame);
-        this.endOfLife = 100;
-        this.moveAmt = 1;
+        this.endOfLife = 10;
+        this.moveAmt = 5;
     }
     else if(pSettings.effectType === effectType.SHATTER) {
         this.slope = calculateSlope({x: getRandNumInRange(0, canvasWidth), y: getRandNumInRange(0, canvasHeight)}, this);

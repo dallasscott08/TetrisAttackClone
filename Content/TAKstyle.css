@@ -197,7 +197,7 @@ h1:after {
 
 .settings-list input:checked + label {
     background: rgba(1, 248, 248, .25);
-    border-radius: 5px;
+    border-radius: 10px;
 	padding: 5px;
 }
 
