@@ -64,7 +64,7 @@ function Particle(x,y, type) {
     if(pSettings.effectType === effectType.CORNER) {
         this.spriteSize = pSettings.particleSpriteSize;
         this.spriteSheetFrame = 0;
-        this.animation = new Animation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame);
+        this.animation = new SpriteAnimation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame);
         this.endOfLife = 10;
         this.moveAmt = 5;
     }

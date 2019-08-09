@@ -150,6 +150,7 @@ function deleteDefaultBlocks(blocks){
         }
         else if (block.blockType !== max && block.blockType >= 0) {
             player1Score += scoreMultiplier;
+            //block.sprite.animation = new Animation(3, 0, 4);
             block.sprite.clear();
             if(enableParticleEffects){
                 var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.blockType);
@@ -222,7 +223,7 @@ function checkBlock(block) {
     if (block.isFalling && (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max)) {
         block.isFalling = false;
         if(spriteType === imageType.PNG)
-            matrix[block.row][block.column].sprite.animation = new Animation(3, 0, 4);
+            matrix[block.row][block.column].sprite.animation = new SpriteAnimation(3, 0, 4);
     }
     else if(!block.isFalling && matrix[block.row + 1][block.column].blockType === max && block.row !== rowCount - 1){
         block.isFalling = true;

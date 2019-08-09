@@ -16,7 +16,13 @@ function SpriteGroup(imageId, frameWidth, frameHeight, framesPerRow, zoneHeight,
   this.zoneWidth = zoneWidth;
 }
 
-function Animation(frameSpeed, startFrame, endFrame) {
+/**
+ * Creates an Sprite Animation
+ * @param {number} - Speed of animation (lower is faster).
+ * @param {number} - Initial animation fram.
+ * @param {number} - Final frame in animation loop.
+ */
+function SpriteAnimation(frameSpeed, startFrame, endFrame) {
   this.frameRow = 0;
   this.frameColumn = 0;
   this.animationSequence = [];  
@@ -29,7 +35,7 @@ function Animation(frameSpeed, startFrame, endFrame) {
   }
 }
 
-Animation.prototype = {
+SpriteAnimation.prototype = {
   updateFrame: function() {
     if (this.counter == (this.frameSpeed - 1)){
       this.currentFrame = (this.currentFrame + 1) % this.animationSequence.length;
