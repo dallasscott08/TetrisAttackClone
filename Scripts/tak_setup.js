@@ -11,6 +11,7 @@ var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowCle
 var circleAlpha, circlesFading, circleFadeIncrement, circleFadeInterval, circleFadeTimer, blockFade;
 var classicClearTimer, classicClearInterval, classicSkinMatches, gameStartTime, blockBounceSprites, blockTransformSprites;
 var times = [];
+var cachedCubeImages = {};
 
 function initializeMatrix(rows, columns) {
     var initialMatrix = [];
@@ -74,6 +75,20 @@ function createCanvas() {
         skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
 
     setupParticleCanvas();
+
+    if(spriteType === imageType.VECTOR){
+        cachedCubeImages.greenCube = new CachedImage(document.getElementById("green-cube"), blockSize, blockSize);
+        cachedCubeImages.purpleCube = new CachedImage(document.getElementById("purple-cube"), blockSize, blockSize);
+        cachedCubeImages.redCube = new CachedImage(document.getElementById("red-cube"), blockSize, blockSize);
+        cachedCubeImages.yellowCube = new CachedImage(document.getElementById("yellow-cube"), blockSize, blockSize);
+        cachedCubeImages.lightBlueCube = new CachedImage(document.getElementById("blue-cube"), blockSize, blockSize);
+        cachedCubeImages.darkBlueCube = new CachedImage(document.getElementById("dark-blue-cube"), blockSize, blockSize); 
+        cachedCubeImages.selector = new CachedImage(document.getElementById(skinSettings.selectorVector), ~~((blockSize * skinSettings.heightMultiplier) + 0.5), ~~((blockSize * skinSettings.widthMultiplier) + 0.5));  
+        cachedCubeImages.garbage1 = new CachedImage(document.getElementById("garbage1"), blockSize, blockSize * 3);    
+        cachedCubeImages.garbage2 = new CachedImage(document.getElementById("garbage2"), blockSize, blockSize * 4);    
+        cachedCubeImages.garbage3 = new CachedImage(document.getElementById("garbage3"), blockSize, blockSize * 5);    
+        cachedCubeImages.garbage4 = new CachedImage(document.getElementById("garbage4"), blockSize, blockSize * 6);  
+    }
 }
 
 function dropBlockDownRecursively(block) {
