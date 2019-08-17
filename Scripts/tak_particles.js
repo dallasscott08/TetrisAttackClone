@@ -1,6 +1,7 @@
 ﻿var particleArrays = [];
 var particleCtx, lightSource,particleTimer, particleBufferCanvas, particleBufferCtx, clearRect,
 particleSpriteSheet, reverseParticleSpriteSheet;
+var cachedParticleImages = {};
 
 var distanceThreshold = 250;
 
@@ -168,8 +169,10 @@ Particle.prototype = {
         var shade = this.selectVector(lightDistance);
         particleCtx.translate(this.x, this.y);
         particleCtx.rotate(angle);
-        particleCtx.drawImage(particleVector, -pSettings.particleSize/2, -pSettings.particleSize/2, pSettings.particleSize, pSettings.particleSize);
-        particleCtx.drawImage(shade, -pSettings.particleSize/2, -pSettings.particleSize/2, pSettings.particleSize, pSettings.particleSize);
+        particleCtx.drawImage(particleVector, -pSettings.particleSize/2, -pSettings.particleSize/2);
+        //particleCtx.drawImage(particleVector, -pSettings.particleSize/2, -pSettings.particleSize/2, pSettings.particleSize, pSettings.particleSize);
+        particleCtx.drawImage(shade, -pSettings.particleSize/2, -pSettings.particleSize/2);
+        //particleCtx.drawImage(shade, -pSettings.particleSize/2, -pSettings.particleSize/2, pSettings.particleSize, pSettings.particleSize);
         particleCtx.rotate(-angle); 
         particleCtx.translate(-(this.x), -(this.y));
     },
@@ -218,10 +221,10 @@ Particle.prototype = {
     selectVector: function(percent){
         for(var i = 0; i < pSettings.lightVectors.length; i++){
             if(percent < (i+1)/pSettings.lightVectors.length){
-                return pSettings.lightVectors[i];
+                return cachedParticleImages.lights[i].iCanvas;//pSettings.lightVectors[i];
             }
         }
-        return pSettings.lightVectors[pSettings.lightVectors.length-1];
+        return cachedParticleImages.lights[pSettings.lightVectors.length-1].iCanvas;//pSettings.lightVectors[pSettings.lightVectors.length-1];
     },
     fade: function(){    
         if(this.alpha >= pSettings.maxAlpha){
@@ -254,17 +257,17 @@ Particle.prototype = {
 function getParticleVectorFromType(type){
     switch(type) {
         case 0://Green
-            return document.getElementById("green-particle");
+            return cachedParticleImages.greenParticle.iCanvas;//document.getElementById("green-particle");
         case 1://Purple
-            return document.getElementById("purple-particle");
+            return cachedParticleImages.purpleParticle.iCanvas;//document.getElementById("purple-particle");
         case 2://Red
-            return document.getElementById("red-particle");
+            return cachedParticleImages.redParticle.iCanvas;//document.getElementById("red-particle");
         case 3://Yellow
-            return document.getElementById("yellow-particle");
+            return cachedParticleImages.yellowParticle.iCanvas;//document.getElementById("yellow-particle");
         case 4://Light Blue
-            return document.getElementById("blue-particle");
+            return cachedParticleImages.lightBlueParticle.iCanvas;//document.getElementById("blue-particle");
         case 5://Dark Blue
-            return document.getElementById("dark-blue-particle");
+            return cachedParticleImages.darkBlueParticle.iCanvas;//document.getElementById("dark-blue-particle");
     }
 }
 
@@ -524,6 +527,24 @@ function setupParticleCanvas() {
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
     reverseParticleSpriteSheet = new SpriteGroup(pSettings.reversedSpriteSheetId, pSettings.spriteFrameWidth, 
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
+
+    if(pSettings.particleImageType === imageType.VECTOR){
+        cachedParticleImages.greenParticle = new CachedImage(document.getElementById("green-particle"), pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.purpleParticle = new CachedImage(document.getElementById("purple-particle"), pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.redParticle = new CachedImage(document.getElementById("red-particle"), pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.yellowParticle = new CachedImage(document.getElementById("yellow-particle"), pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.lightBlueParticle = new CachedImage(document.getElementById("blue-particle"), pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.darkBlueParticle = new CachedImage(document.getElementById("dark-blue-particle"), pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.lights = cacheImagesList(pSettings.lightVectors, pSettings.particleSize, pSettings.particleSize);
+    }
+}
+
+function cacheImagesList(domImglist, height, width){
+    var cachedImages = [];
+    for(var i = 0; i < domImglist.length; i++){
+        cachedImages.push(new CachedImage(domImglist[i], height, width));
+    }
+    return cachedImages;
 }
 
 function drawGlowingParticle(particle){	

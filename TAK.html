@@ -8,6 +8,7 @@
         <script src="Scripts/jquery-ui.min.js"></script>
 	    <script src="Scripts/background.js"></script>
 	    <script src="Scripts/spritesheet_animation.js"></script>
+	    <script src="Scripts/cache_image.js"></script>
 	    <script src="Scripts/tak_setup.js"></script>
 	    <script src="Scripts/tak_particles.js"></script>
 	    <script src="Scripts/tak_objects.js"></script>
@@ -111,65 +112,74 @@
         <div class="game-window" id="settings-screen">
             <h1>Settings</h1>
             <div id="settings-options">
-                <label for='single-player'>Single Player:</label>
-                <input type="checkbox" id="single-player" checked="checked"><br />
-                <ul class='settings-list'>
-                    Rise Speed:
-                    <li>
-                        <input type='radio' value='1' name='speed-radio' id='speed1' />
-                        <label for='speed1'>Slow</label>
-                    </li>
-                    <li>
-                        <input type='radio' value='2' name='speed-radio' id='speed2' checked="checked" />
-                        <label for='speed2'>Normal</label>
-                    </li>
-                    <li>
-                        <input type='radio' value='3' name='speed-radio' id='speed3' />
-                        <label for='speed3'>Fast</label>
-                    </li>
-                </ul>
-                <ul class='settings-list'>
-                    Match Amount:
-                    <li>
-                        <input type='radio' value='2' name='match-radio' id='match1' />
-                        <label for='match1'>2</label>
-                    </li>
-                    <li>
-                        <input type='radio' value='3' name='match-radio' id='match2' checked="checked" />
-                        <label for='match2'>3</label>
-                    </li>
-                    <li>
-                        <input type='radio' value='4' name='match-radio' id='match3' />
-                        <label for='match3'>4</label>
-                    </li>
-                </ul>
-                <ul class='settings-list'>
-                    Skin Type:
-                    <li>
-                        <input type='radio' value='0' name='image-type-radio' id='skin1' />
-                        <label for='skin1'>Classic</label>
-                    </li>
-                    <li>
-                        <input type='radio' value='1' name='image-type-radio' id='skin2' checked="checked" />
-                        <label for='skin2'>Neo Tokyo</label>
-                    </li>
-                    <li>
-                        <input type='radio' value='2' name='image-type-radio' id='skin3' />
-                        <label for='skin3'>Toon</label>
-                    </li>
-                </ul>
-                <label for='garbage-enable'>Enable Garbage:</label>
-                <input type="checkbox" id="garbage-enable" checked="checked"><br />
-                <label for='interval-input-id'>Garbage Generation Interval(sec):</label>
-                <input type="range" name="interval-input-name" id="interval-input-id" value="10" min="5" max="60" oninput="interval-output-id.value = interval-input-id.value">
-                <output name="interval-output-name" id="intervalOutputId">10</output><br />
-                <label for='multiplier-output-id'>Pause Multiplier(sec):</label>
-                <input type="range" name="multiplier-input-name" id="multiplier-input-id" value="1" min="0" max="10" oninput="multiplier-output-id.value = multiplier-input-id.value">
-                <output name="multiplierl-output-name" id="multiplier-output-id">1</output><br />
-                <label for='glow-enable'>Enable Glow:</label>
-                <input type="checkbox" id="glow-enable" checked="checked"><br />
-                <label for='particle-glow-enable'>Enable Particle Glow:</label>
-                <input type="checkbox" id="particle-glow-enable" checked="checked"><br />
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id='single-player' checked='checked'>
+                        <span class="checkbox-custom rectangular"></span>
+                    </label>
+                    <div class="input-title">Single Player:</div>
+                </div>
+                <div class='settings-list'>
+                    <div class='settings-name'>Rise Speed:</div>
+                    <input type='radio' value='1' name='speed-radio' id='speed1' />
+                    <label for='speed1'>Slow</label>
+                    <input type='radio' value='2' name='speed-radio' id='speed2' checked="checked" />
+                    <label for='speed2'>Normal</label>
+                    <input type='radio' value='3' name='speed-radio' id='speed3' />
+                    <label for='speed3'>Fast</label>
+                    <div class="toggle_option_slider" id='speed-slider'></div>
+                </div>
+                <div class='settings-list'>
+                    <div class='settings-name'>Match Amount:</div>
+                    <input type='radio' value='2' name='match-radio' id='match1' />
+                    <label for='match1'>2</label>
+                    <input type='radio' value='3' name='match-radio' id='match2' checked="checked" />
+                    <label for='match2'>3</label>
+                    <input type='radio' value='4' name='match-radio' id='match3' />
+                    <label for='match3'>4</label>
+                    <div class="toggle_option_slider" id='match-slider'></div>
+                </div>
+                <div class='settings-list'>
+                    <div class='settings-name'>Skin Type:</div>
+                    <input type='radio' value='0' name='image-type-radio' id='skin1' />
+                    <label for='skin1'>Classic</label>
+                    <input type='radio' value='1' name='image-type-radio' id='skin2' checked="checked" />
+                    <label for='skin2'>Neo Tokyo</label>
+                    <input type='radio' value='2' name='image-type-radio' id='skin3' />
+                    <label for='skin3'>Toon</label>
+                    <div class="toggle_option_slider" id='image-type-slider'></div>
+                </div>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id='garbage-enable'>
+                        <span class="checkbox-custom rectangular"></span>
+                    </label>
+                    <div class="input-title">Enable Garbage:</div>
+                </div>
+                <div class='slider-container'>
+                    <label for='interval-input-id'>Garbage Generation Interval(sec):</label>
+                    <input class='slider' type="range" name="interval-input-name" id="interval-input-id" value="10" min="5" max="60" oninput="interval-output-id.value = interval-input-id.value">
+                    <output name="interval-output-name" id="intervalOutputId">10</output><br />
+                </div>
+                <div class='slider-container'>
+                    <label for='multiplier-output-id'>Pause Multiplier(sec):</label>
+                    <input class='slider' type="range" name="multiplier-input-name" id="multiplier-input-id" value="1" min="0" max="10" oninput="multiplier-output-id.value = multiplier-input-id.value">
+                    <output name="multiplier-output-name" id="multiplier-output-id">1</output><br />
+                </div>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id='glow-enable'>
+                        <span class="checkbox-custom rectangular"></span>
+                    </label>
+                    <div class="input-title">Enable Glow:</div>
+                </div>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id='particle-glow-enable'>
+                        <span class="checkbox-custom rectangular"></span>
+                    </label>
+                    <div class="input-title">Enable Particle Glow:</div>
+                </div>
             </div>
             <button onclick="buildSettings()">Save</button>
             <button onclick="hideSettings()">Cancel</button>
