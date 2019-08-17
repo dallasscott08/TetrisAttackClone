@@ -80,9 +80,7 @@ BlockSprite.prototype = {
     },
     drawVector: function(y){
         var vector = this.getBlockVectorFromType();
-        ctx.drawImage(vector,
-            this.xPos, y,
-           this.size, this.size);
+        ctx.drawImage(vector, this.xPos, y);
     },
     drawSprite: function(y){
        this.determineXY(y);
@@ -137,17 +135,17 @@ BlockSprite.prototype = {
     getBlockVectorFromType: function(){
         switch(this.blockType) {
             case 0://Green
-                return document.getElementById("green-cube");
+                return cachedCubeImages.greenCube.iCanvas;
             case 1://Purple
-                return document.getElementById("purple-cube");
+                return cachedCubeImages.purpleCube.iCanvas;
             case 2://Red
-                return document.getElementById("red-cube");
+                return cachedCubeImages.redCube.iCanvas;
             case 3://Yellow
-                return document.getElementById("yellow-cube");
+                return cachedCubeImages.yellowCube.iCanvas;
             case 4://Light Blue
-                return document.getElementById("blue-cube");
+                return cachedCubeImages.lightBlueCube.iCanvas;
             case 5://Dark Blue
-                return document.getElementById("dark-blue-cube");
+                return cachedCubeImages.darkBlueCube.iCanvas;
         }
     }
 };
@@ -203,9 +201,7 @@ SelectorSprite.prototype = {
         }
     },
     drawVector: function(y){
-        selectorCtx.drawImage(document.getElementById(skinSettings.selectorVector),
-            this.canvasX, y,
-           this.canvasWidth, this.canvasHeight);
+        selectorCtx.drawImage(cachedCubeImages.selector.iCanvas, this.canvasX, y);
     },
     drawSprite: function(y) {
         this.determineXY();
@@ -359,13 +355,13 @@ GarbageSprite.prototype = {
     getBlockVectorFromType: function(){
         switch(this.blockType) {
             case -1:
-                return document.getElementById("garbage1");
+                return cachedCubeImages.garbage1.iCanvas;//document.getElementById("garbage1");
             case -2:
-                return document.getElementById("garbage2");
+                return cachedCubeImages.garbage2.iCanvas;//document.getElementById("garbage2");
             case -3:
-                return document.getElementById("garbage3");
+                return cachedCubeImages.garbage3.iCanvas;//document.getElementById("garbage3");
             case -4:
-                return document.getElementById("garbage4");
+                return cachedCubeImages.garbage4.iCanvas;//document.getElementById("garbage4");
         }
     }
 };

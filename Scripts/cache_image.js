@@ -8,7 +8,7 @@ var isLittleEndian = (function () {
 })();
 
 /**
- * Creates a Spritesheet
+ * Caches a DOM image
  * @param {Image} - Image to cache.
  * @param {number} - Height of image to cache.
  * @param {number} - Width of image to cache.
@@ -34,4 +34,18 @@ function CachedImage(img, height, width){
     // store our width and height so we can reference it faster.
     this.imgWidth = width;//img.width;
     this.imgHeight = height;//img.height;	
+}
+
+/**
+ * Caches a list of DOM images
+ * @param {Array} - Images to cache.
+ * @param {number} - Height of image to cache.
+ * @param {number} - Width of image to cache.
+ */
+function cacheImagesList(domImglist, height, width){
+    var cachedImages = [];
+    for(var i = 0; i < domImglist.length; i++){
+        cachedImages.push(new CachedImage(domImglist[i], height, width));
+    }
+    return cachedImages;
 }
