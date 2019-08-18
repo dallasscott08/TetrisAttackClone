@@ -131,36 +131,35 @@ Particle.prototype = {
                 break;
         }
     },
-    draw: function() {
-        // Create the shapes
+    draw: function(){
+        switch(spriteType){
+            case imageType.VECTOR:
+                this.drawVector();
+                break;
+            case imageType.PNG:
+                this.drawSprite();
+                break;
+            case imageType.PATH:
+                this.drawArc();
+                break;
+        }
+    },
+    drawArc: function() {	
+        //particleBufferCtx.image.save();
         particleBufferCtx.image.beginPath();
-        particleBufferCtx.image.globalCompositeOperation = 'lighter';
-        particleBufferCtx.image.fillStyle = this.color.highlight;
-        particleBufferCtx.image.arc(this.x, this.y, pSettings.particleSize, 0, Math.PI*2, true); 
+        particleBufferCtx.image.arc(this.x, this.y, 
+            this.particleSize, 0, Math.PI*2, true); 
         particleBufferCtx.image.closePath();
+        //particleBufferCtx.image.lineWidth = 3;
+        particleBufferCtx.image.fillStyle = this.color.highlight;
+        if(this.flicker && this.alpha >= this.flickerAmt){
+            this.fade();
+            particleBufferCtx.image.globalAlpha = this.alpha;
+        }
         particleBufferCtx.image.fill();
-    },
-    drawShadow: function () {
-        particleShadowCtx.beginPath();
-        particleShadowCtx.globalCompositeOperation = 'lighter';
-        particleShadowCtx.shadowColor = this.color.highlight;
-        particleShadowCtx.shadowOffsetX = 0;
-        particleShadowCtx.shadowOffsetY = 0;
-        particleShadowCtx.shadowBlur = pSettings.shadowSize;
-        particleShadowCtx.arc(this.x, this.y, pSettings.particleSize, 0, Math.PI * 2, true);
-        particleShadowCtx.closePath();
-        particleShadowCtx.fill();
-    },
-    drawGlow: function() {
-        particleBufferCtx.glow.save();
-        particleBufferCtx.glow.beginPath();
-        particleBufferCtx.glow.arc(this.x + pSettings.particleSize/2, this.y + pSettings.particleSize/2, 
-            pSettings.particleSize*4, 0, Math.PI*2, true); 
-        particleBufferCtx.glow.closePath();
-        particleBufferCtx.glow.lineWidth = 5;
-        particleBufferCtx.glow.strokeStyle = this.color.highlight;
-        particleBufferCtx.glow.stroke();
-        particleBufferCtx.glow.restore();
+        //particleBufferCtx.image.strokeStyle = particle.color.highlight;
+        //particleBufferCtx.image.stroke();
+        //particleBufferCtx.image.restore();
     },
     drawVector: function() {
         var particleVector = getParticleVectorFromType(this.type);
@@ -197,13 +196,13 @@ Particle.prototype = {
         var sin = a/c;       
         return Math.asin(sin);
     },
-    calculateSlope: function(){
+    calculateSlope: function() {
         return (lightSource.y - this.y) / (lightSource.x - this.x);
     },
     pointsDistance: function(pointa, pointb) {
          return Math.sqrt((Math.pow((pointa.x - pointb.x), 2) + Math.pow((pointa.y - pointb.y), 2)))
     },
-    percentFromLight: function(){
+    percentFromLight: function() {
         var slope = calculateSlope(this, lightSource);      
         var endOfLight = calculateEndPoint(slope, this, lightSource.x, lightSource.y, 
             lightSource.strength, this.goRight);
@@ -216,7 +215,7 @@ Particle.prototype = {
             return 0;
         }
     },
-    selectVector: function(percent){
+    selectVector: function(percent) {
         for(var i = 0; i < pSettings.lightVectors.length; i++){
             if(percent < (i+1)/pSettings.lightVectors.length){
                 return cachedParticleImages.lights[i].iCanvas;
@@ -269,78 +268,6 @@ function getParticleVectorFromType(type){
     }
 }
 
-function getColorProperties (type){
-    var colorProperties;
-    switch (type) {
-        case 0://Green
-            colorProperties = {
-                highlight: "#01F800",
-                body:"rgba(1, 248, 0, 0.25)",
-                //randomizedColor: pSettings.greenColors[getRandNumInRange(0,pSettings.particleColorNum)]
-            };
-            break;
-        case 1://Purple
-            colorProperties = {
-                highlight: "#F818F8",
-                body:"rgba(248, 22, 248, 0.25)",
-                //randomizedColor: pSettings.purpleColors[getRandNumInRange(0,pSettings.particleColorNum)]
-            };
-            break;
-        case 2://Red
-            colorProperties = {
-                highlight: "#F81010",
-                body:"rgba(248, 18, 18, 0.25)",
-                //randomizedColor: pSettings.redColors[getRandNumInRange(0,pSettings.particleColorNum)]
-            };
-            break;
-        case 3://Yellow
-            colorProperties = {
-                highlight: "#F8F800",
-                body:"rgba(248, 248, 0, 0.25)",
-                //randomizedColor: pSettings.yellowColors[getRandNumInRange(0,pSettings.particleColorNum)]
-            };
-            break;
-        case 4://Light Blue
-            colorProperties = {
-                highlight: "#01F8F8",
-                body:"rgba(1, 248, 248, 0.25)",
-                //randomizedColor: pSettings.lightBlueColors[getRandNumInRange(0,pSettings.particleColorNum)]
-            };
-            break;
-        case 5://Dark Blue
-            colorProperties = {
-                highlight: "#4070F8",
-                body:"rgba(63, 112, 248, 0.25)",
-                //randomizedColor: pSettings.darkBlueColors[getRandNumInRange(0,pSettings.particleColorNum)]
-            };
-            break;
-    }
-
-    return colorProperties;
-}
-
-function buildParticleColorsArray(color){
-    var colors = [color];
-    for(var i = 0; i < pSettings.particleColorNum; i ++){
-        colors.push(getRandomColor(color));
-    }
-    return colors;
-}
-
-function getRandomColor(color) {
-    var p = 1,
-        newColor,
-        random = Math.random(),
-        result = '#';
-
-    while (p < color.length) {
-        newColor = parseInt(color.slice(p, p += 2), 16)
-        newColor += Math.floor((255 - newColor) * random);
-        result += newColor.toString(16).padStart(2, '0');
-    }
-    return result;
-}
-
 // Remove particles that aren't on the canvas
 function cleanUpArray(particles) {
     return particles.filter((p) => { 
@@ -354,33 +281,25 @@ function filterMatrix(matrix) {
     });
 }
 
+function drawParticle(particle) {
+    particle.step();
+    switch(pSettings.particleImageType) {
+        case imageType.VECTOR:
+            particle.drawVector();    
+            break;
+        case imageType.PATH:
+            particle.drawArc(); 
+            break;
+        case imageType.PNG:
+            particle.drawSprite();  
+            break;
+    }
+}
+
 function drawParticles(particles){
     for(var k = 0; k < particles.length; k++){
         for(var i = 0; i < particles[k].length; i++){
-            particles[k][i].step();
-            //particles[k][i].drawShadow();
-            drawGlowingParticle(particles[k][i]);     
-        }
-    }
-}
-
-function drawVectorParticles(particles){
-    for(var k = 0; k < particles.length; k++){
-        for(var i = 0; i < particles[k].length; i++){
-            particles[k][i].step();
-            if(pSettings.glowEnabled && pSettings.particleImageType === imageType.PATH){
-                particles[k][i].drawGlow(); 
-            }
-            particles[k][i].drawVector();       
-        }
-    }
-}
-
-function drawSpriteParticles(particles){
-    for(var k = 0; k < particles.length; k++){
-        for(var i = 0; i < particles[k].length; i++){
-            particles[k][i].step();
-            particles[k][i].drawSprite();       
+            drawParticle(particles[k][i]);
         }
     }
 }
@@ -448,7 +367,7 @@ function updateParticlePosition(particles) {
 
     switch(pSettings.particleImageType){
         case imageType.VECTOR:
-            drawVectorParticles(particles);
+            drawParticles(particles);
             particleShadowCtx.drawImage(particleBufferCanvas.glow, 0, 0);
             particleCtx.drawImage(particleBufferCanvas.image, 0, 0);
             break;
@@ -458,7 +377,7 @@ function updateParticlePosition(particles) {
             particleCtx.drawImage(particleBufferCanvas.image, 0, 0);
             break;
         case imageType.PNG:
-            drawSpriteParticles(particles);
+            drawParticles(particles);
             particleCtx.drawImage(particleBufferCanvas.image, 0, 0);
             break;
     }
@@ -488,8 +407,8 @@ function setupParticleCanvas() {
     particleShadowCtx = shadowCanvas.getContext("2d");
 
     particleBufferCanvas = {
-        glow: document.getElementById("particle-shadows"),//document.createElement('canvas'),
-        image: document.getElementById("particles")//document.createElement('canvas')
+        glow: document.getElementById("particle-shadows"),
+        image: document.getElementById("particles")
     }; 
     
     particleBufferCanvas.glow.width = particleCanvas.width; 
@@ -535,24 +454,6 @@ function setupParticleCanvas() {
         cachedParticleImages.darkBlueParticle = new CachedImage(document.getElementById("dark-blue-particle"), pSettings.particleSize, pSettings.particleSize);
         cachedParticleImages.lights = cacheImagesList(pSettings.lightVectors, pSettings.particleSize, pSettings.particleSize);
     }
-}
-
-function drawGlowingParticle(particle){	
-    //particleBufferCtx.image.save();
-    particleBufferCtx.image.beginPath();
-    particleBufferCtx.image.arc(particle.x, particle.y, 
-        particle.particleSize, 0, Math.PI*2, true); 
-    particleBufferCtx.image.closePath();
-    //particleBufferCtx.image.lineWidth = 3;
-    particleBufferCtx.image.fillStyle = particle.color.highlight;
-    if(particle.flicker && particle.alpha >= particle.flickerAmt){
-        particle.fade();
-        particleBufferCtx.image.globalAlpha = particle.alpha;
-    }
-    particleBufferCtx.image.fill();
-    //particleBufferCtx.image.strokeStyle = particle.color.highlight;
-    //particleBufferCtx.image.stroke();
-    //particleBufferCtx.image.restore();
 }
 
 function compareX( a, b ) {
