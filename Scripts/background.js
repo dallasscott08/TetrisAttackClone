@@ -20,12 +20,12 @@ function drawBackground(){
 
     if(spriteType === imageType.VECTOR) {
         var cubeSize = { x: 318, y: 505 }
-        var frownSize = { x: 250, y: 100 }
-        var xMargin = (center.x - cubeSize.x) / 2;
+        var frownSize = { x: 400, y: 100 }
+        var xMargin = (center.x - cubeSize.x) / 4;
         var cube = document.getElementById("background-cube");
         var frown = document.getElementById("background-frown");
         backgroundCtx.drawImage(cube,
-            center.x + xMargin, center.y - (cubeSize.y/2),
+            backgroundCanvas.width - cubeSize.x - xMargin, center.y - (cubeSize.y/2),
             cubeSize.x, cubeSize.y);
         backgroundCtx.save(); // Save the current state
         backgroundCtx.translate(xMargin + cubeSize.x, center.y - (cubeSize.y/2))
