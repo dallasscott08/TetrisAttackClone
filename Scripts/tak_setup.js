@@ -77,17 +77,17 @@ function createCanvas() {
     setupParticleCanvas();
 
     if(spriteType === imageType.VECTOR){
-        cachedCubeImages.greenCube = new CachedImage(document.getElementById("green-cube"), blockSize, blockSize);
-        cachedCubeImages.purpleCube = new CachedImage(document.getElementById("purple-cube"), blockSize, blockSize);
-        cachedCubeImages.redCube = new CachedImage(document.getElementById("red-cube"), blockSize, blockSize);
-        cachedCubeImages.yellowCube = new CachedImage(document.getElementById("yellow-cube"), blockSize, blockSize);
-        cachedCubeImages.lightBlueCube = new CachedImage(document.getElementById("blue-cube"), blockSize, blockSize);
-        cachedCubeImages.darkBlueCube = new CachedImage(document.getElementById("dark-blue-cube"), blockSize, blockSize); 
-        cachedCubeImages.selector = new CachedImage(document.getElementById(skinSettings.selectorVector), ~~((blockSize * skinSettings.heightMultiplier) + 0.5), ~~((blockSize * skinSettings.widthMultiplier) + 0.5));  
-        cachedCubeImages.garbage1 = new CachedImage(document.getElementById("garbage1"), blockSize, blockSize * 3);    
-        cachedCubeImages.garbage2 = new CachedImage(document.getElementById("garbage2"), blockSize, blockSize * 4);    
-        cachedCubeImages.garbage3 = new CachedImage(document.getElementById("garbage3"), blockSize, blockSize * 5);    
-        cachedCubeImages.garbage4 = new CachedImage(document.getElementById("garbage4"), blockSize, blockSize * 6);  
+        cachedCubeImages.greenCube = new CachedRasterImage(document.getElementById("green-cube"), blockSize, blockSize, true);
+        cachedCubeImages.purpleCube = new CachedRasterImage(document.getElementById("purple-cube"), blockSize, blockSize, true);
+        cachedCubeImages.redCube = new CachedRasterImage(document.getElementById("red-cube"), blockSize, blockSize, true);
+        cachedCubeImages.yellowCube = new CachedRasterImage(document.getElementById("yellow-cube"), blockSize, blockSize, true);
+        cachedCubeImages.lightBlueCube = new CachedRasterImage(document.getElementById("blue-cube"), blockSize, blockSize, true);
+        cachedCubeImages.darkBlueCube = new CachedRasterImage(document.getElementById("dark-blue-cube"), blockSize, blockSize, true); 
+        cachedCubeImages.selector = new CachedRasterImage(document.getElementById(skinSettings.selectorVector), ~~((blockSize * skinSettings.heightMultiplier) + 0.5), ~~((blockSize * skinSettings.widthMultiplier) + 0.5), true);  
+        cachedCubeImages.garbage1 = new CachedRasterImage(document.getElementById("garbage1"), blockSize, blockSize * 3, true);    
+        cachedCubeImages.garbage2 = new CachedRasterImage(document.getElementById("garbage2"), blockSize, blockSize * 4, true);    
+        cachedCubeImages.garbage3 = new CachedRasterImage(document.getElementById("garbage3"), blockSize, blockSize * 5, true);    
+        cachedCubeImages.garbage4 = new CachedRasterImage(document.getElementById("garbage4"), blockSize, blockSize * 6, true);  
     }
 }
 

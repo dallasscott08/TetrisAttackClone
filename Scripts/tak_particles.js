@@ -446,13 +446,13 @@ function setupParticleCanvas() {
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
 
     if(pSettings.particleImageType === imageType.VECTOR){
-        cachedParticleImages.greenParticle = new CachedImage(document.getElementById("green-particle"), pSettings.particleSize, pSettings.particleSize);
-        cachedParticleImages.purpleParticle = new CachedImage(document.getElementById("purple-particle"), pSettings.particleSize, pSettings.particleSize);
-        cachedParticleImages.redParticle = new CachedImage(document.getElementById("red-particle"), pSettings.particleSize, pSettings.particleSize);
-        cachedParticleImages.yellowParticle = new CachedImage(document.getElementById("yellow-particle"), pSettings.particleSize, pSettings.particleSize);
-        cachedParticleImages.lightBlueParticle = new CachedImage(document.getElementById("blue-particle"), pSettings.particleSize, pSettings.particleSize);
-        cachedParticleImages.darkBlueParticle = new CachedImage(document.getElementById("dark-blue-particle"), pSettings.particleSize, pSettings.particleSize);
-        cachedParticleImages.lights = cacheImagesList(pSettings.lightVectors, pSettings.particleSize, pSettings.particleSize);
+        cachedParticleImages.greenParticle = new CachedRasterImage(document.getElementById("green-particle"), pSettings.particleSize, pSettings.particleSize, true);
+        cachedParticleImages.purpleParticle = new CachedRasterImage(document.getElementById("purple-particle"), pSettings.particleSize, pSettings.particleSize, true);
+        cachedParticleImages.redParticle = new CachedRasterImage(document.getElementById("red-particle"), pSettings.particleSize, pSettings.particleSize, true);
+        cachedParticleImages.yellowParticle = new CachedRasterImage(document.getElementById("yellow-particle"), pSettings.particleSize, pSettings.particleSize, true);
+        cachedParticleImages.lightBlueParticle = new CachedRasterImage(document.getElementById("blue-particle"), pSettings.particleSize, pSettings.particleSize, true);
+        cachedParticleImages.darkBlueParticle = new CachedRasterImage(document.getElementById("dark-blue-particle"), pSettings.particleSize, pSettings.particleSize, true);
+        cachedParticleImages.lights = cacheRasterImagesList(pSettings.lightVectors, pSettings.particleSize, pSettings.particleSize);
     }
 }
 
