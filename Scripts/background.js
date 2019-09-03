@@ -1,5 +1,6 @@
-var backgroundCanvas, backgroundCtx, starCount, center, canvasArea;
-var circleCountMultiplier = .0001;
+var backgroundCanvas, backgroundCtx, starCount, classicStarCount, center, canvasArea;
+var lineCountMultiplier = .0001;
+var circleCountMultiplier = .001;
 var maxLength = 20;
 var colors = ["#01F800", "#F8F800", "#F81010", "#F818F8", "#4070F8", "#01F8F8"];
 var zoneCount = 5;
@@ -10,6 +11,8 @@ var starSize = {
     maxWidth: .75
 };
 var bgGlowAmount = [8,4];
+var maxRadiusClassicStar = 1.5;
+var classicStars = []
 
 function drawBackground(){
     backgroundCanvas = document.getElementById("background");
@@ -17,33 +20,63 @@ function drawBackground(){
     backgroundCanvas.height = backgroundCanvas.clientHeight;
     backgroundCtx = backgroundCanvas.getContext("2d");
     center = { x: backgroundCanvas.width/2, y: backgroundCanvas.height/2 };
+    canvasArea = backgroundCanvas.height * backgroundCanvas.width;
 
     if(spriteType === imageType.VECTOR) {
-        var cubeSize = { x: 318, y: 505 }
-        var frownSize = { x: 400, y: 100 }
-        var xMargin = (center.x - cubeSize.x) / 4;
-        var cube = document.getElementById("background-cube");
-        var frown = document.getElementById("background-frown");
-        backgroundCtx.drawImage(cube,
-            backgroundCanvas.width - cubeSize.x - xMargin, center.y - (cubeSize.y/2),
-            cubeSize.x, cubeSize.y);
+        var cube = { img: document.getElementById("background-cube"),
+            height: 505, width: 318
+        };
+        var frown = { img:document.getElementById("background-frown"), 
+            height: 100, width: 400 
+        };
+        var xMargin = (center.x - cube.width) / 4;
+        backgroundCtx.drawImage(cube.img,
+            backgroundCanvas.width - cube.width - xMargin, center.y - (cube.height/2),
+            cube.width, cube.height);
         backgroundCtx.save(); // Save the current state
-        backgroundCtx.translate(xMargin + cubeSize.x, center.y - (cubeSize.y/2))
+        backgroundCtx.translate(xMargin + cube.width, center.y - (cube.height/2))
         backgroundCtx.scale(-1, 1); // Set scale to flip the image
-        backgroundCtx.drawImage(cube,0,0,            
-            cubeSize.x, cubeSize.y);
+        backgroundCtx.drawImage(cube.img, 0, 0, cube.width, cube.height);
         backgroundCtx.restore();
-        backgroundCtx.drawImage(frown,
-            center.x - (frownSize.x/2), center.y + (center.y/2) - (frownSize.y/2),
-            frownSize.x, frownSize.y);
+        backgroundCtx.drawImage(frown.img,
+            center.x - (frown.width/2), center.y + (center.y/2) - (frown.height/2),
+            frown.width, frown.height);
+    }
+    else if(spriteType === imageType.PNG) {
+        var closePlanet = {
+            img: document.getElementById("background-close-planet"),
+            height: 1006,
+            width: 1006
+        };
+        var farPlanet = {
+            img: document.getElementById("background-far-planet"),
+            height: 237,
+            width: 218
+        };
+        var star = { img: document.getElementById("background-star"),
+            height: 400,
+            width: 400
+        };
+
+        classicStarCount = circleCountMultiplier * canvasArea;
+        drawCircles();
+
+        backgroundCtx.drawImage(closePlanet.img,
+            -(closePlanet.width/2.75), backgroundCanvas.height - closePlanet.height/3, 
+            closePlanet.width, closePlanet.height);
+        backgroundCtx.drawImage(farPlanet.img,
+            backgroundCanvas.width - (farPlanet.width * 1.5), farPlanet.height / 2,
+            farPlanet.width, farPlanet.height);
+        backgroundCtx.drawImage(star.img, center.x - star.width, -(star.height/8),
+            star.width, star.height);
     }
     else {
         var radius = backgroundCanvas.height;
         var lineWidth = 2;
         var ringCount = 3;
         var ringWidthDivisor = 20;
-        canvasArea = backgroundCanvas.height * backgroundCanvas.width;
-        starCount = circleCountMultiplier * canvasArea;
+        
+        starCount = lineCountMultiplier * canvasArea;
 
         //drawPlainGradientCircle(center, radius, lineWidth);
         for(var i = 0; i < ringCount; i++){
@@ -308,5 +341,44 @@ function drawStars(){
         var star = new Star(x, y);
         var endpoint = calculateVectorEnd(star);
         draw(star, endpoint);
+    }
+}
+
+function Circle(x,y,r){
+	this.x = x;
+	this.y = y;
+	this.radius = r;
+}
+
+function checkOverlap(circle){
+	for(var c = 0; c < classicStars.length; c++){
+        var x = circle.x - classicStars[c].x;
+        var y = circle.y - classicStars[c].y;
+        var d = (circle.radius||0) + classicStars[c].radius;
+		if(x * x + y * y <= d * d * 1.25){ return true; }
+	}
+	return false;
+}
+
+function generateCircle(){
+	var x = Math.floor(Math.random() * backgroundCanvas.width);
+	var y = Math.floor(Math.random() * backgroundCanvas.height);
+	var radius = Math.random() * maxRadiusClassicStar;
+	var circle = new Circle(x, y, radius);
+    if(checkOverlap(circle)){ 
+        return generateCircle(); 
+    }
+	else{ return circle; }
+}
+
+function drawCircles(){
+    for(var i = 0;i < classicStarCount; i++){
+        var circle = generateCircle();
+        classicStars.push(circle);
+        backgroundCtx.beginPath();
+        backgroundCtx.arc(circle.x, circle.y, circle.radius, 0, 
+            2 * Math.PI, false);
+        backgroundCtx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+        backgroundCtx.fill();
     }
 }

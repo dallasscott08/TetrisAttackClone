@@ -73,7 +73,7 @@ function setEffectType(){
             break;
         case imageType.PNG:
             pSettings.effectType = effectType.CORNER;
-            particleSpriteImg = getRandNumInRange(0,16);
+            particleSpriteImg = 0;//getRandNumInRange(0,16);
             break;
     }
 }
