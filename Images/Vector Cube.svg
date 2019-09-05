@@ -10,8 +10,8 @@
 <path d="M516.5 507.069V24.3106L1001.5 359.931V842.689L516.5 507.069Z" stroke="url(#paint3_linear)" stroke-width="15"/>
 <path d="M994.5 365.347V829.372L523.5 500.653V36.6282L994.5 365.347Z" stroke="black" stroke-width="9"/>
 <circle cx="509" cy="583" r="237" fill="#01F8F8" fill-opacity="0.25" stroke="#01F8F8" stroke-width="26"/>
-<circle cx="509" cy="583" r="245.5" stroke="black" stroke-width="9"/>
-<path opacity="0.5" fill-rule="evenodd" clip-rule="evenodd" d="M719.591 435.174C697.165 514.895 654.589 590.139 591.864 652.864C529.139 715.589 453.895 758.165 374.174 780.591C470.943 842.676 601.149 831.405 685.777 746.777C770.405 662.149 781.676 531.943 719.591 435.174Z" fill="black"/>
+<circle cx="509" cy="583" r="250" stroke="black" stroke-width="9"/>
+<path opacity="0.5" fill-rule="evenodd" clip-rule="evenodd" d="M719.144 447.728C696.718 527.448 654.142 602.692 591.417 665.417C528.692 728.142 453.448 770.718 373.728 793.144C470.496 855.229 600.702 843.958 685.33 759.33C769.958 674.702 781.229 544.496 719.144 447.728Z" fill="black"/>
 <ellipse cx="431.305" cy="505.305" rx="133.894" ry="95.6389" transform="rotate(-45 431.305 505.305)" fill="white" fill-opacity="0.75"/>
 <path d="M16.5 854.579V374.311L501.5 709.931V1191.65L16.5 854.579Z" stroke="url(#paint4_linear)" stroke-width="15"/>
 <path d="M1001.5 854.579V374.311L516.5 709.931V1191.65L1001.5 854.579Z" stroke="url(#paint5_linear)" stroke-width="15"/>

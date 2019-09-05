@@ -45,30 +45,35 @@ function drawBackground(){
     else if(spriteType === imageType.PNG) {
         var closePlanet = {
             img: document.getElementById("background-close-planet"),
-            height: 1006,
-            width: 1006
+            height: 1000,
+            width: 1000
         };
         var farPlanet = {
             img: document.getElementById("background-far-planet"),
-            height: 237,
-            width: 218
+            height: 242,
+            width: 222.5
         };
         var star = { img: document.getElementById("background-star"),
-            height: 400,
-            width: 400
+            height: 350,
+            width: 350
         };
 
         classicStarCount = circleCountMultiplier * canvasArea;
         drawCircles();
 
-        backgroundCtx.drawImage(closePlanet.img,
-            -(closePlanet.width/2.75), backgroundCanvas.height - closePlanet.height/3, 
-            closePlanet.width, closePlanet.height);
+        backgroundCtx.msImageSmoothingEnabled = false;
+        backgroundCtx.mozImageSmoothingEnabled = false;
+        backgroundCtx.webkitImageSmoothingEnabled = false;
+        backgroundCtx.imageSmoothingEnabled = false;
+        
+        backgroundCtx.drawImage(star.img, center.x - star.width, -(star.height/8),
+            star.width, star.height);
         backgroundCtx.drawImage(farPlanet.img,
             backgroundCanvas.width - (farPlanet.width * 1.5), farPlanet.height / 2,
             farPlanet.width, farPlanet.height);
-        backgroundCtx.drawImage(star.img, center.x - star.width, -(star.height/8),
-            star.width, star.height);
+        backgroundCtx.drawImage(closePlanet.img,
+            -(closePlanet.width/2.75), backgroundCanvas.height - closePlanet.height/3, 
+            closePlanet.width, closePlanet.height);
     }
     else {
         var radius = backgroundCanvas.height;

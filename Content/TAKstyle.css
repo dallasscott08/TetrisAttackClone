@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
 
+@font-face {
+    font-family: 'PressStart2P' ;
+    src: url('../Fonts/PressStart2P.ttf') format('truetype');
+}
+
 html{
     /*background-image: linear-gradient(to right, #01F800, #F818F8, #F81010, #F8F800, #01F8F8, #4070F8);*/
 	background-color: #10062B;
