@@ -47,8 +47,7 @@ BlockSprite.prototype = {
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offSet = temp1 - temp - yFallAmt;
+        var offSet = this.yPos - temp - yFallAmt;
         ctx.clearRect(this.xPos, offSet * blockSize, this.size, this.size);
     },
     drawNoOffset: function(){
@@ -286,8 +285,7 @@ GarbageSprite.prototype = {
     },
     clearFallOffset: function () {
         var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offSet = temp1 - temp - yFallAmt;
+        var offSet = this.yPos - temp - yFallAmt;
         ctx.clearRect(this.xPos, offSet * blockSize, this.canvasWidth, this.size);
     },
     drawNoOffset: function () {
@@ -301,8 +299,7 @@ GarbageSprite.prototype = {
     drawFallOffset: function () {
         this.determineXY();
         var temp = riseOffset - fallOffset;
-        var temp1 = this.yPos;
-        var offset = temp1 - temp;
+        var offset = this.yPos - temp;
         this.draw(offset * blockSize);
     },
     draw: function(y){

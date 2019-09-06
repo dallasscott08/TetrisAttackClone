@@ -63,17 +63,20 @@ function moveScoreLocation(){
     }
 }
 
-function setEffectType(){
+function setSkinProperties(){
     switch(spriteType){
         case imageType.PATH:
             pSettings.effectType = effectType.EXPLODE;
+            document.body.style.fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
             break;
         case imageType.VECTOR:
             pSettings.effectType = effectType.SHATTER;
+            document.body.style.fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
             break;
         case imageType.PNG:
             pSettings.effectType = effectType.CORNER;
             particleSpriteImg = 0;//getRandNumInRange(0,16);
+            document.body.style.fontFamily = "PressStart2P,sans-serif";
             break;
     }
 }
@@ -118,7 +121,7 @@ function buildSettings() {
     circleFadeInterval = 3000;
     circleAlpha = 0;
     classicClearInterval = 500;
-    setEffectType();
+    setSkinProperties();
     setSelectorSizeMultiplier();
     var dropAnimationGroup = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
         1, 76);
