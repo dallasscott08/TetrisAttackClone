@@ -69,9 +69,11 @@ function createCanvas() {
         strength: 1000
     };
     
-    blockBounceSprites = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
+    blockBounceSprites = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
         skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
-    blockTransformSprites = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
+    blockTransformSprites = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
+        skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
+    blockFlashSprites = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, 
         skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
 
     setupParticleCanvas();
@@ -215,7 +217,10 @@ $(document).on('keydown', function (event) {
         switch (code) {
             case 32://Space
                 if (matrix[selector.coordinates.row][selector.coordinates.column].blockType >= 0 &&
-                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0) {
+                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0 &&
+                    (matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation == null || 
+                        (matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation != null && 
+                             (!matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation.hasOwnProperty('totalLoops'))))) {
                     switchBlocks(selector.coordinates, selector.coordinates2);
                     animateSelector(selector.coordinates);
                 }

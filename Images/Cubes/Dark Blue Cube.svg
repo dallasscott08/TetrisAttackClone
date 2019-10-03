@@ -1,14 +1,14 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="2.5" y="2.5" width="95" height="95" rx="17.5" fill="#4070F8" fill-opacity="0.1" stroke="#4070F8" stroke-width="5"/>
+<rect x="3.5" y="3.5" width="93" height="93" rx="17.5" fill="#4070F8" fill-opacity="0.1" stroke="#4070F8" stroke-width="5"/>
 <circle cx="50" cy="50" r="24" fill="#4070F8" fill-opacity="0.2" stroke="black" stroke-width="2"/>
 <circle cx="50" cy="50" r="21" stroke="#4070F8" stroke-width="4"/>
 <g opacity="0.5">
-<rect width="100" height="100" rx="20" fill="url(#paint0_linear)"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M0 36.6218L0 20C0 8.9543 8.95431 0 20 0H80C91.0457 0 100 8.95431 100 20V36.6218C85.2913 45.1303 68.2144 50 50 50C31.7856 50 14.7087 45.1303 0 36.6218Z" fill="white" fill-opacity="0.5"/>
+<rect x="1" y="1" width="98" height="98" rx="20" fill="url(#paint0_linear)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1 40.0355L1 21C1 9.95431 9.9543 1 21 1H79C90.0457 1 99 9.9543 99 21V42.289C84.9887 49.7634 68.9891 54 52 54C33.3713 54 15.9324 48.9062 1 40.0355Z" fill="white" fill-opacity="0.5"/>
 </g>
 <rect x="1" y="1" width="98" height="98" rx="19" stroke="black" stroke-width="2"/>
 <defs>
-<linearGradient id="paint0_linear" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear" x1="1" y1="1" x2="99" y2="99" gradientUnits="userSpaceOnUse">
 <stop stop-color="white"/>
 <stop offset="0.53125" stop-color="white" stop-opacity="0"/>
 <stop offset="1" stop-color="white" stop-opacity="0"/>

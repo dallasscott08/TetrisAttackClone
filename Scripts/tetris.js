@@ -40,7 +40,8 @@ function cleanFirstBlockCoords(coordArray) {
     var nextBlock = matrix[coordArray[2].row][coordArray[2].column];
     if (block.blockType !== max && block.blockType >= 0 &&
         !block.isFalling && !firstBlock.isFalling && !nextBlock.isFalling &&
-        block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType) {
+        block.blockType === firstBlock.blockType && block.blockType === nextBlock.blockType
+        && !firstBlock.isDeleting && !block.isDeleting && !nextBlock.isDeleting) {
         countArray.push(new Coordinates(firstBlock.row, firstBlock.column));
         countArray.push(new Coordinates(block.row, block.column));
         countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
@@ -56,7 +57,7 @@ function checkFirstBlockForGarbage(coordArray) {
 
 function blocksMatch(block1, block2) {
     if (block1.blockType >= 0 && block1.blockType !== max && !block1.isFalling && !block2.isFalling &&
-        block1.blockType === block2.blockType) {
+        block1.blockType === block2.blockType && !block1.isDeleting && !block2.isDeleting) {
         return true;
     }
     else { return false; }
@@ -133,8 +134,21 @@ function deleteClassicBlocks(blocks){
         else if (block.blockType !== max && block.blockType >= 0) {
             player1Score += scoreMultiplier;
             matches.push(blockCoord);
-            block.blockType = max;
-            block.isFalling = null;
+
+            var flashAnimationInfo = {
+                frameSpeed: 10, 
+                startFrame: 1, 
+                totalFrames: 2, 
+                padding: 3, 
+                startPoint: {x: 0, y: 0}, 
+                verticalZone: 0, 
+                horizontalZone: block.blockType,
+                spriteSheetInfo: blockFlashSprites,
+                reverse: true,
+                loopCount: 3
+            };
+            block.sprite.animation = new LoopingSpriteAnimation(flashAnimationInfo);
+            block.isDeleting = true;
         }
     }
     classicSkinMatches.push(matches);
@@ -150,7 +164,6 @@ function deleteDefaultBlocks(blocks){
         }
         else if (block.blockType !== max && block.blockType >= 0) {
             player1Score += scoreMultiplier;
-            //block.sprite.animation = new Animation(3, 0, 4);
             block.sprite.clear();
             if(enableParticleEffects){
                 var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.blockType);
@@ -222,8 +235,19 @@ function checkGarbage(garbage) {
 function checkBlock(block) {
     if (block.isFalling && (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max)) {
         block.isFalling = false;
-        if(spriteType === imageType.PNG)
-            matrix[block.row][block.column].sprite.animation = new SpriteAnimation(3, 0, 4);
+        if(spriteType === imageType.PNG){
+            var bounceAnimationInfo = {
+                frameSpeed: 3, 
+                startFrame: 0, 
+                totalFrames: 4, 
+                padding: 3, 
+                startPoint: {x: 0, y: 19}, 
+                verticalZone: 0, 
+                horizontalZone: block.blockType,
+                spriteSheetInfo: blockBounceSprites
+            };
+            block.sprite.animation = new SpriteAnimation(bounceAnimationInfo);
+        }
     }
     else if(!block.isFalling && matrix[block.row + 1][block.column].blockType === max && block.row !== rowCount - 1){
         block.isFalling = true;
@@ -234,6 +258,7 @@ function checkAllBlocks() {
     for (var r = 0; r < rowCount - 1; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
+            block.wasSwitched = false;
             if (block.blockType < 0) {
                 checkGarbage(block);
                 c += block.width - 1;

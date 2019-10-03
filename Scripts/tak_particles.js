@@ -65,7 +65,18 @@ function Particle(x,y, type) {
     if(pSettings.effectType === effectType.CORNER) {
         this.spriteSize = pSettings.particleSpriteSize;
         this.spriteSheetFrame = 0;
-        this.animation = new SpriteAnimation(pSettings.spriteFrameSpeed, pSettings.spriteStartFrame, pSettings.spriteEndFrame);
+
+        var particleAnimationInfo = {
+            frameSpeed: pSettings.spriteFrameSpeed, 
+            startFrame: pSettings.spriteStartFrame, 
+            totalFrames: pSettings.spriteEndFrame, 
+            padding: 3, 
+            startPoint: {x: 19, y: 0}, 
+            verticalZone: 0, 
+            horizontalZone: 0,
+            spriteSheetInfo: particleSpriteSheet
+        }
+        this.animation = new SpriteAnimation(particleAnimationInfo);
         this.endOfLife = 10;
         this.moveAmt = 5;
     }
@@ -122,9 +133,8 @@ Particle.prototype = {
                     this.y = newPoint.y;
                     this.life++;
                 }
-                this.animation.updateFrame();
-                this.animation.setSpriteSheetXY(particleSpriteSheet, 3, {x: 19, y: 0}, this.zone, 0);
-                if(this.animation.currentFrame === this.animation.animationSequence.length -1)
+                this.animation.animate();
+                if(this.animation.isAnimationCompleted())
                 {
                     this.life++;
                 }
@@ -440,9 +450,9 @@ function setupParticleCanvas() {
     { min: canvasArea / pSettings.countDivisor, max: canvasArea * 10 / pSettings.countDivisor } 
     : { min: canvasArea / pSettings.countDivisor * .2, max: canvasArea * 10 / pSettings.countDivisor * .2};
 
-    particleSpriteSheet = new SpriteGroup(pSettings.spriteSheetId, pSettings.spriteFrameWidth, 
+    particleSpriteSheet = new SpriteSheetInfo(pSettings.spriteSheetId, pSettings.spriteFrameWidth, 
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
-    reverseParticleSpriteSheet = new SpriteGroup(pSettings.reversedSpriteSheetId, pSettings.spriteFrameWidth, 
+    reverseParticleSpriteSheet = new SpriteSheetInfo(pSettings.reversedSpriteSheetId, pSettings.spriteFrameWidth, 
         pSettings.spriteFrameHeight, pSettings.spriteFramesPerRow, pSettings.spritesheetZoneSize, 0);
 
     if(pSettings.particleImageType === imageType.VECTOR){

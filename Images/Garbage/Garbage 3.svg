@@ -1,29 +1,29 @@
 <svg width="500" height="100" viewBox="0 0 500 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g style="mix-blend-mode:hard-light">
-<rect x="2.5" y="2.5" width="495" height="95" rx="17.5" fill="url(#paint0_linear)" fill-opacity="0.1"/>
-<rect x="2.5" y="2.5" width="495" height="95" rx="17.5" stroke="#4070F8" stroke-width="5"/>
+<rect x="3.5" y="3.5" width="493" height="93" rx="17.5" fill="url(#paint0_linear)" fill-opacity="0.1"/>
+<rect x="3.5" y="3.5" width="493" height="93" rx="17.5" stroke="#4070F8" stroke-width="5"/>
 </g>
-<rect width="500" height="100" rx="20" fill="url(#paint1_linear)" fill-opacity="0.1"/>
-<rect x="2.5" y="2.5" width="495" height="95" rx="17.5" stroke="url(#paint2_linear)" stroke-opacity="0.75" stroke-width="5"/>
+<rect x="1" y="1" width="498" height="98" rx="20" fill="url(#paint1_linear)" fill-opacity="0.1"/>
+<rect x="3.5" y="3.5" width="493" height="93" rx="17.5" stroke="url(#paint2_linear)" stroke-opacity="0.75" stroke-width="5"/>
 <g opacity="0.5">
-<rect width="500" height="100" rx="20" fill="url(#paint3_linear)"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M468.206 0C402.268 32.0329 328.232 50 250 50C171.768 50 97.7319 32.0329 31.7937 0L468.206 0Z" fill="white" fill-opacity="0.45"/>
+<rect x="1" y="1" width="498" height="98" rx="20" fill="url(#paint3_linear)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M467.333 1C401.659 32.3922 327.919 50 250 50C172.081 50 98.341 32.3922 32.6666 1L467.333 1Z" fill="white" fill-opacity="0.4"/>
 </g>
 <rect x="1" y="1" width="498" height="98" rx="19" stroke="black" stroke-width="2"/>
 <defs>
-<linearGradient id="paint0_linear" x1="250" y1="-2.01166e-05" x2="411.602" y2="179.558" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear" x1="250" y1="0.99998" x2="408.081" y2="179.513" gradientUnits="userSpaceOnUse">
 <stop stop-color="#4070F8"/>
 <stop offset="1" stop-color="#F818F8"/>
 </linearGradient>
-<linearGradient id="paint1_linear" x1="250" y1="-2.01166e-05" x2="411.602" y2="179.558" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint1_linear" x1="250" y1="0.99998" x2="408.081" y2="179.513" gradientUnits="userSpaceOnUse">
 <stop stop-color="#01F8F8"/>
 <stop offset="1" stop-color="#F81010"/>
 </linearGradient>
-<linearGradient id="paint2_linear" x1="0" y1="0" x2="424.528" y2="235.849" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint2_linear" x1="1" y1="1" x2="420.573" y2="237.902" gradientUnits="userSpaceOnUse">
 <stop stop-color="#01F8F8"/>
 <stop offset="1" stop-color="#F818F8" stop-opacity="0.75"/>
 </linearGradient>
-<linearGradient id="paint3_linear" x1="0" y1="0" x2="161.602" y2="179.558" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint3_linear" x1="1" y1="1" x2="159.081" y2="179.513" gradientUnits="userSpaceOnUse">
 <stop stop-color="white"/>
 <stop offset="1" stop-color="white" stop-opacity="0"/>
 </linearGradient>

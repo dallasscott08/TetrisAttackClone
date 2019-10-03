@@ -123,9 +123,9 @@ function buildSettings() {
     classicClearInterval = 500;
     setSkinProperties();
     setSelectorSizeMultiplier();
-    var dropAnimationGroup = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
+    var dropAnimationGroup = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
         1, 76);
-    var clearAnimationGroup = new SpriteGroup(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
+    var clearAnimationGroup = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
         1, 76);
     $("#speed").text(val);
     $("#garbage-interval").text(garbageInterval/1000);

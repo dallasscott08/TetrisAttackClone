@@ -9,11 +9,17 @@
                     (matrix[r - 1][c].blockType < 0 && !matrix[r - 1][c].isFalling))) {
                 block.sprite.clearRiseOffset();
             }
-            else if(block.blockType !== max && !block.isFalling){
+            else if(block.blockType !== max && !block.isFalling) {
                 block.sprite.clearRiseOffset();
                 block.sprite.drawRiseOffset();
                 if (block.blockType < 0) {
                     c += block.width - 1;
+                }
+                if(block.sprite.animation != null && !block.sprite.animation.hasOwnProperty('totalLoops')) {
+                    var asd = "";
+                }
+                if(block.sprite.animation != null && !block.sprite.animation.hasOwnProperty('totalLoops') && block.sprite.animation.isAnimationCompleted()) {
+                    block.sprite.animation = null;
                 }
             }
         }
@@ -38,13 +44,18 @@ function aniMatrixFalling() {
                     c += block.width - 1;
                 }
                 if (fallTickCounter === fallTickReset) {
-                    if (block.blockType < 0) {
+                    if(block.wasSwitched){
+                        var asdas = "";
+                    }
+                    if (block.blockType < 0 && !block.wasSwitched) {
                         switchGarbage(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
+                            matrix[block.row + 1][block.column].wasSwitched = true;
                     }
-                    else if(block.row + 1 < rowCount && matrix[block.row + 1][block.column].blockType === max){
+                    else if(block.row + 1 < rowCount && matrix[block.row + 1][block.column].blockType === max && !block.wasSwitched){
                         switchBlocks(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
+                            matrix[block.row + 1][block.column].wasSwitched = true;
                     }
                 }
             }
@@ -182,10 +193,21 @@ function render(now) {
         var clearThen = classicClearTimer.elapsed % classicClearInterval;
         classicClearTimer.last = now - clearThen;
         for(var i = 0; i < classicSkinMatches.length; i++) {
-            var blockCoord = classicSkinMatches[i].shift();
-            var block = matrix[blockCoord.row][blockCoord.column];
-            var newParticles = initializeCorners(block.sprite.xPos + (blockSize/2), block.row * blockSize + (blockSize/2), particleSpriteImg);
-            particleArrays.push(newParticles);
+            for(var j = 0; j < classicSkinMatches[i].length; j++) {
+                var blockCoord = classicSkinMatches[i][j];
+                var block = matrix[blockCoord.row][blockCoord.column];
+                if(block.sprite.animation != null &&
+                    block.sprite.animation.isAnimationCompleted()) {                    
+                    var newParticles = initializeCorners(block.sprite.xPos + (blockSize/2), block.row * blockSize + (blockSize/2), particleSpriteImg);
+                    particleArrays.push(newParticles);
+                    block.blockType = max;
+                    block.isFalling = null;
+                    block.isDeleting = false;
+                    block.sprite.animation = null;
+                    classicSkinMatches[i][j] = null;
+                }
+            }
+            classicSkinMatches[i] = classicSkinMatches[i].filter(function (el) { return el != null; });
         }
         classicSkinMatches = filterMatrix(classicSkinMatches);
     }
@@ -197,6 +219,10 @@ function render(now) {
         }
         for(var i = 0; i < particleArrays.length; i++) {
             particleArrays[i] = cleanUpArray(particleArrays[i]);
+            if(particleArrays[i].length === 0){
+                particleShadowCtx.clearRect(clearRect.xStart, clearRect.yStart, clearRect.xEnd, clearRect.yEnd);
+                particleCtx.clearRect(clearRect.xStart, clearRect.yStart, clearRect.xEnd, clearRect.yEnd);
+            }
             particleArrays = filterMatrix(particleArrays);
         }
         if(circleAlpha > 0 && blockFade) {

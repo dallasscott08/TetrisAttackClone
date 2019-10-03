@@ -114,17 +114,20 @@ BlockSprite.prototype = {
         ctx.restore();
     },
     determineXY: function (y) {
-        if(this.animation != null){
-            this.animation.updateFrame();
-            this.animation.setSpriteSheetXY(blockBounceSprites, 3, {x: 0, y: 0}, 0, this.blockType);
+        if(this.animation != null && !this.animation.isAnimationCompleted()){
+            if(this.animation.totalLoops > 0 && this.blockType === 0){
+                if(this.animation.loopNumber > 0 && this.animation.currentFrame === 0){
+                    var asdasd = this.animation.loopNumber;
+                }
+                var asd = this.animation.loopNumber;
+            }
+            this.animation.animate();
             this.pixelsLeft = this.animation.frameColumn;
             this.pixelsTop = this.animation.frameRow;
-            if(this.animation.currentFrame === this.animation.animationSequence.length -1)
-                this.animation = null;
         }
         else{
             this.pixelsLeft = (this.spriteSize * this.blockType) + (skinSettings.spriteSheetSpriteOffset * (1 + this.blockType));
-            this.pixelsTop = y < canvasHeight - blockSize ? this.pixelsTop = skinSettings.spriteSheetSpriteOffset : (this.spriteSize * 4) + (skinSettings.spriteSheetSpriteOffset * 5);
+            this.pixelsTop = y < canvasHeight - blockSize ? this.pixelsTop = skinSettings.spriteSheetSpriteOffset * 2 + this.spriteSize : (this.spriteSize * 5) + (skinSettings.spriteSheetSpriteOffset * 6);
         }
     },
     calculateXOffset: function () {
