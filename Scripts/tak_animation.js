@@ -15,9 +15,6 @@
                 if (block.blockType < 0) {
                     c += block.width - 1;
                 }
-                if(block.sprite.animation != null && !block.sprite.animation.hasOwnProperty('totalLoops')) {
-                    var asd = "";
-                }
                 if(block.sprite.animation != null && !block.sprite.animation.hasOwnProperty('totalLoops') && block.sprite.animation.isAnimationCompleted()) {
                     block.sprite.animation = null;
                 }
@@ -37,16 +34,13 @@ function aniMatrixFalling() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (block.blockType !== max && block.isFalling) {
+            if (block.blockType !== max && block.isFalling && !block.wasSwitched) {
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
                 if(block.blockType < 0){
                     c += block.width - 1;
                 }
                 if (fallTickCounter === fallTickReset) {
-                    if(block.wasSwitched){
-                        var asdas = "";
-                    }
                     if (block.blockType < 0 && !block.wasSwitched) {
                         switchGarbage(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
@@ -91,13 +85,70 @@ function fadeCircles(){
     }
  }
 
+function splitContiguousNumbers(coordArray, isRow){
+    var chunks = [];
+    var chunk = [coordArray[0]];
+    var currentNumber = !isRow ? coordArray[0].row : coordArray[0].column;
+    for(var i = 1; i < coordArray.length; i++){
+        if(!isRow){
+            if(coordArray[i].row === (currentNumber + 1)) {
+                currentNumber++;
+                chunk.push(coordArray[i]);
+            }
+            else{
+                currentNumber = coordArray[i].row;
+                chunks.push(chunk);
+                chunk = [coordArray[i]];
+            }
+        }
+        else{
+            if(coordArray[i].column === (currentNumber + 1)){
+                currentNumber++;
+                chunk.push(coordArray[i]);
+            }
+            else{
+                currentNumber = coordArray[i].column;
+                chunks.push(chunk);
+                chunk = [coordArray[i]];
+            }
+        }
+    }
+    chunks.push(chunk);
+    return chunks;
+}
+
+function updateMultipliers(coordArray, isRow) {
+    var chunks = splitContiguousNumbers(coordArray, isRow);
+    for(var i = 0; i < chunks.length; i++) {
+        if(chunks[i].length >= matchAmount) {
+            var hasMultiplier = chunks[i].some((c) => { return matrix[c.row][c.column].isComboBlock === true });
+            if(hasMultiplier) {
+                for(var j = 0; j < chunks[i].length; j++) {
+                    var coord = chunks[i][j];
+                    matrix[coord.row][coord.column].scoreMultiplier++;
+                }
+            }
+        }
+    }
+}
+
 function cleanMatrix() {
     var deleteCoordsColumns = cleanColumns();
     var deleteCoordsRows = cleanRows();
     for (var i = 0; i < deleteCoordsColumns.length; i++) {
+        var hasMultiplier = deleteCoordsColumns[i].some((c) => { return matrix[c.row][c.column].isComboBlock === true });
+        if(hasMultiplier){
+            var pkl = "";
+        }
+        updateMultipliers(deleteCoordsColumns[i], false);
         deleteBlocks(deleteCoordsColumns[i]);
     }
     for (var j = 0; j < deleteCoordsRows.length; j++) {
+        var hasMultiplier = deleteCoordsRows[j].some((c) => { return matrix[c.row][c.column].isComboBlock === true });
+        if(hasMultiplier){
+            var pkl = "";
+        }
+        updateMultipliers(deleteCoordsRows[j], true);
         deleteBlocks(deleteCoordsRows[j]);
     }
     
@@ -204,6 +255,8 @@ function render(now) {
                     block.isFalling = null;
                     block.isDeleting = false;
                     block.sprite.animation = null;
+                    block.scoreMultiplier = 1;
+                    block.isComboBlock = false;
                     classicSkinMatches[i][j] = null;
                 }
             }
@@ -228,5 +281,12 @@ function render(now) {
         if(circleAlpha > 0 && blockFade) {
             fadeCircles();
         }
+        
+        for(var i = 0; i < multiplierArray.length; i++) {
+            multiplierArray[i].clear();
+            multiplierArray[i].step();
+            multiplierArray[i].draw();
+        }
+        cleanUpArray(multiplierArray);
     }
 }

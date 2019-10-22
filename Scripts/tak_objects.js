@@ -26,7 +26,7 @@ Timer.prototype = {
     }
 };
 
-function BlockSprite(options) {
+function BlockSprite(options, debug) {
     this.size = blockSize;
     this.spriteSize = skinSettings.blockSpriteSize;//16;
     this.blockType = options.blockType;
@@ -35,6 +35,7 @@ function BlockSprite(options) {
     this.xPos = options.column * blockSize + this.calculateXOffset();
     this.yPos = options.row;
     this.animation = null;
+    this.debug = debug;
 }
 
 BlockSprite.prototype = {
@@ -46,9 +47,32 @@ BlockSprite.prototype = {
         ctx.clearRect(this.xPos, (this.yPos - offSet) * blockSize, this.size, this.size);
     },
     clearFallOffset: function () {
-        var temp = riseOffset - fallOffset;
-        var offSet = this.yPos - temp - yFallAmt;
-        ctx.clearRect(this.xPos, offSet * blockSize, this.size, this.size);
+        if(this.debug && this.row < rowCount - 3 && this.column === 3 && matrix[this.row+2][this.column].blockType === max ){
+            if(fallTickCounter === 1){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 4 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 2 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 1.5 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 1.1 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === fallTickReset){
+                var asdk = ""
+            }
+        }
+        var offsetDiff = riseOffset - fallOffset;
+        var buffer = this.size * .01;
+        var yOffSet = this.yPos - offsetDiff - yFallAmt;
+        var clearHeight = this.size + buffer * 2;
+        var clearY = yOffSet * this.size - buffer;
+        ctx.clearRect(this.xPos, clearY, this.size, clearHeight);   
     },
     drawNoOffset: function(){
         var y = this.yPos * blockSize;
@@ -59,10 +83,31 @@ BlockSprite.prototype = {
        this.draw(y);
     },
     drawFallOffset: function () {
-       var riseFallDiff = riseOffset - fallOffset;
-       var offset = this.yPos - riseFallDiff;
-       var y = offset * blockSize;
-       this.draw(y);
+        if(this.debug && this.row < rowCount - 3 && this.column === 3 && matrix[this.row+2][this.column].blockType === max ){
+            if(fallTickCounter === 1){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 4 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 2 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 1.5 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === ~~(fallTickReset / 1.1 + 0.5)){
+                var asdk = ""
+            }
+            if(fallTickCounter === fallTickReset){
+                var asdk = ""
+            }
+        }
+        
+        var riseFallDiff = riseOffset - fallOffset;
+        var offset = this.yPos - riseFallDiff;
+        var y = offset * blockSize;
+        this.draw(y);
     },
     draw: function(y){
         switch(spriteType){
@@ -112,6 +157,9 @@ BlockSprite.prototype = {
         ctx.closePath();
         ctx.fill();
         ctx.restore();
+        
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(this.debug, this.xPos + (blockSize/2), y + (blockSize/2), blockSize);
     },
     determineXY: function (y) {
         if(this.animation != null && !this.animation.isAnimationCompleted()){
@@ -152,14 +200,17 @@ BlockSprite.prototype = {
     }
 };
 
-function Block(row, column, blockType, isFalling) {
+function Block(row, column, blockType, isFalling, isComboBlock, scoreMultiplier, cleanChecked) {
     this.row = row;
     this.column = column;
     this.blockType = blockType;
-    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column });
     this.isFalling = isFalling || false;
     this.isOffscreen = false;
     this.isSelected = false;
+    this.isComboBlock = isComboBlock || null;
+    this.scoreMultiplier = scoreMultiplier || 1;
+    this.cleanChecked = cleanChecked || null;
+    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column }, this.isComboBlock);
 }
 
 function SelectorSprite(options) {

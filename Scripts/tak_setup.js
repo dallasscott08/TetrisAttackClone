@@ -4,7 +4,7 @@ var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer
 var riseInterval, fallInterval, shakeInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled, actionInterval;
-var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
+var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration;
 var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleShadowCtx;
 var particleInterval, xOffset, guideCtx, vectors, spriteType, glowAmount, glowEnabled;
 var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowClearBuffer, gameGlowAmount;
@@ -18,7 +18,7 @@ function initializeMatrix(rows, columns) {
 
     rowCount = rows;
     columnCount = columns;
-    for (var r = 0; r < rows - 1; r++) {
+    for (var r = 0; r <= rows - 1; r++) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
             var newBlock;
@@ -34,7 +34,6 @@ function initializeMatrix(rows, columns) {
             }
         }
     }
-    initialMatrix[rows - 1] = generateRow();
     return initialMatrix;
 }
 
@@ -77,6 +76,7 @@ function createCanvas() {
         skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
 
     setupParticleCanvas();
+    setupGameTextCanvas();
 
     if(spriteType === imageType.VECTOR){
         cachedCubeImages.greenCube = new CachedRasterImage(document.getElementById("green-cube"), blockSize, blockSize, true);
@@ -202,7 +202,6 @@ $(document).ready(function () {
     fallOffset = 0;
     riseOffset = 0;
     pauseDuration = 0;
-    scoreMultiplier = 1;
     shaking = false;
     doAnimation = false;
     enableParticleEffects = true;
@@ -217,12 +216,10 @@ $(document).on('keydown', function (event) {
         switch (code) {
             case 32://Space
                 if (matrix[selector.coordinates.row][selector.coordinates.column].blockType >= 0 &&
-                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0 &&
-                    (matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation == null || 
-                        (matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation != null && 
-                             (!matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation.hasOwnProperty('totalLoops'))))) {
+                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0) {
                     switchBlocks(selector.coordinates, selector.coordinates2);
                     animateSelector(selector.coordinates);
+                    setComboBlocks(selector);
                 }
                 break;
             case 37://Left

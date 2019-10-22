@@ -24,7 +24,7 @@ function buildArrayFromColumns(row) {
     return coordinatesArray;
 }
 
-function buildArrayFromRow(column) {
+function buildArrayFromRows(column) {
     var coordinatesArray = [];
     for (var r = 0; r < rowCount; r++) {
         coordinatesArray.push(new Coordinates(r, column));
@@ -32,7 +32,21 @@ function buildArrayFromRow(column) {
     return coordinatesArray;
 }
 
-function cleanFirstBlockCoords(coordArray) {
+function checkCombo(block, isRow){
+    if(isRow && !block.isFalling && block.blockType >= 0 && block.isComboBlock === true){
+        if(block.cleanChecked){
+            block.scoreMultiplier = 1;
+            block.isComboBlock = null;
+            block.cleanChecked = null;
+            block.sprite.debug = null;
+        }
+        else{
+            block.cleanChecked = true;
+        }
+    }
+}
+
+function cleanFirstBlockCoords(coordArray, isRow) {
     var countArray = [];
     var matchCounter = 1;
     var firstBlock = matrix[coordArray[0].row][coordArray[0].column];
@@ -46,7 +60,9 @@ function cleanFirstBlockCoords(coordArray) {
         countArray.push(new Coordinates(block.row, block.column));
         countArray.push(new Coordinates(nextBlock.row, nextBlock.column));
         matchCounter += 2;
-    }
+    }        
+        
+    checkCombo(firstBlock, isRow);
     return { matchCounter: matchCounter, countArray: countArray };
 }
 
@@ -71,11 +87,11 @@ function checkForAdjacentGarbage(coordArray) {
         }
     }
     return null;
- }
+}
 
 function cleanArray(coordArray, isRow) {
     var deleteArray = [];
-    var startCleanObj = cleanFirstBlockCoords(coordArray);
+    var startCleanObj = cleanFirstBlockCoords(coordArray, isRow);
     var countArray = startCleanObj.countArray;
     var matchCounter = startCleanObj.matchCounter;
     var startPoint = isRow ? checkFirstBlockForGarbage(coordArray) : 1;
@@ -86,8 +102,12 @@ function cleanArray(coordArray, isRow) {
             i += block.width - 1;
             block = matrix[coordArray[i].row][coordArray[i].column];
         }
+
         var blockCoord = new Coordinates(block.row, block.column);
         var nextBlock = matrix[coordArray[i + 1].row][coordArray[i + 1].column];
+        
+        checkCombo(block, isRow);
+        checkCombo(nextBlock, isRow);
 
         if (blocksMatch(block, nextBlock)) {
             if (i < coordArray.length - 2 &&
@@ -127,12 +147,13 @@ function deleteClassicBlocks(blocks){
     for (var j = 0; j < blocks.length; j++) {
         var blockCoord = blocks[j];
         var block = matrix[blockCoord.row][blockCoord.column];
+
         if (block.blockType < 0) {
             transformGarbage(block.coords);
             j += block.width - 1;
         }
         else if (block.blockType !== max && block.blockType >= 0) {
-            player1Score += scoreMultiplier;
+            player1Score += block.scoreMultiplier;
             matches.push(blockCoord);
 
             var flashAnimationInfo = {
@@ -163,14 +184,19 @@ function deleteDefaultBlocks(blocks){
             j += block.width - 1;
         }
         else if (block.blockType !== max && block.blockType >= 0) {
-            player1Score += scoreMultiplier;
-            block.sprite.clear();
+            if(block.scoreMultiplier > 1){
+                multiplierArray.push(new MultiplierImage(block.sprite.xPos, block.row * blockSize, block.scoreMultiplier));
+            }
+            player1Score += block.scoreMultiplier;
+            block.sprite.clearRiseOffset();
             if(enableParticleEffects){
                 var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.blockType);
                 particleArrays.push(newParticles);
             }
             block.blockType = max;
             block.isFalling = null;
+            block.scoreMultiplier = 1;
+            block.isComboBlock = null;
         }
     }
 }
@@ -188,7 +214,7 @@ function deleteBlocks(matchingBlocks){
 function cleanColumns() {
     var deleteCoords = [];
     for (var c = 0; c < columnCount; c++) {
-        var columnArray = buildArrayFromRow(c);
+        var columnArray = buildArrayFromRows(c);
         var cleanedRowCoords = cleanArray(columnArray, false);
         if(cleanedRowCoords.length > 0) {
             deleteCoords.push(cleanedRowCoords);
@@ -230,7 +256,36 @@ function checkGarbage(garbage) {
             }
         }
     }
- }
+}
+
+function setColumnComboBlocks(coord) {
+    var coords = buildArrayFromRows(coord.column);
+    for(var i = 0; i < coord.row; i++){
+        var block = matrix[coords[i].row][coord.column];
+        if(block.blockType < max){
+            block.isComboBlock = false;
+        }
+    }
+}
+
+function setComboBlocks(selector) {
+    var coords = selector.coordinates;
+    var coords2 = selector.coordinates2;
+
+    if(matrix[coords.row + 1][coords.column].blockType === max) {
+        matrix[coords.row][coords.column].isComboBlock = false;
+    }
+    else if(matrix[coords2.row + 1][coords2.column].blockType === max) {
+        matrix[coords2.row][coords2.column].isComboBlock = false;
+    }
+
+    if(matrix[coords.row][coords.column].blockType === max) {
+        setColumnComboBlocks(coords);    
+    }
+    else if(matrix[coords2.row][coords2.column].blockType === max) {
+        setColumnComboBlocks(coords2);
+    }
+}
 
 function checkBlock(block) {
     if (block.isFalling && (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max)) {
@@ -251,6 +306,11 @@ function checkBlock(block) {
     }
     else if(!block.isFalling && matrix[block.row + 1][block.column].blockType === max && block.row !== rowCount - 1){
         block.isFalling = true;
+        if(block.isComboBlock === null){
+            block.isComboBlock = true;
+            block.cleanChecked = false;   
+            block.sprite.debug = true;
+        }
     }
 }
 
@@ -274,8 +334,8 @@ function switchBlocks(block1Coords, block2Coords) {
     var block1 = matrix[block1Coords.row][block1Coords.column];
     var block2 = matrix[block2Coords.row][block2Coords.column];
 
-    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType, block2.isFalling);
-    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType, block1.isFalling);
+    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType, block2.isFalling, block2.isComboBlock, block2.scoreMultiplier, block2.cleanChecked);
+    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType, block1.isFalling, block1.isComboBlock, block1.scoreMultiplier, block1.cleanChecked);
 }
 
 function switchGarbage(garbageCoords, blockCoords) {
@@ -364,10 +424,20 @@ function resetBlockPositions() {
     }
 }
 
+function generateBlockType(column){
+    var type = getRandNumInRange(0, max - 1);
+    var aboveType = matrix[rowCount - 2][column].blockType;
+    var leftType = column === 0 ? null : matrix[rowCount - 1][column - 1].blockType;
+    if(type !== aboveType && type !== leftType){
+        return type;
+    }
+    else { return generateBlockType(column); }
+}
+
 function generateRow() {
     var row = [];
     for (var c = 0; c < columnCount; c++) {
-        var newBlock = new Block(rowCount - 1, c, Math.floor(Math.random() * max));
+        var newBlock = new Block(rowCount - 1, c, generateBlockType(c));
         newBlock.isOffscreen = true;
         row.push(newBlock);
     }
