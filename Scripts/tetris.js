@@ -424,24 +424,26 @@ function resetBlockPositions() {
     }
 }
 
-function generateBlockType(column){
-    var type = getRandNumInRange(0, max - 1);
-    var aboveType = matrix[rowCount - 2][column].blockType;
-    var leftType = column === 0 ? null : matrix[rowCount - 1][column - 1].blockType;
-    if(type !== aboveType && type !== leftType){
-        return type;
-    }
-    else { return generateBlockType(column); }
+function generateBlockType(column, leftType) {
+   var type = getRandNumInRange(0, max - 1);
+   var aboveType = matrix[rowCount - 2][column].blockType;
+   if(type !== aboveType && type !== leftType){
+       return type;
+   }
+   else { return generateBlockType(column, leftType); }
 }
 
 function generateRow() {
-    var row = [];
-    for (var c = 0; c < columnCount; c++) {
-        var newBlock = new Block(rowCount - 1, c, generateBlockType(c));
-        newBlock.isOffscreen = true;
-        row.push(newBlock);
-    }
-    return row;
+   var row = [];
+   var newBlock = new Block(rowCount - 1, 0, generateBlockType(0, max));
+   newBlock.isOffscreen = true;
+   row.push(newBlock);
+   for (var c = 1; c < columnCount; c++) {
+       newBlock = new Block(rowCount - 1, c, generateBlockType(c, row[c-1].blockType));
+       newBlock.isOffscreen = true;
+       row.push(newBlock);
+   }
+   return row;
 }
 
 function resetMatrixPosition() {
