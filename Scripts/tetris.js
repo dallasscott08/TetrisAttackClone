@@ -2,6 +2,7 @@
     for (var i = 0; i < coordArray.length; i++) {
         var coord = coordArray[i];
         var newBlock = new Block(coord.row, coord.column, Math.floor(Math.random() * max));
+        newBlock.isComboBlock = true;
         matrix[coord.row][coord.column] = newBlock;
     }
 }
@@ -33,16 +34,26 @@ function buildArrayFromRows(column) {
 }
 
 function checkCombo(block, isRow){
-    if(isRow && !block.isFalling && block.blockType >= 0 && block.isComboBlock === true){
-        if(block.cleanChecked){
+    if(isRow && !block.isFalling && block.blockType >= 0 && block.isComboBlock) {
+        block.cleanTimer.tick(globalNow);
+        if(block.cleanTimer.elapsed >= maxCleanTime) {
+            block.scoreMultiplier = 1;
+            block.isComboBlock = null;
+            block.cleanChecked = null;
+            block.cleanTimer = null;
+            block.sprite.debug = null;
+        }
+        /*if(block.cleanChecked){
             block.scoreMultiplier = 1;
             block.isComboBlock = null;
             block.cleanChecked = null;
             block.sprite.debug = null;
+            block.states.push({42: blockStateToString(block)});
         }
-        else{
+        else if(block.cleanChecked === false){
             block.cleanChecked = true;
-        }
+            block.states.push({46: blockStateToString(block)});
+        }*/
     }
 }
 
@@ -197,6 +208,7 @@ function deleteDefaultBlocks(blocks){
             block.isFalling = null;
             block.scoreMultiplier = 1;
             block.isComboBlock = null;
+            block.states = [];
         }
     }
 }
@@ -290,6 +302,9 @@ function setComboBlocks(selector) {
 function checkBlock(block) {
     if (block.isFalling && (block.row === rowCount - 1 || matrix[block.row + 1][block.column].blockType !== max)) {
         block.isFalling = false;
+        block.cleanChecked = false;
+        block.cleanTimer = new Timer();
+        block.states.push({297: blockStateToString(block)});
         if(spriteType === imageType.PNG){
             var bounceAnimationInfo = {
                 frameSpeed: 3, 
@@ -306,11 +321,13 @@ function checkBlock(block) {
     }
     else if(!block.isFalling && matrix[block.row + 1][block.column].blockType === max && block.row !== rowCount - 1){
         block.isFalling = true;
+        block.cleanChecked = null;  
+        block.cleanTimer = null;
         if(block.isComboBlock === null){
-            block.isComboBlock = true;
-            block.cleanChecked = false;   
+            block.isComboBlock = true; 
             block.sprite.debug = true;
         }
+        block.states.push({320: blockStateToString(block)});
     }
 }
 
@@ -334,8 +351,10 @@ function switchBlocks(block1Coords, block2Coords) {
     var block1 = matrix[block1Coords.row][block1Coords.column];
     var block2 = matrix[block2Coords.row][block2Coords.column];
 
-    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType, block2.isFalling, block2.isComboBlock, block2.scoreMultiplier, block2.cleanChecked);
-    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType, block1.isFalling, block1.isComboBlock, block1.scoreMultiplier, block1.cleanChecked);
+    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType, block2.isFalling, block2.isComboBlock, block2.scoreMultiplier, block2.cleanChecked, block2.cleanTimer);
+    matrix[block1.row][block1.column].states = block2.states;
+    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType, block1.isFalling, block1.isComboBlock, block1.scoreMultiplier, block1.cleanChecked, block1.cleanTimer);
+    matrix[block2.row][block2.column].states = block1.states;    
 }
 
 function switchGarbage(garbageCoords, blockCoords) {

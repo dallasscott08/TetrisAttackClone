@@ -10,8 +10,10 @@ var particleInterval, xOffset, guideCtx, vectors, spriteType, glowAmount, glowEn
 var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowClearBuffer, gameGlowAmount;
 var circleAlpha, circlesFading, circleFadeIncrement, circleFadeInterval, circleFadeTimer, blockFade;
 var classicClearTimer, classicClearInterval, classicSkinMatches, gameStartTime, blockBounceSprites, blockTransformSprites;
+var maxCleanTime, globalNow;
 var times = [];
 var cachedCubeImages = {};
+var temporary = [];
 
 function initializeMatrix(rows, columns) {
     var initialMatrix = [];

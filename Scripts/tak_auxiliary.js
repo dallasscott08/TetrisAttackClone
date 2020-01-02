@@ -121,6 +121,7 @@ function buildSettings() {
     circleFadeInterval = 3000;
     circleAlpha = 0;
     classicClearInterval = 500;
+    maxCleanTime = 1000;
     setSkinProperties();
     setSelectorSizeMultiplier();
     var dropAnimationGroup = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 

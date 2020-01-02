@@ -120,33 +120,62 @@ function splitContiguousNumbers(coordArray, isRow){
 function updateMultipliers(coordArray, isRow) {
     var chunks = splitContiguousNumbers(coordArray, isRow);
     for(var i = 0; i < chunks.length; i++) {
-        if(chunks[i].length >= matchAmount) {
-            var hasMultiplier = chunks[i].some((c) => { return matrix[c.row][c.column].isComboBlock === true });
+        //if(chunks[i].length >= matchAmount) {
+            var hasMultiplier = chunks[i].some((c) => { return matrix[c.row][c.column].isComboBlock });
             if(hasMultiplier) {
                 for(var j = 0; j < chunks[i].length; j++) {
                     var coord = chunks[i][j];
                     matrix[coord.row][coord.column].scoreMultiplier++;
                 }
             }
+        //}
+    }
+}
+
+function debugMatrixState(){
+    temporary = [];
+    for (var r = 0; r < rowCount; r++) {
+        for (var c = 0; c < columnCount; c++) {
+            if(matrix[r][c].isComboBlock){
+                temporary.push(matrix[r][c]);
+                matrix[r][c].states.push({140: "tak_animation " + blockStateToString(matrix[r][c])});
+            }
         }
     }
+}
+
+function blockStateToString(block){
+    /*block.row;
+    block.column;
+    block.blockType;*/
+    return "Falling = " + block.isFalling + " Combo = " + block.isComboBlock +
+    " Clean C = " + block.cleanChecked + " Multiplier = " + block.scoreMultiplier +
+    " Offscreen = " + block.isOffscreen + " Selected = " + block.isSelected;
 }
 
 function cleanMatrix() {
     var deleteCoordsColumns = cleanColumns();
     var deleteCoordsRows = cleanRows();
     for (var i = 0; i < deleteCoordsColumns.length; i++) {
-        var hasMultiplier = deleteCoordsColumns[i].some((c) => { return matrix[c.row][c.column].isComboBlock === true });
+        var hasMultiplier = deleteCoordsColumns[i].some((c) => { return matrix[c.row][c.column].isComboBlock });
         if(hasMultiplier){
             var pkl = "";
+        }
+        debugMatrixState();
+        if(temporary.length > 0){
+            var hjg = "";
         }
         updateMultipliers(deleteCoordsColumns[i], false);
         deleteBlocks(deleteCoordsColumns[i]);
     }
     for (var j = 0; j < deleteCoordsRows.length; j++) {
-        var hasMultiplier = deleteCoordsRows[j].some((c) => { return matrix[c.row][c.column].isComboBlock === true });
+        var hasMultiplier = deleteCoordsRows[j].some((c) => { return matrix[c.row][c.column].isComboBlock });
         if(hasMultiplier){
             var pkl = "";
+        }
+        debugMatrixState();
+        if(temporary.length > 0){
+            var hjg = "";
         }
         updateMultipliers(deleteCoordsRows[j], true);
         deleteBlocks(deleteCoordsRows[j]);
@@ -192,6 +221,7 @@ function measureFPS(){
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
     requestAnimFrame(render);
+    globalNow = now;
     riseTimer.tick(now);
     fallTimer.tick(now);
     garbageTimer.tick(now);
