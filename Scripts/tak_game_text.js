@@ -67,13 +67,25 @@ MultiplierImage.prototype = {
 
 function setGameFont(){
     var size = 1;
+    var fontFamily;
     gameTextCtx.fillStyle = "#ffffff";
+    switch(spriteType){
+        case imageType.PATH:
+            fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
+            break;
+        case imageType.VECTOR:
+            fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
+            break;
+        case imageType.PNG:
+            fontFamily = "PressStart2P,sans-serif";
+            break;
+    }
     //gameTextCtx.textAlign = "center";
-    gameTextCtx.font = size + "px serif";
+    gameTextCtx.font = size + "px " + fontFamily;
     var width = gameTextCtx.measureText("x99").width;
     while(width < blockSize){
         size++;
-        gameTextCtx.font = size + "px serif";
+        gameTextCtx.font = size + "px " + fontFamily;
         width = gameTextCtx.measureText("x99").width;
     }
 }
