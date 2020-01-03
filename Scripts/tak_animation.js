@@ -125,7 +125,7 @@ function updateMultipliers(coordArray, isRow) {
             if(hasMultiplier) {
                 for(var j = 0; j < chunks[i].length; j++) {
                     var coord = chunks[i][j];
-                    matrix[coord.row][coord.column].scoreMultiplier++;
+                    matrix[coord.row][coord.column].multiplier.amount++;
                 }
             }
         //}
@@ -149,7 +149,7 @@ function blockStateToString(block){
     block.column;
     block.blockType;*/
     return "Falling = " + block.isFalling + " Combo = " + block.isComboBlock +
-    " Clean C = " + block.cleanChecked + " Multiplier = " + block.scoreMultiplier +
+    " Clean C = " + block.cleanChecked + " Multiplier = " + block.multiplier.amount +
     " Offscreen = " + block.isOffscreen + " Selected = " + block.isSelected;
 }
 
@@ -285,7 +285,7 @@ function render(now) {
                     block.isFalling = null;
                     block.isDeleting = false;
                     block.sprite.animation = null;
-                    block.scoreMultiplier = 1;
+                    block.multiplier.amount = 1;
                     block.isComboBlock = false;
                     classicSkinMatches[i][j] = null;
                 }
@@ -315,8 +315,10 @@ function render(now) {
         for(var i = 0; i < multiplierArray.length; i++) {
             multiplierArray[i].clear();
             multiplierArray[i].step();
-            multiplierArray[i].draw();
+            if(multiplierArray[i].life < multiplierArray[i].endOfLife){
+                multiplierArray[i].draw();
+            }
         }
-        cleanUpArray(multiplierArray);
+        multiplierArray = cleanUpArray(multiplierArray);
     }
 }

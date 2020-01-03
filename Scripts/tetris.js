@@ -37,14 +37,16 @@ function checkCombo(block, isRow){
     if(isRow && !block.isFalling && block.blockType >= 0 && block.isComboBlock) {
         block.cleanTimer.tick(globalNow);
         if(block.cleanTimer.elapsed >= maxCleanTime) {
-            block.scoreMultiplier = 1;
+            block.multiplier.amount = 1;
             block.isComboBlock = null;
             block.cleanChecked = null;
             block.cleanTimer = null;
+            //var temp = multiplierArray.find(m => m.id === block.multiplier.id);
+            //temp.life = multiplierSettings.endOfLife;
             block.sprite.debug = null;
         }
         /*if(block.cleanChecked){
-            block.scoreMultiplier = 1;
+            block.multiplier.amount = 1;
             block.isComboBlock = null;
             block.cleanChecked = null;
             block.sprite.debug = null;
@@ -164,7 +166,7 @@ function deleteClassicBlocks(blocks){
             j += block.width - 1;
         }
         else if (block.blockType !== max && block.blockType >= 0) {
-            player1Score += block.scoreMultiplier;
+            player1Score += block.multiplier.amount;
             matches.push(blockCoord);
 
             var flashAnimationInfo = {
@@ -195,10 +197,11 @@ function deleteDefaultBlocks(blocks){
             j += block.width - 1;
         }
         else if (block.blockType !== max && block.blockType >= 0) {
-            if(block.scoreMultiplier > 1){
-                multiplierArray.push(new MultiplierImage(block.sprite.xPos, block.row * blockSize, block.scoreMultiplier));
+            if(block.multiplier.amount > 1){
+                multiplierArray.push(
+                    new Multiplier(block.multiplier.x, block.multiplier.y, block.multiplier.amount, block.multiplier.id));
             }
-            player1Score += block.scoreMultiplier;
+            player1Score += block.multiplier.amount;
             block.sprite.clearRiseOffset();
             if(enableParticleEffects){
                 var newParticles = generateCoordinateParticles(block.sprite.xPos, block.row * blockSize, block.blockType);
@@ -206,7 +209,7 @@ function deleteDefaultBlocks(blocks){
             }
             block.blockType = max;
             block.isFalling = null;
-            block.scoreMultiplier = 1;
+            block.multiplier.amount = 1;
             block.isComboBlock = null;
             block.states = [];
         }
@@ -351,9 +354,9 @@ function switchBlocks(block1Coords, block2Coords) {
     var block1 = matrix[block1Coords.row][block1Coords.column];
     var block2 = matrix[block2Coords.row][block2Coords.column];
 
-    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType, block2.isFalling, block2.isComboBlock, block2.scoreMultiplier, block2.cleanChecked, block2.cleanTimer);
+    matrix[block1.row][block1.column] = new Block(block1.row, block1.column, block2.blockType, block2.isFalling, block2.isComboBlock, block2.multiplier.amount, block2.cleanChecked, block2.cleanTimer);
     matrix[block1.row][block1.column].states = block2.states;
-    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType, block1.isFalling, block1.isComboBlock, block1.scoreMultiplier, block1.cleanChecked, block1.cleanTimer);
+    matrix[block2.row][block2.column] = new Block(block2.row, block2.column, block1.blockType, block1.isFalling, block1.isComboBlock, block1.multiplier.amount, block1.cleanChecked, block1.cleanTimer);
     matrix[block2.row][block2.column].states = block1.states;    
 }
 

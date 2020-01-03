@@ -208,10 +208,10 @@ function Block(row, column, blockType, isFalling, isComboBlock, scoreMultiplier,
     this.isOffscreen = false;
     this.isSelected = false;
     this.isComboBlock = isComboBlock ? true : isComboBlock === false ? false : null;//null coalesce in js doesn't really null coalesce
-    this.scoreMultiplier = scoreMultiplier || 1;
     this.cleanChecked = cleanChecked ? true : cleanChecked === false ? false : null;
     this.cleanTimer = cleanTimer || new Timer();
-    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column }, this.isComboBlock + "" + this.row);
+    this.sprite = new BlockSprite({ blockType: blockType, row: row, column: column }, this.isComboBlock + " " + this.row);
+    this.multiplier = new Multiplier(this.sprite.xPos, this.row * blockSize, scoreMultiplier);
     this.states = [];
 }
 

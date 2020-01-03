@@ -12,17 +12,18 @@ const multiplierSettings = {
     endOfLife: 50
 };
 
-function MultiplierImage(x,y, multiplier) {
+function Multiplier(x, y, amount, id) {
+    this.id = id || ~~globalNow + x + y;
     this.x = x;
     this.y = y;
-    this.multiplier = multiplier;
+    this.amount = amount || 1;
     this.life = 0;
     this.endOfLife = multiplierSettings.endOfLife;
     this.size = blockSize;
     this.alpha = 1;
 }
 
-MultiplierImage.prototype = {
+Multiplier.prototype = {
     step: function() {
         switch(multiplierSettings.effectType){
             case multiplierEffectType.FADE:
@@ -61,7 +62,7 @@ MultiplierImage.prototype = {
     },
     drawText: function(){
         gameTextCtx.globalAlpha = this.alpha;
-        gameTextCtx.fillText("x" + this.multiplier, this.x, this.y + this.size, this.size); 
+        gameTextCtx.fillText("x" + this.amount, this.x, this.y + this.size, this.size); 
     }
 }
 
