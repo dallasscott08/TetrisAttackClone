@@ -123,9 +123,11 @@ function updateMultipliers(coordArray, isRow) {
         //if(chunks[i].length >= matchAmount) {
             var hasMultiplier = chunks[i].some((c) => { return matrix[c.row][c.column].isComboBlock });
             if(hasMultiplier) {
+                chunks[i] = chunks[i].sort((a,b) => (matrix[b.row][b.column].multiplier.amount - matrix[a.row][a.column].multiplier.amount));
+                var maxMultiplier = matrix[chunks[i][0].row][chunks[i][0].column].multiplier.amount + 1;
                 for(var j = 0; j < chunks[i].length; j++) {
                     var coord = chunks[i][j];
-                    matrix[coord.row][coord.column].multiplier.amount++;
+                    matrix[coord.row][coord.column].multiplier.amount = maxMultiplier;
                 }
             }
         //}
