@@ -35,7 +35,7 @@ function BlockSprite(options, debug) {
     this.xPos = options.column * blockSize + this.calculateXOffset();
     this.yPos = options.row;
     this.animation = null;
-    this.debug = debug;
+    //this.debug = debug;
 }
 
 BlockSprite.prototype = {
@@ -159,7 +159,7 @@ BlockSprite.prototype = {
         ctx.restore();
         
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(this.debug, this.xPos + (blockSize/2), y + (blockSize/2), blockSize);
+        //ctx.fillText(this.debug, this.xPos + (blockSize/2), y + (blockSize/2), blockSize);
     },
     determineXY: function (y) {
         if(this.animation != null && !this.animation.isAnimationCompleted()){

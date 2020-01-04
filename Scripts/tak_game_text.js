@@ -39,10 +39,10 @@ Multiplier.prototype = {
     },
     draw: function(){
         switch(spriteType){
-            case imageType.VECTOR:
             case imageType.PNG:
                 this.drawSprite();
                 break;
+            case imageType.VECTOR:
             case imageType.PATH:
                 this.drawText();
                 break;
