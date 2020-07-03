@@ -1,0 +1,116 @@
+.toggle_option_slider {
+    height: 30px;
+    position: relative;
+    margin-top: -5%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-transition: all .4s ease;
+    -moz-transition: all .4s ease;
+    -o-transition: all .4s ease;
+    -ms-transition: all .4s ease;
+    transition: all .4s ease;
+}
+
+#speed-slider {
+    width: 20%;
+}
+
+#match-slider {
+    width: 6%;
+}
+
+#image-type-slider {
+    width: 20%;
+}
+
+#speed1:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 9%;
+}
+#speed2:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 33%;
+}
+#speed3:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 56%;
+}
+
+#match1:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 14%;
+}
+
+#match2:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 29%;
+}
+
+#match3:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 44%;
+}
+
+#skin1:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 11%;
+}
+
+#skin2:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 39%;
+}
+
+#skin3:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 65%;
+}
+
+.slider {
+	-webkit-appearance: none;
+	height: 1px;
+	background: rgba(1, 248, 248, 1);
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+	border-radius: 12px;
+	box-shadow: 0px 1px 10px 1px black;
+}
+	
+.slider::after {
+    color: white;
+    position: absolute;
+    left: 80%;
+    top: 26%;
+}
+
+.slider::before {
+    color: white;
+    position: absolute;
+    left: 12%;
+    top: 26%;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: rgba(1, 248, 248, 1);
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.slider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: rgba(1, 248, 248, 1);
+    cursor: pointer;
+    border-radius: 50%;
+}

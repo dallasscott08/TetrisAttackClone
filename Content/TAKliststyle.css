@@ -1,0 +1,42 @@
+#settings-options {
+    font-size: 125%;
+    font-weight: 375;
+    width:40%;
+    padding-left: 2%;
+}
+
+.settings-list {
+    list-style: none;
+    margin-left: 3%;
+}
+
+.settings-list label, .settings-list input {
+    width:10%;
+    text-align: center;
+}
+
+.settings-list input {
+    visibility: hidden;
+}
+
+.settings-list label {
+    cursor: pointer;
+}
+
+.settings-list input:checked + label {
+    border-radius: 10px;
+}
+
+#settings-screen label, #settings-screen input, #settings-screen output, .checkbox-container {
+    position: relative;
+    left: 3%;
+    z-index: 3;
+}
+
+.slider-container {
+    margin-top:2%
+}
+
+#settings-options label, #settings-options input, #settings-options output, .settings-name{ 
+    margin-top: 2%;
+}
