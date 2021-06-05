@@ -128,13 +128,6 @@
         <div class="game-window" id="settings-screen">
             <h1>Settings</h1>
             <div id="settings-options">
-                <div class="checkbox-container">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id='single-player' checked='checked'>
-                        <span class="checkbox-custom rectangular"></span>
-                    </label>
-                    <div class="input-title">Single Player:</div>
-                </div>
                 <div class='settings-list'>
                     <div class='settings-name'>Rise Speed:</div>
                     <input type='radio' value='1' name='speed-radio' id='speed1' />
@@ -167,20 +160,17 @@
                 </div>
                 <div class="checkbox-container">
                     <label class="checkbox-label">
+                        <input type="checkbox" id='single-player' checked='checked'>
+                        <span class="checkbox-custom rectangular"></span>
+                    </label>
+                    <div class="input-title">Single Player:</div>
+                </div>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
                         <input type="checkbox" id='garbage-enable' checked='checked'>
                         <span class="checkbox-custom rectangular"></span>
                     </label>
                     <div class="input-title">Enable Garbage:</div>
-                </div>
-                <div class='slider-container'>
-                    <label for='interval-input-id'>Garbage Generation Interval(sec):</label>
-                    <input class='slider' type="range" name="interval-input-name" id="interval-input-id" value="10" min="5" max="60" oninput="interval-output-id.value = interval-input-id.value">
-                    <output name="interval-output-name" id="intervalOutputId">10</output><br />
-                </div>
-                <div class='slider-container'>
-                    <label for='multiplier-output-id'>Pause Multiplier(sec):</label>
-                    <input class='slider' type="range" name="multiplier-input-name" id="multiplier-input-id" value="1" min="0" max="10" oninput="multiplier-output-id.value = multiplier-input-id.value">
-                    <output name="multiplier-output-name" id="multiplier-output-id">1</output><br />
                 </div>
                 <div class="checkbox-container">
                     <label class="checkbox-label">
@@ -195,6 +185,16 @@
                         <span class="checkbox-custom rectangular"></span>
                     </label>
                     <div class="input-title">Enable Particle Glow:</div>
+                </div>
+                <div class='slider-container'>
+                    <label for='interval-input-id'>Garbage Generation Interval(sec):</label>
+                    <input class='slider' type="range" name="interval-input-name" id="interval-input-id" value="10" min="5" max="60" oninput="interval-output-id.value = interval-input-id.value">
+                    <output name="interval-output-name" id="intervalOutputId">10</output><br />
+                </div>
+                <div class='slider-container'>
+                    <label for='multiplier-output-id'>Pause Multiplier(sec):</label>
+                    <input class='slider' type="range" name="multiplier-input-name" id="multiplier-input-id" value="1" min="0" max="10" oninput="multiplier-output-id.value = multiplier-input-id.value">
+                    <output name="multiplier-output-name" id="multiplier-output-id">1</output><br />
                 </div>
             </div>
             <button onclick="buildSettings()">Save</button>

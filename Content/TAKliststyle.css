@@ -1,17 +1,17 @@
 #settings-options {
-    font-size: 125%;
+    font-size: 20px;
     font-weight: 375;
-    width:40%;
-    padding-left: 2%;
+    width:400px;
+    padding-left: 10px;
 }
 
 .settings-list {
     list-style: none;
-    margin-left: 3%;
+    position: relative;
 }
 
 .settings-list label, .settings-list input {
-    width:10%;
+    width:50px;
     text-align: center;
 }
 
@@ -29,14 +29,70 @@
 
 #settings-screen label, #settings-screen input, #settings-screen output, .checkbox-container {
     position: relative;
-    left: 3%;
     z-index: 3;
 }
 
-.slider-container {
-    margin-top:2%
+.toggle_option_slider {
+    height: 30px;
+    position: relative;
+    margin-top: -26px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-transition: all .4s ease;
+    -moz-transition: all .4s ease;
+    -o-transition: all .4s ease;
+    -ms-transition: all .4s ease;
+    transition: all .4s ease;
 }
 
-#settings-options label, #settings-options input, #settings-options output, .settings-name{ 
-    margin-top: 2%;
+#speed-slider {
+    width: 75px;
+}
+
+#match-slider {
+    width: 25px;
+}
+
+#image-type-slider {
+    width: 125px;
+}
+
+#speed1:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 45px;
+}
+#speed2:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 163px;
+}
+#speed3:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 280px;
+}
+
+#match1:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 55px;
+}
+#match2:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 133px;
+}
+#match3:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 210px;
+}
+
+#skin1:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 30px;
+}
+#skin2:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 170px;
+}
+#skin3:checked ~ .toggle_option_slider {
+    background: rgba(1, 248, 248, .25);
+    left: 305px;
 }
