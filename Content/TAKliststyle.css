@@ -7,7 +7,6 @@
 
 .settings-list {
     list-style: none;
-    position: relative;
 }
 
 .settings-list label, .settings-list input {
