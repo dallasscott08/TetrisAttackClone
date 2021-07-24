@@ -1,12 +1,16 @@
 ﻿function hideSettings() {
     $("#settings-screen").hide();
     $("#main-screen").show();
+    if(spriteType === imageType.PNG) {
+        document.body.style.fontFamily = "PressStart2P,sans-serif";
+    }
 }
 
 function showSettings() {
     $("#main-screen").hide();
     $("#settings-screen").show();
     hideScores();
+    document.body.style.fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
 }
 
 function hideScores(){
@@ -122,6 +126,7 @@ function buildSettings() {
     circleAlpha = 0;
     classicClearInterval = 500;
     maxCleanTime = 1000;
+    canvasScale = 1;
     setSkinProperties();
     setSelectorSizeMultiplier();
     var dropAnimationGroup = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 

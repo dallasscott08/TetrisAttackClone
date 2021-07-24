@@ -78,7 +78,7 @@ function setGameFont(){
             fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
             break;
         case imageType.PNG:
-            fontFamily = "PressStart2P,sans-serif";
+            fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
             break;
     }
     //gameTextCtx.textAlign = "center";
