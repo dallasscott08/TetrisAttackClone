@@ -4,21 +4,23 @@ var max, xMoveAmt, yRiseAmt, yFallAmt, constMoveAmt, timer, riseTimer, fallTimer
 var riseInterval, fallInterval, shakeInterval, riseTickCounter, fallTickCounter, riseTickReset, fallTickReset;
 var doAnimation, player1Score, player2Score, fallOffset, riseOffset, matchAmount;
 var minGarbageWidth, garbageTimer, garbageInterval, garbageEnabled, actionInterval;
-var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration, scoreMultiplier;
+var pauseMultiplier, paused, pauseTimer, pauseDuration, maxPauseDuration;
 var skinSettings, enableParticleEffects, isSinglePlayer, selectorCtx, particleShadowCtx;
 var particleInterval, xOffset, guideCtx, vectors, spriteType, glowAmount, glowEnabled;
 var blockGlowCanvas, blockGlowCtx, fps, canvas, leftGuideX, rightGuideX, glowClearBuffer, gameGlowAmount;
 var circleAlpha, circlesFading, circleFadeIncrement, circleFadeInterval, circleFadeTimer, blockFade;
 var classicClearTimer, classicClearInterval, classicSkinMatches, gameStartTime, blockBounceSprites, blockTransformSprites;
+var maxCleanTime, globalNow, canvasScale;
 var times = [];
 var cachedCubeImages = {};
+var temporary = [];
 
 function initializeMatrix(rows, columns) {
     var initialMatrix = [];
 
     rowCount = rows;
     columnCount = columns;
-    for (var r = 0; r < rows - 1; r++) {
+    for (var r = 0; r <= rows - 1; r++) {
         initialMatrix[r] = [];
         for (var c = 0; c < columns; c++) {
             var newBlock;
@@ -34,34 +36,37 @@ function initializeMatrix(rows, columns) {
             }
         }
     }
-    initialMatrix[rows - 1] = generateRow();
     return initialMatrix;
+}
+
+function resizedCanvas(length) {
+    return length * canvasScale;
 }
 
 function createCanvas() {
     var guideCanvas = document.getElementById("guides");
-    guideCanvas.width = guideCanvas.clientWidth;
-    guideCanvas.height = guideCanvas.clientHeight;
+    guideCanvas.width = resizedCanvas(guideCanvas.clientWidth);
+    guideCanvas.height = resizedCanvas(guideCanvas.clientHeight);
     guideCtx = guideCanvas.getContext("2d");
 
     canvas = document.getElementById("game");
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+    canvas.width = resizedCanvas(canvas.clientWidth);
+    canvas.height = resizedCanvas(canvas.clientHeight);
     ctx = canvas.getContext("2d");
 
     var selectorCanvas = document.getElementById("selector");
-    selectorCanvas.width = selectorCanvas.clientWidth;
-    selectorCanvas.height = selectorCanvas.clientHeight;
+    selectorCanvas.width = resizedCanvas(selectorCanvas.clientWidth);
+    selectorCanvas.height = resizedCanvas(selectorCanvas.clientHeight);
     selectorCtx = selectorCanvas.getContext("2d");
 
     blockGlowCanvas = document.getElementById("block-glow");
-    blockGlowCanvas.width = blockGlowCanvas.clientWidth;
-    blockGlowCanvas.height = blockGlowCanvas.clientHeight;
+    blockGlowCanvas.width = resizedCanvas(blockGlowCanvas.clientWidth);
+    blockGlowCanvas.height = resizedCanvas(blockGlowCanvas.clientHeight);
     blockGlowCtx = blockGlowCanvas.getContext("2d");
 
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
-    blockSize = ~~((canvas.clientHeight / (rowCount - 2)) + 0.5);
+    blockSize = ~~((canvasHeight / (rowCount - 2)) + 0.5);
 
     lightSource = {
         x: ~~(canvasWidth / 2 + 0.5),
@@ -77,6 +82,7 @@ function createCanvas() {
         skinSettings.blockSpriteSize, 1, pSettings.spritesheetZoneSize, skinSettings.blockSpriteSize + 3);
 
     setupParticleCanvas();
+    setupGameTextCanvas();
 
     if(spriteType === imageType.VECTOR){
         cachedCubeImages.greenCube = new CachedRasterImage(document.getElementById("green-cube"), blockSize, blockSize, true);
@@ -202,7 +208,6 @@ $(document).ready(function () {
     fallOffset = 0;
     riseOffset = 0;
     pauseDuration = 0;
-    scoreMultiplier = 1;
     shaking = false;
     doAnimation = false;
     enableParticleEffects = true;
@@ -217,12 +222,10 @@ $(document).on('keydown', function (event) {
         switch (code) {
             case 32://Space
                 if (matrix[selector.coordinates.row][selector.coordinates.column].blockType >= 0 &&
-                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0 &&
-                    (matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation == null || 
-                        (matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation != null && 
-                             (!matrix[selector.coordinates2.row][selector.coordinates2.column].sprite.animation.hasOwnProperty('totalLoops'))))) {
+                    matrix[selector.coordinates2.row][selector.coordinates2.column].blockType >= 0) {
                     switchBlocks(selector.coordinates, selector.coordinates2);
                     animateSelector(selector.coordinates);
+                    setComboBlocks(selector);
                 }
                 break;
             case 37://Left

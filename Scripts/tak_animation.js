@@ -15,9 +15,6 @@
                 if (block.blockType < 0) {
                     c += block.width - 1;
                 }
-                if(block.sprite.animation != null && !block.sprite.animation.hasOwnProperty('totalLoops')) {
-                    var asd = "";
-                }
                 if(block.sprite.animation != null && !block.sprite.animation.hasOwnProperty('totalLoops') && block.sprite.animation.isAnimationCompleted()) {
                     block.sprite.animation = null;
                 }
@@ -37,16 +34,13 @@ function aniMatrixFalling() {
     for (var r = 0; r < rowCount; r++) {
         for (var c = 0; c < columnCount; c++) {
             var block = matrix[r][c];
-            if (block.blockType !== max && block.isFalling) {
+            if (block.blockType !== max && block.isFalling && !block.wasSwitched) {
                 block.sprite.clearFallOffset();
                 block.sprite.drawFallOffset();
                 if(block.blockType < 0){
                     c += block.width - 1;
                 }
                 if (fallTickCounter === fallTickReset) {
-                    if(block.wasSwitched){
-                        var asdas = "";
-                    }
                     if (block.blockType < 0 && !block.wasSwitched) {
                         switchGarbage(new Coordinates(block.row, block.column),
                             new Coordinates(block.row + 1, block.column));
@@ -91,13 +85,101 @@ function fadeCircles(){
     }
  }
 
+function splitContiguousNumbers(coordArray, isRow){
+    var chunks = [];
+    var chunk = [coordArray[0]];
+    var currentNumber = !isRow ? coordArray[0].row : coordArray[0].column;
+    for(var i = 1; i < coordArray.length; i++){
+        if(!isRow){
+            if(coordArray[i].row === (currentNumber + 1)) {
+                currentNumber++;
+                chunk.push(coordArray[i]);
+            }
+            else{
+                currentNumber = coordArray[i].row;
+                chunks.push(chunk);
+                chunk = [coordArray[i]];
+            }
+        }
+        else{
+            if(coordArray[i].column === (currentNumber + 1)){
+                currentNumber++;
+                chunk.push(coordArray[i]);
+            }
+            else{
+                currentNumber = coordArray[i].column;
+                chunks.push(chunk);
+                chunk = [coordArray[i]];
+            }
+        }
+    }
+    chunks.push(chunk);
+    return chunks;
+}
+
+function updateMultipliers(coordArray, isRow) {
+    var chunks = splitContiguousNumbers(coordArray, isRow);
+    for(var i = 0; i < chunks.length; i++) {
+        //if(chunks[i].length >= matchAmount) {
+            var hasMultiplier = chunks[i].some((c) => { return matrix[c.row][c.column].isComboBlock });
+            if(hasMultiplier) {
+                chunks[i] = chunks[i].sort((a,b) => (matrix[b.row][b.column].multiplier.amount - matrix[a.row][a.column].multiplier.amount));
+                var maxMultiplier = matrix[chunks[i][0].row][chunks[i][0].column].multiplier.amount + 1;
+                for(var j = 0; j < chunks[i].length; j++) {
+                    var coord = chunks[i][j];
+                    matrix[coord.row][coord.column].multiplier.amount = maxMultiplier;
+                }
+            }
+        //}
+    }
+}
+
+function debugMatrixState(){
+    temporary = [];
+    for (var r = 0; r < rowCount; r++) {
+        for (var c = 0; c < columnCount; c++) {
+            if(matrix[r][c].isComboBlock){
+                temporary.push(matrix[r][c]);
+                matrix[r][c].states.push({140: "tak_animation " + blockStateToString(matrix[r][c])});
+            }
+        }
+    }
+}
+
+function blockStateToString(block){
+    /*block.row;
+    block.column;
+    block.blockType;*/
+    return "Falling = " + block.isFalling + " Combo = " + block.isComboBlock +
+    " Clean C = " + block.cleanChecked + " Multiplier = " + block.multiplier.amount +
+    " Offscreen = " + block.isOffscreen + " Selected = " + block.isSelected;
+}
+
 function cleanMatrix() {
     var deleteCoordsColumns = cleanColumns();
     var deleteCoordsRows = cleanRows();
     for (var i = 0; i < deleteCoordsColumns.length; i++) {
+        var hasMultiplier = deleteCoordsColumns[i].some((c) => { return matrix[c.row][c.column].isComboBlock });
+        if(hasMultiplier){
+            var pkl = "";
+        }
+        debugMatrixState();
+        if(temporary.length > 0){
+            var hjg = "";
+        }
+        updateMultipliers(deleteCoordsColumns[i], false);
         deleteBlocks(deleteCoordsColumns[i]);
     }
     for (var j = 0; j < deleteCoordsRows.length; j++) {
+        var hasMultiplier = deleteCoordsRows[j].some((c) => { return matrix[c.row][c.column].isComboBlock });
+        if(hasMultiplier){
+            var pkl = "";
+        }
+        debugMatrixState();
+        if(temporary.length > 0){
+            var hjg = "";
+        }
+        updateMultipliers(deleteCoordsRows[j], true);
         deleteBlocks(deleteCoordsRows[j]);
     }
     
@@ -141,6 +223,7 @@ function measureFPS(){
 function render(now) {
     if (!doAnimation) { ctx = null; return; }
     requestAnimFrame(render);
+    globalNow = now;
     riseTimer.tick(now);
     fallTimer.tick(now);
     garbageTimer.tick(now);
@@ -204,6 +287,8 @@ function render(now) {
                     block.isFalling = null;
                     block.isDeleting = false;
                     block.sprite.animation = null;
+                    block.multiplier.amount = 1;
+                    block.isComboBlock = false;
                     classicSkinMatches[i][j] = null;
                 }
             }
@@ -228,5 +313,14 @@ function render(now) {
         if(circleAlpha > 0 && blockFade) {
             fadeCircles();
         }
+        
+        for(var i = 0; i < multiplierArray.length; i++) {
+            multiplierArray[i].clear();
+            multiplierArray[i].step();
+            if(multiplierArray[i].life < multiplierArray[i].endOfLife){
+                multiplierArray[i].draw();
+            }
+        }
+        multiplierArray = cleanUpArray(multiplierArray);
     }
 }

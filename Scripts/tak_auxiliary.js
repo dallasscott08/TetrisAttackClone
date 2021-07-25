@@ -1,12 +1,16 @@
 ﻿function hideSettings() {
     $("#settings-screen").hide();
     $("#main-screen").show();
+    if(spriteType === imageType.PNG) {
+        document.body.style.fontFamily = "PressStart2P,sans-serif";
+    }
 }
 
 function showSettings() {
     $("#main-screen").hide();
     $("#settings-screen").show();
     hideScores();
+    document.body.style.fontFamily = "Lato,'Century Gothic', Arial, sans-serif";
 }
 
 function hideScores(){
@@ -89,7 +93,7 @@ function buildSettings() {
     garbageEnabled = document.getElementById('garbage-enable').checked;
     var val = getRadioValue('speed-radio');
     xMoveAmt = .2;
-    yFallAmt = .2;
+    yFallAmt = .17;
     yRiseAmt = .01;
     if (val === "1") {
         yRiseAmt = .0025;
@@ -100,7 +104,7 @@ function buildSettings() {
     riseInterval = 1000 / 60;
     particleInterval = 1000 / 60;
     actionInterval = 1000 / 2;
-    fallInterval = 1000 / 50;
+    fallInterval = 1000 / 60;
     shakeInterval = 1000 / 2;
     glowEnabled = document.getElementById('glow-enable').checked;
     pSettings.glowEnabled = document.getElementById('particle-glow-enable').checked;
@@ -109,8 +113,8 @@ function buildSettings() {
     pauseMultiplier = document.getElementById('multiplier-input-id').value * 1000;
     maxPauseDuration = pauseMultiplier * 10;
     matchAmount = getRadioValue('match-radio');
-    fallTickReset = 1 / yFallAmt;
-    riseTickReset = 1 / yRiseAmt;
+    fallTickReset = ~~(1 / yFallAmt + .5);
+    riseTickReset = ~~(1 / yRiseAmt + .5);
     skinSettings = new SkinSettings();
     isSinglePlayer = document.getElementById('single-player').checked;
     glowClearBuffer = 20;
@@ -121,6 +125,8 @@ function buildSettings() {
     circleFadeInterval = 3000;
     circleAlpha = 0;
     classicClearInterval = 500;
+    maxCleanTime = 1000;
+    canvasScale = 1;
     setSkinProperties();
     setSelectorSizeMultiplier();
     var dropAnimationGroup = new SpriteSheetInfo(skinSettings.spriteSheet, skinSettings.blockSpriteSize, skinSettings.blockSpriteSize, 
